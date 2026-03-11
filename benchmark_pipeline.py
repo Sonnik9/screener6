@@ -10,8 +10,6 @@ from reverse import run_reverse
 from time_helper import parse_utc_to_ms
 from c_log import UnifiedLogger
 
-ROOT = Path(__file__).resolve().parent
-
 UTC = timezone.utc
 VALID_SLOTS = {"soft", "base", "strict"}
 logger = UnifiedLogger("benchmark_pipeline")
@@ -69,7 +67,7 @@ def _build_filter_from_benchmarks(filters: Sequence[Dict[str, Any]], base_filter
     """Aggregate filters from reverse slots without falling back to hardcoded defaults.
 
     `base_filter_template` must come from current runtime cfg (merged user config),
-    so missing fields preserve current working values instead of DEFAULT_CFG values.
+    so missing fields preserve current working values from cfg.json template.
     """
     if not filters:
         raise CalibrationError("no benchmark filters to aggregate")
@@ -78,6 +76,32 @@ def _build_filter_from_benchmarks(filters: Sequence[Dict[str, Any]], base_filter
         raise CalibrationError("base filter template is empty")
     return _average_tree(list(filters), template)
 
+
+
+
+def _merge_enabled_only(base_filter: Dict[str, Any], computed_filter: Dict[str, Any]) -> Dict[str, Any]:
+    """Keep reverse-computed values only for enabled sections; preserve cfg.json values for disabled blocks."""
+
+    def _walk(base: Any, computed: Any) -> Any:
+        if isinstance(base, dict) and isinstance(computed, dict):
+            if "enabled" in base and bool(base.get("enabled")) is False:
+                return _copy_json(base)
+            out: Dict[str, Any] = {}
+            keys = set(base.keys()) | set(computed.keys())
+            for key in keys:
+                if key == "enabled":
+                    out[key] = base.get(key, computed.get(key))
+                    continue
+                if key in base and key in computed:
+                    out[key] = _walk(base[key], computed[key])
+                elif key in computed:
+                    out[key] = _copy_json(computed[key])
+                else:
+                    out[key] = _copy_json(base[key])
+            return out
+        return _copy_json(computed)
+
+    return _walk(base_filter or {}, computed_filter or {})
 
 def _normalize_slot_name(raw: Any, *, default: str = "base") -> str:
     slot = str(raw or default).strip().lower()
@@ -173,9 +197,10 @@ async def maybe_run_benchmark_calibration(
 
     runtime_filter_template = _copy_json(cfg.snapshot().get("filter") or {})
     auto_filter = _build_filter_from_benchmarks(selected_filters, runtime_filter_template)
+    effective_filter = _merge_enabled_only(runtime_filter_template, auto_filter)
 
     cfg_raw = _copy_json(raw)
-    cfg_raw["filter"] = auto_filter
+    cfg_raw["filter"] = effective_filter
     cfg_path.write_text(json.dumps(cfg_raw, ensure_ascii=False, indent=2), encoding="utf-8")
     logger.info("cfg.json updated with reverse-computed filter")
 
@@ -192,7 +217,7 @@ async def maybe_run_benchmark_calibration(
             "slot_default": default_slot,
             "filter_source": "reverse_computed_from_benchmarks",
             "fallback_template_source": "runtime_cfg.filter",
-            "filter": auto_filter,
+            "filter": effective_filter,
             "benchmark_symbols": [row["symbol"] for row in benchmark_reports],
             "benchmark_symbol_windows": [
                 {
