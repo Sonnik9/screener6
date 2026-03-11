@@ -1,0 +1,4 @@
+2026-03-11 13:23:23 | INFO | scanner_engine | scanner init timeframe=1m lookback=59 quote=USDT
+2026-03-11 13:23:23 | INFO | scanner_engine | scan symbols total=544 concurrent=3
+2026-03-11 13:30:28 | INFO | scanner_engine | scanner init timeframe=1m lookback=59 quote=USDT
+2026-03-11 13:30:29 | INFO | scanner_engine | scan symbols total=544 concurrent=3

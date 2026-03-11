@@ -56,10 +56,10 @@
     },
     "timeframe": "1m",
     "lookback_candles": 59,
-    "min_score_pct": 95.0,
+    "min_score_pct": 100.0,
     "approximation": {
       "enabled": true,
-      "min_match_pct": 95.0
+      "min_match_pct": 90.0
     },
     "regime": {
       "_doc": "Фильтр общей геометрии боковика: ширина коридора, чоповость, нетрендовость.",
@@ -86,8 +86,8 @@
         "max_two_sided_imbalance": "Максимальный допустимый перекос верхнего и нижнего фитиля у two-sided свечей."
       },
       "enabled": true,
-      "long_wick_ratio": 1.85,
-      "min_dominant_wick_share": 0.31,
+      "long_wick_ratio": 1.86,
+      "min_dominant_wick_share": 0.32,
       "body_floor_pct": 0.012,
       "body_floor_range_share": 0.045,
       "min_avg_wick_ratio": 1.75,
