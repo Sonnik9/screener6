@@ -7,7 +7,7 @@
 `main.py` работает в двух режимах:
 
 1. **Обычный скан по `filter` из `cfg.json`** — если `reverse.enabled=false`.
-2. **Benchmark-калибровка + скан** — если `reverse.enabled=true` и список `reverse.benchmarks` не пустой.
+2. **Benchmark-калибровка + скан** — если `reverse.enabled=true` и список `reverse.benchmarks` не пустой (в этом режиме создаётся отдельный runtime-конфиг).
 
 То есть теперь включение benchmark-фильтра делается **только явным булевым флагом**, без магии вида `preset_mode: recommended`.
 
@@ -55,7 +55,12 @@ python time_helper.py to-iso 1771966800000
 ## Какие файлы появляются после запуска `main.py`
 
 - `candidates.json` — итоговый скан
+
+- `cfg.json` — базовый конфиг остаётся неизменным
+- `reverse_runtime_cfg.json` — runtime-конфиг с вычисленным benchmark `filter`, который используется сканером только при `reverse.enabled=true`
+
 - `cfg.json` — main обновляет секцию `filter` вычисленными benchmark-параметрами
+
 - `reverse_runs/reverse_*.json` — отдельные отчёты по каждому эталону
 - `reverse_runs/reverse_*_slots.json` — ready-to-paste слоты по каждому эталону
 
