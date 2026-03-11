@@ -55,8 +55,12 @@ python time_helper.py to-iso 1771966800000
 ## Какие файлы появляются после запуска `main.py`
 
 - `candidates.json` — итоговый скан
+
 - `cfg.json` — базовый конфиг остаётся неизменным
 - `reverse_runtime_cfg.json` — runtime-конфиг с вычисленным benchmark `filter`, который используется сканером только при `reverse.enabled=true`
+
+- `cfg.json` — main обновляет секцию `filter` вычисленными benchmark-параметрами
+
 - `reverse_runs/reverse_*.json` — отдельные отчёты по каждому эталону
 - `reverse_runs/reverse_*_slots.json` — ready-to-paste слоты по каждому эталону
 

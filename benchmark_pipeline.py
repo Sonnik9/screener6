@@ -5,7 +5,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Sequence, Tuple
 
+
 from config import CFG_PATH, load_config
+
+from config import CFG_PATH, AppConfig, load_config
+
 from reverse import run_reverse
 from time_helper import parse_utc_to_ms
 from c_log import UnifiedLogger
@@ -13,6 +17,7 @@ from c_log import UnifiedLogger
 UTC = timezone.utc
 VALID_SLOTS = {"soft", "base", "strict"}
 logger = UnifiedLogger("benchmark_pipeline")
+
 ROOT = Path(__file__).resolve().parent
 RUNTIME_CFG_PATH = ROOT / "reverse_runtime_cfg.json"
 
@@ -134,8 +139,12 @@ def _normalize_benchmark_item(item: Dict[str, Any], default_step_min: int, defau
 
 async def maybe_run_benchmark_calibration(
     cfg_path: Path = CFG_PATH,
+
     runtime_cfg_path: Path = RUNTIME_CFG_PATH,
 ) -> Tuple[Path, Dict[str, Any] | None]:
+
+) -> Tuple[AppConfig, Dict[str, Any] | None]:
+
     cfg = load_config(cfg_path)
     reverse_cfg = cfg.reverse
     raw = cfg.raw or {}
@@ -144,10 +153,19 @@ async def maybe_run_benchmark_calibration(
 
     if not bool(reverse_cfg.enabled):
         logger.info("reverse.enabled=false -> using cfg.json filter as-is")
+
         return cfg_path, None
     if not isinstance(benchmarks_raw, list) or not benchmarks_raw:
         logger.info("reverse.enabled=true but no benchmarks -> using cfg.json filter as-is")
         return cfg_path, None
+
+    logger.info(f"benchmark calibration started: benchmarks={len(benchmarks_raw)}")
+
+        return cfg, None
+    if not isinstance(benchmarks_raw, list) or not benchmarks_raw:
+        logger.info("reverse.enabled=true but no benchmarks -> using cfg.json filter as-is")
+        return cfg, None
+
 
     logger.info(f"benchmark calibration started: benchmarks={len(benchmarks_raw)}")
 
@@ -202,10 +220,16 @@ async def maybe_run_benchmark_calibration(
     auto_filter = _build_filter_from_benchmarks(selected_filters, runtime_filter_template)
     effective_filter = _merge_enabled_only(runtime_filter_template, auto_filter)
 
+
     runtime_raw = _copy_json(raw)
     runtime_raw["filter"] = effective_filter
     runtime_cfg_path.write_text(json.dumps(runtime_raw, ensure_ascii=False, indent=2), encoding="utf-8")
     logger.info(f"reverse runtime cfg saved: {runtime_cfg_path}")
+
+    cfg_raw = _copy_json(raw)
+    cfg_raw["filter"] = effective_filter
+    cfg_path.write_text(json.dumps(cfg_raw, ensure_ascii=False, indent=2), encoding="utf-8")
+    logger.info("cfg.json updated with reverse-computed filter")
 
     report_payload = {
         "mode": "reverse_then_scan",
@@ -221,7 +245,9 @@ async def maybe_run_benchmark_calibration(
             "filter_source": "reverse_computed_from_benchmarks",
             "fallback_template_source": "runtime_cfg.filter",
             "filter": effective_filter,
+
             "runtime_cfg_file": str(runtime_cfg_path.name),
+
             "benchmark_symbols": [row["symbol"] for row in benchmark_reports],
             "benchmark_symbol_windows": [
                 {
@@ -237,6 +263,12 @@ async def maybe_run_benchmark_calibration(
         },
     }
 
+
     _ = load_config(runtime_cfg_path)
     logger.info("benchmark calibration finished")
     return runtime_cfg_path, report_payload
+
+    cfg = load_config(cfg_path)
+    logger.info("benchmark calibration finished")
+    return cfg, report_payload
+
