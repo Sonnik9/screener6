@@ -1,21 +1,20 @@
 from __future__ import annotations
 
 import json
-from copy import deepcopy
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Sequence, Tuple
 
-from config import CFG_PATH, AppConfig, ConfigLoader, load_config
+from config import CFG_PATH, load_config
 from reverse import run_reverse
 from time_helper import parse_utc_to_ms
-
-ROOT = Path(__file__).resolve().parent
-CALIBRATION_REPORT_PATH = ROOT / "benchmark_calibration.json"
-AUTO_FILTER_PATH = ROOT / "auto_filter.json"
+from c_log import UnifiedLogger
 
 UTC = timezone.utc
 VALID_SLOTS = {"soft", "base", "strict"}
+logger = UnifiedLogger("benchmark_pipeline")
+ROOT = Path(__file__).resolve().parent
+RUNTIME_CFG_PATH = ROOT / "reverse_runtime_cfg.json"
 
 
 class CalibrationError(RuntimeError):
@@ -70,7 +69,7 @@ def _build_filter_from_benchmarks(filters: Sequence[Dict[str, Any]], base_filter
     """Aggregate filters from reverse slots without falling back to hardcoded defaults.
 
     `base_filter_template` must come from current runtime cfg (merged user config),
-    so missing fields preserve current working values instead of DEFAULT_CFG values.
+    so missing fields preserve current working values from cfg.json template.
     """
     if not filters:
         raise CalibrationError("no benchmark filters to aggregate")
@@ -79,6 +78,32 @@ def _build_filter_from_benchmarks(filters: Sequence[Dict[str, Any]], base_filter
         raise CalibrationError("base filter template is empty")
     return _average_tree(list(filters), template)
 
+
+
+
+def _merge_enabled_only(base_filter: Dict[str, Any], computed_filter: Dict[str, Any]) -> Dict[str, Any]:
+    """Keep reverse-computed values only for enabled sections; preserve cfg.json values for disabled blocks."""
+
+    def _walk(base: Any, computed: Any) -> Any:
+        if isinstance(base, dict) and isinstance(computed, dict):
+            if "enabled" in base and bool(base.get("enabled")) is False:
+                return _copy_json(base)
+            out: Dict[str, Any] = {}
+            keys = set(base.keys()) | set(computed.keys())
+            for key in keys:
+                if key == "enabled":
+                    out[key] = base.get(key, computed.get(key))
+                    continue
+                if key in base and key in computed:
+                    out[key] = _walk(base[key], computed[key])
+                elif key in computed:
+                    out[key] = _copy_json(computed[key])
+                else:
+                    out[key] = _copy_json(base[key])
+            return out
+        return _copy_json(computed)
+
+    return _walk(base_filter or {}, computed_filter or {})
 
 def _normalize_slot_name(raw: Any, *, default: str = "base") -> str:
     slot = str(raw or default).strip().lower()
@@ -109,9 +134,8 @@ def _normalize_benchmark_item(item: Dict[str, Any], default_step_min: int, defau
 
 async def maybe_run_benchmark_calibration(
     cfg_path: Path = CFG_PATH,
-    report_path: Path = CALIBRATION_REPORT_PATH,
-    auto_filter_path: Path = AUTO_FILTER_PATH,
-) -> Tuple[AppConfig, Dict[str, Any] | None]:
+    runtime_cfg_path: Path = RUNTIME_CFG_PATH,
+) -> Tuple[Path, Dict[str, Any] | None]:
     cfg = load_config(cfg_path)
     reverse_cfg = cfg.reverse
     raw = cfg.raw or {}
@@ -119,9 +143,13 @@ async def maybe_run_benchmark_calibration(
     benchmarks_raw = reverse_raw.get("benchmarks") or []
 
     if not bool(reverse_cfg.enabled):
-        return cfg, None
+        logger.info("reverse.enabled=false -> using cfg.json filter as-is")
+        return cfg_path, None
     if not isinstance(benchmarks_raw, list) or not benchmarks_raw:
-        return cfg, None
+        logger.info("reverse.enabled=true but no benchmarks -> using cfg.json filter as-is")
+        return cfg_path, None
+
+    logger.info(f"benchmark calibration started: benchmarks={len(benchmarks_raw)}")
 
     default_step_min = max(1, int(reverse_cfg.step_min or 5))
     default_slot = _normalize_slot_name(reverse_cfg.slot, default="base")
@@ -129,7 +157,7 @@ async def maybe_run_benchmark_calibration(
 
     selected_filters: List[Dict[str, Any]] = []
     benchmark_reports: List[Dict[str, Any]] = []
-    report_dir = report_path.parent / "reverse_runs"
+    report_dir = cfg_path.parent / "reverse_runs"
     report_dir.mkdir(parents=True, exist_ok=True)
 
     for idx, spec in enumerate(benchmark_specs, start=1):
@@ -144,6 +172,7 @@ async def maybe_run_benchmark_calibration(
             sample_step_minutes=spec["step_min"],
             include_full=False,
             slots_out_path=report_dir / slots_name,
+            candles_cache_path=report_dir / f"candles_{spec['symbol'].upper()}_{spec['start_dt'].strftime('%Y%m%dT%H%M%S')}_{spec['end_dt'].strftime('%Y%m%dT%H%M%S')}_{spec['step_min']}m.json",
         )
         ready_slots = payload.get("ready_slots") or {}
         slot = (ready_slots.get(spec["slot"]) or {}).get("filter")
@@ -171,9 +200,12 @@ async def maybe_run_benchmark_calibration(
 
     runtime_filter_template = _copy_json(cfg.snapshot().get("filter") or {})
     auto_filter = _build_filter_from_benchmarks(selected_filters, runtime_filter_template)
-    auto_cfg_raw = _copy_json(raw)
-    auto_cfg_raw["filter"] = auto_filter
-    auto_cfg = ConfigLoader.from_dict(auto_cfg_raw)
+    effective_filter = _merge_enabled_only(runtime_filter_template, auto_filter)
+
+    runtime_raw = _copy_json(raw)
+    runtime_raw["filter"] = effective_filter
+    runtime_cfg_path.write_text(json.dumps(runtime_raw, ensure_ascii=False, indent=2), encoding="utf-8")
+    logger.info(f"reverse runtime cfg saved: {runtime_cfg_path}")
 
     report_payload = {
         "mode": "reverse_then_scan",
@@ -188,7 +220,8 @@ async def maybe_run_benchmark_calibration(
             "slot_default": default_slot,
             "filter_source": "reverse_computed_from_benchmarks",
             "fallback_template_source": "runtime_cfg.filter",
-            "filter": auto_filter,
+            "filter": effective_filter,
+            "runtime_cfg_file": str(runtime_cfg_path.name),
             "benchmark_symbols": [row["symbol"] for row in benchmark_reports],
             "benchmark_symbol_windows": [
                 {
@@ -204,6 +237,6 @@ async def maybe_run_benchmark_calibration(
         },
     }
 
-    report_path.write_text(json.dumps(report_payload, ensure_ascii=False, indent=2), encoding="utf-8")
-    auto_filter_path.write_text(json.dumps({"filter": auto_filter}, ensure_ascii=False, indent=2), encoding="utf-8")
-    return auto_cfg, report_payload
+    _ = load_config(runtime_cfg_path)
+    logger.info("benchmark calibration finished")
+    return runtime_cfg_path, report_payload

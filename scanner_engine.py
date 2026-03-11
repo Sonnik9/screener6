@@ -11,6 +11,7 @@ from filters import CalculatingEngine
 from KUCOIN.klines import Kline, KucoinKlines
 from KUCOIN.symbol import KucoinSymbols
 from reporting import build_filter_checks, build_filter_config_view, build_filter_metrics_view
+from c_log import UnifiedLogger
 
 
 @dataclass(frozen=True)
@@ -53,6 +54,8 @@ class SymbolMetrics:
     score_pct: float
 
 
+logger = UnifiedLogger("scanner_engine")
+
 class CandidateScanner:
     def __init__(self, cfg: AppConfig):
         self.cfg = cfg
@@ -70,6 +73,7 @@ class CandidateScanner:
             rate_limit_backoff_sec=2.0,
         )
         self.calc = CalculatingEngine(self.cfg.filter)
+        logger.info(f"scanner init timeframe={self.timeframe} lookback={self.lookback} quote={self.quote}")
 
     async def aclose(self) -> None:
         await self.symbols_api.aclose()
@@ -236,6 +240,7 @@ class CandidateScanner:
                         "sort_key": [0.0, 0.0, 0.0, 0.0, 0.0],
                     }
 
+        logger.info(f"scan symbols total={len(symbols)} concurrent={self.concurrent_symbols}")
         rows = await asyncio.gather(*(worker(s) for s in symbols))
 
         passed_rows: List[Dict[str, Any]] = []

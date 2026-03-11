@@ -10,7 +10,7 @@ class ConfigError(RuntimeError):
     pass
 
 
-DEFAULT_CFG: Dict[str, Any] = {
+CFG_TEMPLATE: Dict[str, Any] = {
     "app": {
         "quote": "USDT",
         "max_symbols": 0,
@@ -254,7 +254,7 @@ class ConfigLoader:
     @staticmethod
     def from_dict(user_raw: Dict[str, Any]) -> AppConfig:
         user_raw = _strip_meta_keys(user_raw or {})
-        merged = _deep_merge(DEFAULT_CFG, user_raw)
+        merged = _deep_merge(CFG_TEMPLATE, user_raw)
 
         app_d = merged.get("app") or {}
         reverse_d = merged.get("reverse") or {}
@@ -284,7 +284,7 @@ class ConfigLoader:
                 regime_user["min_corridor_pct"] = old_range.get("min_range_distance_pct")
             elif old_range.get("min_effective_range_delta_pct") is not None:
                 regime_user["min_corridor_pct"] = old_range.get("min_effective_range_delta_pct")
-        filt_d["regime"] = _deep_merge(DEFAULT_CFG["filter"]["regime"], regime_user)
+        filt_d["regime"] = _deep_merge(CFG_TEMPLATE["filter"]["regime"], regime_user)
 
         wicks_user = filt_d.get("wicks") or {}
         alias_map = {
@@ -301,7 +301,7 @@ class ConfigLoader:
         for k, v in alias_map.items():
             if v is not None and k not in wicks_user:
                 wicks_user[k] = v
-        filt_d["wicks"] = _deep_merge(DEFAULT_CFG["filter"]["wicks"], wicks_user)
+        filt_d["wicks"] = _deep_merge(CFG_TEMPLATE["filter"]["wicks"], wicks_user)
 
         axis_user = filt_d.get("axis") or {}
         axis_alias = {
@@ -314,21 +314,21 @@ class ConfigLoader:
         for k, v in axis_alias.items():
             if v is not None and k not in axis_user:
                 axis_user[k] = v
-        filt_d["axis"] = _deep_merge(DEFAULT_CFG["filter"]["axis"], axis_user)
+        filt_d["axis"] = _deep_merge(CFG_TEMPLATE["filter"]["axis"], axis_user)
 
         wall_user = filt_d.get("wall") or {}
         wall_alias = {
             "top_k_highs": old_range.get("top_k_highs"),
             "bottom_k_lows": old_range.get("bottom_k_lows"),
             "max_cluster_spread_pct": max(
-                float(old_range.get("max_top_high_cluster_spread_pct") or DEFAULT_CFG["filter"]["wall"]["max_cluster_spread_pct"]),
-                float(old_range.get("max_bottom_low_cluster_spread_pct") or DEFAULT_CFG["filter"]["wall"]["max_cluster_spread_pct"]),
+                float(old_range.get("max_top_high_cluster_spread_pct") or CFG_TEMPLATE["filter"]["wall"]["max_cluster_spread_pct"]),
+                float(old_range.get("max_bottom_low_cluster_spread_pct") or CFG_TEMPLATE["filter"]["wall"]["max_cluster_spread_pct"]),
             ) if old_range else None,
         }
         for k, v in wall_alias.items():
             if v is not None and k not in wall_user:
                 wall_user[k] = v
-        filt_d["wall"] = _deep_merge(DEFAULT_CFG["filter"]["wall"], wall_user)
+        filt_d["wall"] = _deep_merge(CFG_TEMPLATE["filter"]["wall"], wall_user)
 
         activity_user = filt_d.get("activity") or {}
         activity_alias = {
@@ -339,7 +339,7 @@ class ConfigLoader:
         for k, v in activity_alias.items():
             if v is not None and k not in activity_user:
                 activity_user[k] = v
-        filt_d["activity"] = _deep_merge(DEFAULT_CFG["filter"]["activity"], activity_user)
+        filt_d["activity"] = _deep_merge(CFG_TEMPLATE["filter"]["activity"], activity_user)
 
         reclaim_user = filt_d.get("reclaim") or {}
         reclaim_alias = {
@@ -349,13 +349,13 @@ class ConfigLoader:
         for k, v in reclaim_alias.items():
             if v is not None and k not in reclaim_user:
                 reclaim_user[k] = v
-        filt_d["reclaim"] = _deep_merge(DEFAULT_CFG["filter"]["reclaim"], reclaim_user)
+        filt_d["reclaim"] = _deep_merge(CFG_TEMPLATE["filter"]["reclaim"], reclaim_user)
 
         liq_user = filt_d.get("liquidity") or {}
-        filt_d["liquidity"] = _deep_merge(DEFAULT_CFG["filter"]["liquidity"], liq_user)
+        filt_d["liquidity"] = _deep_merge(CFG_TEMPLATE["filter"]["liquidity"], liq_user)
 
         approximation_user = filt_d.get("approximation") or {}
-        filt_d["approximation"] = _deep_merge(DEFAULT_CFG["filter"]["approximation"], approximation_user)
+        filt_d["approximation"] = _deep_merge(CFG_TEMPLATE["filter"]["approximation"], approximation_user)
 
         cfg = AppConfig(
             app=AppSection(

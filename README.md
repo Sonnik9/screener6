@@ -1,4 +1,4 @@
-# britva_bot v6.4
+# britva_bot v6.5
 
 Скринер для поиска 1m-монет под паттерн типа «волатильный боковик вокруг оси с длинными тенями и упором в стенку».
 
@@ -7,7 +7,7 @@
 `main.py` работает в двух режимах:
 
 1. **Обычный скан по `filter` из `cfg.json`** — если `reverse.enabled=false`.
-2. **Benchmark-калибровка + скан** — если `reverse.enabled=true` и список `reverse.benchmarks` не пустой.
+2. **Benchmark-калибровка + скан** — если `reverse.enabled=true` и список `reverse.benchmarks` не пустой (в этом режиме создаётся отдельный runtime-конфиг).
 
 То есть теперь включение benchmark-фильтра делается **только явным булевым флагом**, без магии вида `preset_mode: recommended`.
 
@@ -55,8 +55,8 @@ python time_helper.py to-iso 1771966800000
 ## Какие файлы появляются после запуска `main.py`
 
 - `candidates.json` — итоговый скан
-- `benchmark_calibration.json` — как именно main собрал авто-фильтр по эталонам
-- `auto_filter.json` — чистый `filter`, который main реально применил
+- `cfg.json` — базовый конфиг остаётся неизменным
+- `reverse_runtime_cfg.json` — runtime-конфиг с вычисленным benchmark `filter`, который используется сканером только при `reverse.enabled=true`
 - `reverse_runs/reverse_*.json` — отдельные отчёты по каждому эталону
 - `reverse_runs/reverse_*_slots.json` — ready-to-paste слоты по каждому эталону
 

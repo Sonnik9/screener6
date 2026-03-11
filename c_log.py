@@ -5,8 +5,8 @@
 
 from __future__ import annotations
 
-import pytz
-from datetime import datetime
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 from functools import wraps
 from logging.handlers import RotatingFileHandler
 from pprint import pformat
@@ -30,7 +30,14 @@ TIME_ZONE = "UTC"
 # TIME
 # ============================================================
 
-TZ = pytz.timezone(TIME_ZONE)
+def _resolve_tz(name: str):
+    try:
+        return ZoneInfo(name)
+    except Exception:
+        return timezone.utc
+
+
+TZ = _resolve_tz(TIME_ZONE)
 
 def log_time() -> str:
     return datetime.now(TZ).strftime("%Y-%m-%d %H:%M:%S")

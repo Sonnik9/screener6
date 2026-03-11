@@ -1,4 +1,4 @@
-# TECH_DEBT v6.4
+# TECH_DEBT v6.5
 
 ## Critical
 
@@ -13,3 +13,13 @@
    Б. Если "reverse": {... enable == False} тогда: ресерчим монеты опираясь на дефолтные параметры то есть те которые заданы в cfg.json (я их сейчас везде и называл как дефолтные. Ерунду вроде DEFAULT_CFG в config.py можешь удалить ибо это бомба замедленного действия. У нас все явно и оно хранится в cfg.json)
 
 3. Версию переименуешь в v6.5
+
+## Progress
+
+- [x] Кастомный логер подключен в ключевых точках пайплайна.
+- [x] При `reverse.enabled=true` benchmark-калибровка применяется в бою.
+- [x] Свечной эталон кешируется в `reverse_runs/candles_*.json`.
+- [x] `auto_filter.json` / `benchmark_calibration.json` удалены из пайплайна.
+- [x] `DEFAULT_CFG` удален из `config.py`.
+- [x] Версия переименована в v6.5.
+- [x] В режиме `reverse.enabled=true` боевые параметры подхватываются из отдельного runtime-конфига (`reverse_runtime_cfg.json`), без перезаписи базового `cfg.json`.
