@@ -143,8 +143,6 @@ async def maybe_run_benchmark_calibration(
     runtime_cfg_path: Path = RUNTIME_CFG_PATH,
 ) -> Tuple[Path, Dict[str, Any] | None]:
 
-) -> Tuple[AppConfig, Dict[str, Any] | None]:
-
     cfg = load_config(cfg_path)
     reverse_cfg = cfg.reverse
     raw = cfg.raw or {}
