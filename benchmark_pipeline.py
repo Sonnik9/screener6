@@ -1,21 +1,20 @@
 from __future__ import annotations
 
 import json
-from copy import deepcopy
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Sequence, Tuple
 
-from config import CFG_PATH, AppConfig, ConfigLoader, load_config
+from config import CFG_PATH, AppConfig, load_config
 from reverse import run_reverse
 from time_helper import parse_utc_to_ms
+from c_log import UnifiedLogger
 
 ROOT = Path(__file__).resolve().parent
-CALIBRATION_REPORT_PATH = ROOT / "benchmark_calibration.json"
-AUTO_FILTER_PATH = ROOT / "auto_filter.json"
 
 UTC = timezone.utc
 VALID_SLOTS = {"soft", "base", "strict"}
+logger = UnifiedLogger("benchmark_pipeline")
 
 
 class CalibrationError(RuntimeError):
@@ -109,8 +108,6 @@ def _normalize_benchmark_item(item: Dict[str, Any], default_step_min: int, defau
 
 async def maybe_run_benchmark_calibration(
     cfg_path: Path = CFG_PATH,
-    report_path: Path = CALIBRATION_REPORT_PATH,
-    auto_filter_path: Path = AUTO_FILTER_PATH,
 ) -> Tuple[AppConfig, Dict[str, Any] | None]:
     cfg = load_config(cfg_path)
     reverse_cfg = cfg.reverse
@@ -119,9 +116,13 @@ async def maybe_run_benchmark_calibration(
     benchmarks_raw = reverse_raw.get("benchmarks") or []
 
     if not bool(reverse_cfg.enabled):
+        logger.info("reverse.enabled=false -> using cfg.json filter as-is")
         return cfg, None
     if not isinstance(benchmarks_raw, list) or not benchmarks_raw:
+        logger.info("reverse.enabled=true but no benchmarks -> using cfg.json filter as-is")
         return cfg, None
+
+    logger.info(f"benchmark calibration started: benchmarks={len(benchmarks_raw)}")
 
     default_step_min = max(1, int(reverse_cfg.step_min or 5))
     default_slot = _normalize_slot_name(reverse_cfg.slot, default="base")
@@ -129,7 +130,7 @@ async def maybe_run_benchmark_calibration(
 
     selected_filters: List[Dict[str, Any]] = []
     benchmark_reports: List[Dict[str, Any]] = []
-    report_dir = report_path.parent / "reverse_runs"
+    report_dir = cfg_path.parent / "reverse_runs"
     report_dir.mkdir(parents=True, exist_ok=True)
 
     for idx, spec in enumerate(benchmark_specs, start=1):
@@ -144,6 +145,7 @@ async def maybe_run_benchmark_calibration(
             sample_step_minutes=spec["step_min"],
             include_full=False,
             slots_out_path=report_dir / slots_name,
+            candles_cache_path=report_dir / f"candles_{spec['symbol'].upper()}_{spec['start_dt'].strftime('%Y%m%dT%H%M%S')}_{spec['end_dt'].strftime('%Y%m%dT%H%M%S')}_{spec['step_min']}m.json",
         )
         ready_slots = payload.get("ready_slots") or {}
         slot = (ready_slots.get(spec["slot"]) or {}).get("filter")
@@ -171,9 +173,11 @@ async def maybe_run_benchmark_calibration(
 
     runtime_filter_template = _copy_json(cfg.snapshot().get("filter") or {})
     auto_filter = _build_filter_from_benchmarks(selected_filters, runtime_filter_template)
-    auto_cfg_raw = _copy_json(raw)
-    auto_cfg_raw["filter"] = auto_filter
-    auto_cfg = ConfigLoader.from_dict(auto_cfg_raw)
+
+    cfg_raw = _copy_json(raw)
+    cfg_raw["filter"] = auto_filter
+    cfg_path.write_text(json.dumps(cfg_raw, ensure_ascii=False, indent=2), encoding="utf-8")
+    logger.info("cfg.json updated with reverse-computed filter")
 
     report_payload = {
         "mode": "reverse_then_scan",
@@ -204,6 +208,6 @@ async def maybe_run_benchmark_calibration(
         },
     }
 
-    report_path.write_text(json.dumps(report_payload, ensure_ascii=False, indent=2), encoding="utf-8")
-    auto_filter_path.write_text(json.dumps({"filter": auto_filter}, ensure_ascii=False, indent=2), encoding="utf-8")
-    return auto_cfg, report_payload
+    cfg = load_config(cfg_path)
+    logger.info("benchmark calibration finished")
+    return cfg, report_payload

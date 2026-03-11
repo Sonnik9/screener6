@@ -15,10 +15,12 @@ from config import CFG_PATH, ConfigLoader, load_config
 from filters import CalculatingEngine
 from KUCOIN.klines import Kline, KucoinKlines
 from reporting import build_filter_checks, build_filter_metrics_view
+from c_log import UnifiedLogger
 
 ROOT = Path(__file__).resolve().parent
 OUT_PATH = ROOT / "reverse_report.json"
 UTC = timezone.utc
+logger = UnifiedLogger("reverse")
 
 
 class CandidateTf:
@@ -600,6 +602,7 @@ async def run_reverse(
     sample_step_minutes: int = 5,
     include_full: bool = False,
     slots_out_path: Path | None = None,
+    candles_cache_path: Path | None = None,
 ) -> Dict[str, Any]:
     cfg = load_config(cfg_path)
     cfg_snapshot = cfg.snapshot()
@@ -616,24 +619,48 @@ async def run_reverse(
 
     preload_start = start_dt - timedelta(minutes=lookback * tf_minutes)
     fetch_diag: Dict[str, Any] = {}
-    try:
-        candles = await klines_api.get_klines_range(
-            symbol=symbol_norm,
-            granularity_min=tf_minutes,
-            start_at_ms=int(preload_start.timestamp() * 1000),
-            end_at_ms=int(end_dt.timestamp() * 1000),
-        )
-        fetch_diag = {
-            "symbol": symbol_norm,
-            "timeframe_minutes": tf_minutes,
-            "start_at_ms": int(preload_start.timestamp() * 1000),
-            "end_at_ms": int(end_dt.timestamp() * 1000),
-            "candles_fetched": len(candles),
-            "first_candle_iso": datetime.fromtimestamp(candles[0].ts_ms / 1000, tz=UTC).isoformat() if candles else None,
-            "last_candle_iso": datetime.fromtimestamp(candles[-1].ts_ms / 1000, tz=UTC).isoformat() if candles else None,
-        }
-    finally:
+    candles: List[Kline] = []
+    cache_hit = False
+    if candles_cache_path and candles_cache_path.exists():
+        try:
+            cached = json.loads(candles_cache_path.read_text(encoding="utf-8"))
+            rows = cached.get("candles") if isinstance(cached, dict) else []
+            candles = [Kline(**row) for row in rows if isinstance(row, dict)]
+            cache_hit = bool(candles)
+            logger.info(f"reverse candles cache hit: {candles_cache_path}")
+        except Exception:
+            candles = []
+
+    if not candles:
+        try:
+            candles = await klines_api.get_klines_range(
+                symbol=symbol_norm,
+                granularity_min=tf_minutes,
+                start_at_ms=int(preload_start.timestamp() * 1000),
+                end_at_ms=int(end_dt.timestamp() * 1000),
+            )
+            if candles_cache_path:
+                candles_cache_path.parent.mkdir(parents=True, exist_ok=True)
+                candles_cache_path.write_text(
+                    json.dumps({"candles": [asdict(k) for k in candles]}, ensure_ascii=False, indent=2),
+                    encoding="utf-8",
+                )
+                logger.info(f"reverse candles cache saved: {candles_cache_path}")
+        finally:
+            await klines_api.aclose()
+    else:
         await klines_api.aclose()
+
+    fetch_diag = {
+        "symbol": symbol_norm,
+        "timeframe_minutes": tf_minutes,
+        "start_at_ms": int(preload_start.timestamp() * 1000),
+        "end_at_ms": int(end_dt.timestamp() * 1000),
+        "candles_fetched": len(candles),
+        "cache_hit": cache_hit,
+        "first_candle_iso": datetime.fromtimestamp(candles[0].ts_ms / 1000, tz=UTC).isoformat() if candles else None,
+        "last_candle_iso": datetime.fromtimestamp(candles[-1].ts_ms / 1000, tz=UTC).isoformat() if candles else None,
+    }
 
     endpoints = _window_endpoints(start_dt, end_dt, sample_step_minutes)
     rows: List[Dict[str, Any]] = []
@@ -681,11 +708,11 @@ async def run_reverse(
     out_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
     slots_out.write_text(json.dumps(slots_payload, ensure_ascii=False, indent=2), encoding="utf-8")
 
-    print(f"Saved reverse report: {out_path}")
-    print(f"Saved copy-paste slots: {slots_out}")
-    print(f"Recommended preset: {payload['recommended_preset']}")
+    logger.info(f"Saved reverse report: {out_path}")
+    logger.info(f"Saved copy-paste slots: {slots_out}")
+    logger.info(f"Recommended preset: {payload['recommended_preset']}")
     if not candles:
-        print("WARNING: no candles fetched. Check symbol availability and/or KuCoin API parameter variant.")
+        logger.warning("no candles fetched. Check symbol availability and/or KuCoin API parameter variant.")
     return payload
 
 

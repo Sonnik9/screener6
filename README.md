@@ -1,4 +1,4 @@
-# britva_bot v6.4
+# britva_bot v6.5
 
 Скринер для поиска 1m-монет под паттерн типа «волатильный боковик вокруг оси с длинными тенями и упором в стенку».
 
@@ -55,8 +55,7 @@ python time_helper.py to-iso 1771966800000
 ## Какие файлы появляются после запуска `main.py`
 
 - `candidates.json` — итоговый скан
-- `benchmark_calibration.json` — как именно main собрал авто-фильтр по эталонам
-- `auto_filter.json` — чистый `filter`, который main реально применил
+- `cfg.json` — main обновляет секцию `filter` вычисленными benchmark-параметрами
 - `reverse_runs/reverse_*.json` — отдельные отчёты по каждому эталону
 - `reverse_runs/reverse_*_slots.json` — ready-to-paste слоты по каждому эталону
 

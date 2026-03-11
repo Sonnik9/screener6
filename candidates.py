@@ -7,10 +7,12 @@ from typing import Any, Dict, Optional
 
 from config import CFG_PATH, AppConfig, load_config
 from scanner_engine import CandidateScanner
+from c_log import UnifiedLogger
 
 
 ROOT = Path(__file__).resolve().parent
 OUT_PATH = ROOT / "candidates.json"
+logger = UnifiedLogger("candidates")
 
 
 def _fmt_float(value: Any, digits: int = 2) -> str:
@@ -26,6 +28,7 @@ async def run_scan(
     cfg: Optional[AppConfig] = None,
     extra_payload: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
+    logger.info(f"scan start cfg={cfg_path} out={out_path}")
     cfg_obj = cfg or load_config(cfg_path)
     scanner = CandidateScanner(cfg_obj)
     try:
@@ -44,7 +47,7 @@ async def run_scan(
 
     print("=" * 168)
     print(
-        f"KUCOIN candidates scan v6.4 | timeframe={scanner.timeframe} | lookback={scanner.lookback} | "
+        f"KUCOIN candidates scan v6.5 | timeframe={scanner.timeframe} | lookback={scanner.lookback} | "
         f"symbols={symbols_total} | passed={symbols_passed} | rejected={symbols_rejected} | "
         f"elapsed_ms={payload.get('scan_elapsed_ms', 0)}"
     )
@@ -91,7 +94,7 @@ async def run_scan(
                 f"fails={','.join(row.get('fail_reasons') or [])}"
             )
 
-    print(f"Saved: {out_path}")
+    logger.info(f"Saved: {out_path}")
     return payload
 
 
