@@ -1,0 +1,4138 @@
+{
+  "generated_at_ms": 1773189976377,
+  "scan_elapsed_ms": 141634,
+  "exchange": "KUCOIN",
+  "quote": "USDT",
+  "timeframe": "1m",
+  "lookback_candles": 59,
+  "symbols_total": 544,
+  "symbols_passed": 0,
+  "symbols_rejected": 544,
+  "reject_stats": {
+    "corridor_too_narrow": 536,
+    "trend_efficiency": 366,
+    "score_pct": 544,
+    "chop": 429,
+    "slope": 439,
+    "avg_wick_ratio": 522,
+    "long_wick_share": 520,
+    "two_sided_wick_share": 509,
+    "axis_touch_share": 374,
+    "recent_axis_touches": 346,
+    "rotation_count": 501,
+    "path_to_corridor": 228,
+    "false_break_reclaim": 473,
+    "return_to_axis": 178,
+    "corridor_too_wide": 5
+  },
+  "cfg_snapshot": {
+    "app": {
+      "quote": "USDT",
+      "max_symbols": 0,
+      "concurrent_symbols": 3,
+      "top_n": 20,
+      "request_interval_ms": 250
+    },
+    "exchange": {
+      "proxy": "",
+      "api_key": "",
+      "api_secret": ""
+    },
+    "reverse": {
+      "enabled": true,
+      "step_min": 5,
+      "slot": "base",
+      "benchmarks": [
+        {
+          "symbol": "WILDUSDT",
+          "start": "2026-02-24T18:04:00+00:00",
+          "end": "2026-02-24T19:04:00+00:00",
+          "slot": "base"
+        }
+      ]
+    },
+    "filter": {
+      "timeframe": "1m",
+      "lookback_candles": 59,
+      "min_score_pct": 78.1,
+      "approximation": {
+        "enabled": true,
+        "min_match_pct": 95.0
+      },
+      "regime": {
+        "enabled": true,
+        "min_corridor_pct": 5.71,
+        "max_corridor_pct": 7.21,
+        "quantile_low": 0.15,
+        "quantile_high": 0.85,
+        "min_chop": 51.3,
+        "max_efficiency_ratio": 0.053,
+        "max_slope_to_corridor_ratio": 0.35
+      },
+      "wicks": {
+        "enabled": true,
+        "long_wick_ratio": 1.85,
+        "min_dominant_wick_share": 0.31,
+        "body_floor_pct": 0.012,
+        "body_floor_range_share": 0.045,
+        "min_avg_wick_ratio": 3.47,
+        "min_long_wick_share": 0.349,
+        "min_two_sided_wick_share": 0.25,
+        "min_two_sided_share_per_candle": 0.1,
+        "max_two_sided_imbalance": 3.0
+      },
+      "axis": {
+        "enabled": true,
+        "tolerance_pct": 0.24,
+        "recent_window": 24,
+        "min_axis_touch_share": 0.598,
+        "min_recent_axis_touches": 14,
+        "min_rotation_count": 14,
+        "mode_bins": 31,
+        "use_hlc3": true,
+        "close_weight": 0.5,
+        "hlc3_weight": 0.5
+      },
+      "wall": {
+        "enabled": true,
+        "touch_tolerance_pct": 0.35,
+        "recent_window": 18,
+        "min_recent_wall_touch_share": 0.0,
+        "min_full_wall_touch_share": 0.0329,
+        "top_k_highs": 8,
+        "bottom_k_lows": 8,
+        "max_cluster_spread_pct": 5.34
+      },
+      "activity": {
+        "enabled": true,
+        "min_path_to_corridor_ratio": 6.85,
+        "ema_period": 20,
+        "axis_band_pct": 0.2,
+        "min_return_to_axis_count": 4
+      },
+      "reclaim": {
+        "enabled": true,
+        "lookback": 6,
+        "min_false_break_reclaim_share": 0.132
+      },
+      "liquidity": {
+        "enabled": false,
+        "min_avg_quote_turnover": 0.0
+      }
+    }
+  },
+  "active_filter": {
+    "timeframe": "1m",
+    "lookback_candles": 59,
+    "min_score_pct": 78.1,
+    "approximation": {
+      "enabled": true,
+      "min_match_pct": 95.0
+    },
+    "regime": {
+      "enabled": true,
+      "min_corridor_pct": 5.71,
+      "max_corridor_pct": 7.21,
+      "quantile_low": 0.15,
+      "quantile_high": 0.85,
+      "min_chop": 51.3,
+      "max_efficiency_ratio": 0.053,
+      "max_slope_to_corridor_ratio": 0.35
+    },
+    "wicks": {
+      "enabled": true,
+      "long_wick_ratio": 1.85,
+      "min_dominant_wick_share": 0.31,
+      "body_floor_pct": 0.012,
+      "body_floor_range_share": 0.045,
+      "min_avg_wick_ratio": 3.47,
+      "min_long_wick_share": 0.349,
+      "min_two_sided_wick_share": 0.25,
+      "min_two_sided_share_per_candle": 0.1,
+      "max_two_sided_imbalance": 3.0
+    },
+    "axis": {
+      "enabled": true,
+      "tolerance_pct": 0.24,
+      "recent_window": 24,
+      "min_axis_touch_share": 0.598,
+      "min_recent_axis_touches": 14,
+      "min_rotation_count": 14,
+      "mode_bins": 31,
+      "use_hlc3": true,
+      "close_weight": 0.5,
+      "hlc3_weight": 0.5
+    },
+    "wall": {
+      "enabled": true,
+      "touch_tolerance_pct": 0.35,
+      "recent_window": 18,
+      "min_recent_wall_touch_share": 0.0,
+      "min_full_wall_touch_share": 0.0329,
+      "top_k_highs": 8,
+      "bottom_k_lows": 8,
+      "max_cluster_spread_pct": 5.34
+    },
+    "activity": {
+      "enabled": true,
+      "min_path_to_corridor_ratio": 6.85,
+      "ema_period": 20,
+      "axis_band_pct": 0.2,
+      "min_return_to_axis_count": 4
+    },
+    "reclaim": {
+      "enabled": true,
+      "lookback": 6,
+      "min_false_break_reclaim_share": 0.132
+    },
+    "liquidity": {
+      "enabled": false,
+      "min_avg_quote_turnover": 0.0
+    }
+  },
+  "candidate_symbols": [],
+  "recommended_symbols": [
+    "POWERUSDTM",
+    "0GUSDTM",
+    "FRAXUSDTM",
+    "LABUSDTM",
+    "TWTUSDTM",
+    "ICNTUSDTM",
+    "NUMIUSDTM",
+    "PIEVERSEUSDTM",
+    "KGENUSDTM",
+    "GUAUSDTM",
+    "MUSDTM",
+    "TURBOUSDTM"
+  ],
+  "candidate_quick_list": [],
+  "recommended_quick_list": [
+    {
+      "symbol": "POWERUSDTM",
+      "score_pct": 85.824692,
+      "corridor_pct": 0.8189927131917274,
+      "wall_side": "upper",
+      "recent_wall_touch_share": 0.6111111111111112,
+      "rotation_count": 18,
+      "path_to_corridor_ratio": 7.341389728096694,
+      "fail_reasons": [
+        "corridor_too_narrow",
+        "avg_wick_ratio",
+        "long_wick_share",
+        "score_pct"
+      ]
+    },
+    {
+      "symbol": "0GUSDTM",
+      "score_pct": 83.621445,
+      "corridor_pct": 0.43953743917115223,
+      "wall_side": "lower",
+      "recent_wall_touch_share": 0.9444444444444444,
+      "rotation_count": 27,
+      "path_to_corridor_ratio": 8.932539682540341,
+      "fail_reasons": [
+        "corridor_too_narrow",
+        "trend_efficiency",
+        "score_pct"
+      ]
+    },
+    {
+      "symbol": "FRAXUSDTM",
+      "score_pct": 82.411923,
+      "corridor_pct": 0.6887175688106932,
+      "wall_side": "upper",
+      "recent_wall_touch_share": 0.6666666666666666,
+      "rotation_count": 22,
+      "path_to_corridor_ratio": 10.417651694247555,
+      "fail_reasons": [
+        "corridor_too_narrow",
+        "avg_wick_ratio",
+        "long_wick_share",
+        "two_sided_wick_share",
+        "score_pct"
+      ]
+    },
+    {
+      "symbol": "LABUSDTM",
+      "score_pct": 79.490011,
+      "corridor_pct": 1.2664962433333826,
+      "wall_side": "upper",
+      "recent_wall_touch_share": 0.3333333333333333,
+      "rotation_count": 13,
+      "path_to_corridor_ratio": 5.298838797814231,
+      "fail_reasons": [
+        "corridor_too_narrow",
+        "slope",
+        "two_sided_wick_share",
+        "axis_touch_share",
+        "rotation_count",
+        "path_to_corridor",
+        "false_break_reclaim",
+        "score_pct"
+      ]
+    },
+    {
+      "symbol": "TWTUSDTM",
+      "score_pct": 78.757888,
+      "corridor_pct": 0.29200657525296186,
+      "wall_side": "lower",
+      "recent_wall_touch_share": 0.8333333333333334,
+      "rotation_count": 21,
+      "path_to_corridor_ratio": 10.885780885780957,
+      "fail_reasons": [
+        "corridor_too_narrow",
+        "slope",
+        "avg_wick_ratio",
+        "long_wick_share",
+        "return_to_axis",
+        "score_pct"
+      ]
+    },
+    {
+      "symbol": "ICNTUSDTM",
+      "score_pct": 77.273079,
+      "corridor_pct": 0.9201181228617593,
+      "wall_side": "upper",
+      "recent_wall_touch_share": 0.9444444444444444,
+      "rotation_count": 15,
+      "path_to_corridor_ratio": 4.805638145578673,
+      "fail_reasons": [
+        "corridor_too_narrow",
+        "trend_efficiency",
+        "slope",
+        "two_sided_wick_share",
+        "axis_touch_share",
+        "path_to_corridor",
+        "score_pct"
+      ]
+    },
+    {
+      "symbol": "NUMIUSDTM",
+      "score_pct": 77.237064,
+      "corridor_pct": 0.990261171935052,
+      "wall_side": "lower",
+      "recent_wall_touch_share": 0.8888888888888888,
+      "rotation_count": 20,
+      "path_to_corridor_ratio": 12.052586938083214,
+      "fail_reasons": [
+        "corridor_too_narrow",
+        "two_sided_wick_share",
+        "false_break_reclaim",
+        "score_pct"
+      ]
+    },
+    {
+      "symbol": "PIEVERSEUSDTM",
+      "score_pct": 76.748749,
+      "corridor_pct": 0.9072452142659648,
+      "wall_side": "upper",
+      "recent_wall_touch_share": 0.7777777777777778,
+      "rotation_count": 9,
+      "path_to_corridor_ratio": 5.746706267610905,
+      "fail_reasons": [
+        "corridor_too_narrow",
+        "slope",
+        "two_sided_wick_share",
+        "recent_axis_touches",
+        "rotation_count",
+        "path_to_corridor",
+        "score_pct"
+      ]
+    },
+    {
+      "symbol": "KGENUSDTM",
+      "score_pct": 75.96486,
+      "corridor_pct": 1.89254592487513,
+      "wall_side": "lower",
+      "recent_wall_touch_share": 0.5555555555555556,
+      "rotation_count": 12,
+      "path_to_corridor_ratio": 2.697572856302939,
+      "fail_reasons": [
+        "corridor_too_narrow",
+        "chop",
+        "trend_efficiency",
+        "slope",
+        "avg_wick_ratio",
+        "recent_axis_touches",
+        "rotation_count",
+        "path_to_corridor",
+        "score_pct"
+      ]
+    },
+    {
+      "symbol": "GUAUSDTM",
+      "score_pct": 75.396776,
+      "corridor_pct": 0.8594582468734261,
+      "wall_side": "lower",
+      "recent_wall_touch_share": 1.0,
+      "rotation_count": 12,
+      "path_to_corridor_ratio": 6.462751495377946,
+      "fail_reasons": [
+        "corridor_too_narrow",
+        "slope",
+        "long_wick_share",
+        "two_sided_wick_share",
+        "rotation_count",
+        "path_to_corridor",
+        "false_break_reclaim",
+        "score_pct"
+      ]
+    },
+    {
+      "symbol": "MUSDTM",
+      "score_pct": 74.974218,
+      "corridor_pct": 1.0073131472756394,
+      "wall_side": "lower",
+      "recent_wall_touch_share": 1.0,
+      "rotation_count": 7,
+      "path_to_corridor_ratio": 3.8083167774201794,
+      "fail_reasons": [
+        "corridor_too_narrow",
+        "trend_efficiency",
+        "slope",
+        "two_sided_wick_share",
+        "rotation_count",
+        "path_to_corridor",
+        "score_pct"
+      ]
+    },
+    {
+      "symbol": "TURBOUSDTM",
+      "score_pct": 74.332185,
+      "corridor_pct": 0.5252008120751964,
+      "wall_side": "lower",
+      "recent_wall_touch_share": 0.7777777777777778,
+      "rotation_count": 7,
+      "path_to_corridor_ratio": 5.987394957983473,
+      "fail_reasons": [
+        "corridor_too_narrow",
+        "trend_efficiency",
+        "slope",
+        "avg_wick_ratio",
+        "two_sided_wick_share",
+        "axis_touch_share",
+        "rotation_count",
+        "path_to_corridor",
+        "score_pct"
+      ]
+    }
+  ],
+  "candidates": [],
+  "top_near_misses": [
+    {
+      "symbol": "POWERUSDTM",
+      "score": 85.824692,
+      "fail_reasons": [
+        "corridor_too_narrow",
+        "avg_wick_ratio",
+        "long_wick_share",
+        "score_pct"
+      ],
+      "metrics": {
+        "symbol": "POWERUSDTM",
+        "candles_count": 59,
+        "corridor_low": 0.12075,
+        "corridor_high": 0.121743,
+        "corridor_mid": 0.12124650000000001,
+        "corridor_pct": 0.8189927131917274,
+        "structural_axis": 0.12140863844086022,
+        "axis_touch_count": 48,
+        "axis_touch_share": 0.8135593220338984,
+        "recent_axis_touch_count": 23,
+        "recent_axis_touch_share": 0.9583333333333334,
+        "rotation_count": 18,
+        "return_to_axis_count": 9,
+        "avg_axis_distance_pct": 0.10044158088949187,
+        "last_close_distance_to_axis_pct": 0.0,
+        "avg_wick_ratio": 2.844089379318184,
+        "long_wick_share": 0.3220338983050847,
+        "two_sided_wick_share": 0.3898305084745763,
+        "false_break_reclaim_share": 0.15254237288135594,
+        "chop": 68.93873558070932,
+        "efficiency_ratio": 0.02554744525547449,
+        "slope_to_corridor_ratio": 0.07083482683871899,
+        "path_to_corridor_ratio": 7.341389728096694,
+        "wall_side": "upper",
+        "wall_touch_share": 0.6779661016949152,
+        "recent_wall_touch_share": 0.6111111111111112,
+        "recent_top_wall_touch_share": 0.6111111111111112,
+        "recent_bottom_wall_touch_share": 0.3888888888888889,
+        "wall_cluster_spread_pct": 0.11497084667816476,
+        "top_wall_touch_share": 0.6779661016949152,
+        "bottom_wall_touch_share": 0.6101694915254238,
+        "top_wall_cluster_spread_pct": 0.11497084667816476,
+        "bottom_wall_cluster_spread_pct": 0.3479845892539075,
+        "avg_quote_turnover": 6482.051511864407,
+        "score": 85.824692,
+        "score_pct": 85.824692
+      },
+      "filter_metrics": {
+        "timeframe": "1m",
+        "lookback_candles": 59,
+        "min_score_pct": 85.824692,
+        "regime": {
+          "corridor_low": 0.12075,
+          "corridor_high": 0.121743,
+          "corridor_mid": 0.12124650000000001,
+          "min_corridor_pct": 0.8189927131917274,
+          "max_corridor_pct": 0.8189927131917274,
+          "min_chop": 68.93873558070932,
+          "max_efficiency_ratio": 0.02554744525547449,
+          "max_slope_to_corridor_ratio": 0.07083482683871899
+        },
+        "wicks": {
+          "min_avg_wick_ratio": 2.844089379318184,
+          "min_long_wick_share": 0.3220338983050847,
+          "min_two_sided_wick_share": 0.3898305084745763,
+          "min_false_break_reclaim_share": 0.15254237288135594
+        },
+        "axis": {
+          "structural_axis": 0.12140863844086022,
+          "axis_touch_count": 48,
+          "min_axis_touch_share": 0.8135593220338984,
+          "min_recent_axis_touches": 23,
+          "recent_axis_touch_share": 0.9583333333333334,
+          "min_rotation_count": 18,
+          "avg_axis_distance_pct": 0.10044158088949187,
+          "last_close_distance_to_axis_pct": 0.0
+        },
+        "wall": {
+          "wall_side": "upper",
+          "min_recent_wall_touch_share": 0.6111111111111112,
+          "min_full_wall_touch_share": 0.6779661016949152,
+          "max_cluster_spread_pct": 0.11497084667816476,
+          "recent_top_wall_touch_share": 0.6111111111111112,
+          "recent_bottom_wall_touch_share": 0.3888888888888889,
+          "top_wall_touch_share": 0.6779661016949152,
+          "bottom_wall_touch_share": 0.6101694915254238,
+          "top_wall_cluster_spread_pct": 0.11497084667816476,
+          "bottom_wall_cluster_spread_pct": 0.3479845892539075
+        },
+        "activity": {
+          "min_path_to_corridor_ratio": 7.341389728096694,
+          "min_return_to_axis_count": 9,
+          "avg_quote_turnover": 6482.051511864407
+        },
+        "reclaim": {
+          "min_false_break_reclaim_share": 0.15254237288135594
+        },
+        "liquidity": {
+          "min_avg_quote_turnover": 6482.051511864407
+        }
+      },
+      "active_filter": {
+        "timeframe": "1m",
+        "lookback_candles": 59,
+        "min_score_pct": 78.1,
+        "approximation": {
+          "enabled": true,
+          "min_match_pct": 95.0
+        },
+        "regime": {
+          "enabled": true,
+          "min_corridor_pct": 5.71,
+          "max_corridor_pct": 7.21,
+          "quantile_low": 0.15,
+          "quantile_high": 0.85,
+          "min_chop": 51.3,
+          "max_efficiency_ratio": 0.053,
+          "max_slope_to_corridor_ratio": 0.35
+        },
+        "wicks": {
+          "enabled": true,
+          "long_wick_ratio": 1.85,
+          "min_dominant_wick_share": 0.31,
+          "body_floor_pct": 0.012,
+          "body_floor_range_share": 0.045,
+          "min_avg_wick_ratio": 3.47,
+          "min_long_wick_share": 0.349,
+          "min_two_sided_wick_share": 0.25,
+          "min_two_sided_share_per_candle": 0.1,
+          "max_two_sided_imbalance": 3.0
+        },
+        "axis": {
+          "enabled": true,
+          "tolerance_pct": 0.24,
+          "recent_window": 24,
+          "min_axis_touch_share": 0.598,
+          "min_recent_axis_touches": 14,
+          "min_rotation_count": 14,
+          "mode_bins": 31,
+          "use_hlc3": true,
+          "close_weight": 0.5,
+          "hlc3_weight": 0.5
+        },
+        "wall": {
+          "enabled": true,
+          "touch_tolerance_pct": 0.35,
+          "recent_window": 18,
+          "min_recent_wall_touch_share": 0.0,
+          "min_full_wall_touch_share": 0.0329,
+          "top_k_highs": 8,
+          "bottom_k_lows": 8,
+          "max_cluster_spread_pct": 5.34
+        },
+        "activity": {
+          "enabled": true,
+          "min_path_to_corridor_ratio": 6.85,
+          "ema_period": 20,
+          "axis_band_pct": 0.2,
+          "min_return_to_axis_count": 4
+        },
+        "reclaim": {
+          "enabled": true,
+          "lookback": 6,
+          "min_false_break_reclaim_share": 0.132
+        },
+        "liquidity": {
+          "enabled": false,
+          "min_avg_quote_turnover": 0.0
+        }
+      },
+      "filter_checks": {
+        "score": {
+          "enabled": true,
+          "score_pct": {
+            "actual": 85.824692,
+            "min": 78.1,
+            "passed": true
+          }
+        },
+        "regime": {
+          "enabled": true,
+          "corridor_min": {
+            "actual": 0.8189927131917274,
+            "min": 5.71,
+            "passed": false
+          },
+          "corridor_max": {
+            "actual": 0.8189927131917274,
+            "max": 7.21,
+            "passed": true
+          },
+          "chop": {
+            "actual": 68.93873558070932,
+            "min": 51.3,
+            "passed": true
+          },
+          "efficiency_ratio": {
+            "actual": 0.02554744525547449,
+            "max": 0.053,
+            "passed": true
+          },
+          "slope_to_corridor_ratio": {
+            "actual": 0.07083482683871899,
+            "max": 0.35,
+            "passed": true
+          }
+        },
+        "wicks": {
+          "enabled": true,
+          "avg_wick_ratio": {
+            "actual": 2.844089379318184,
+            "min": 3.47,
+            "passed": false
+          },
+          "long_wick_share": {
+            "actual": 0.3220338983050847,
+            "min": 0.349,
+            "passed": false
+          },
+          "two_sided_wick_share": {
+            "actual": 0.3898305084745763,
+            "min": 0.25,
+            "passed": true
+          }
+        },
+        "axis": {
+          "enabled": true,
+          "axis_touch_share": {
+            "actual": 0.8135593220338984,
+            "min": 0.598,
+            "passed": true
+          },
+          "recent_axis_touch_count": {
+            "actual": 23,
+            "min": 14,
+            "passed": true
+          },
+          "rotation_count": {
+            "actual": 18,
+            "min": 14,
+            "passed": true
+          }
+        },
+        "wall": {
+          "enabled": true,
+          "recent_wall_touch_share": {
+            "actual": 0.6111111111111112,
+            "min": 0.0,
+            "passed": true
+          },
+          "wall_touch_share": {
+            "actual": 0.6779661016949152,
+            "min": 0.0329,
+            "passed": true
+          },
+          "wall_cluster_spread_pct": {
+            "actual": 0.11497084667816476,
+            "max": 5.34,
+            "passed": true
+          }
+        },
+        "activity": {
+          "enabled": true,
+          "path_to_corridor_ratio": {
+            "actual": 7.341389728096694,
+            "min": 6.85,
+            "passed": true
+          },
+          "return_to_axis_count": {
+            "actual": 9,
+            "min": 4,
+            "passed": true
+          }
+        },
+        "reclaim": {
+          "enabled": true,
+          "false_break_reclaim_share": {
+            "actual": 0.15254237288135594,
+            "min": 0.132,
+            "passed": true
+          }
+        },
+        "liquidity": {
+          "enabled": false,
+          "avg_quote_turnover": {
+            "actual": 6482.051511864407,
+            "min": 0.0,
+            "passed": true
+          }
+        }
+      }
+    },
+    {
+      "symbol": "0GUSDTM",
+      "score": 83.621445,
+      "fail_reasons": [
+        "corridor_too_narrow",
+        "trend_efficiency",
+        "score_pct"
+      ],
+      "metrics": {
+        "symbol": "0GUSDTM",
+        "candles_count": 59,
+        "corridor_low": 0.57207,
+        "corridor_high": 0.5745899999999999,
+        "corridor_mid": 0.5733299999999999,
+        "corridor_pct": 0.43953743917115223,
+        "structural_axis": 0.5732349166666666,
+        "axis_touch_count": 56,
+        "axis_touch_share": 0.9491525423728814,
+        "recent_axis_touch_count": 21,
+        "recent_axis_touch_share": 0.875,
+        "rotation_count": 27,
+        "return_to_axis_count": 4,
+        "avg_axis_distance_pct": 0.04086186246973493,
+        "last_close_distance_to_axis_pct": 0.317772571134636,
+        "avg_wick_ratio": 4.310618641187497,
+        "long_wick_share": 0.4576271186440678,
+        "two_sided_wick_share": 0.2711864406779661,
+        "false_break_reclaim_share": 0.1864406779661017,
+        "chop": 71.36596707185798,
+        "efficiency_ratio": 0.06590649942987264,
+        "slope_to_corridor_ratio": 0.11781006187785077,
+        "path_to_corridor_ratio": 8.932539682540341,
+        "wall_side": "lower",
+        "wall_touch_share": 0.9491525423728814,
+        "recent_wall_touch_share": 0.9444444444444444,
+        "recent_top_wall_touch_share": 0.8333333333333334,
+        "recent_bottom_wall_touch_share": 0.9444444444444444,
+        "wall_cluster_spread_pct": 0.183656335269012,
+        "top_wall_touch_share": 0.9491525423728814,
+        "bottom_wall_touch_share": 0.9491525423728814,
+        "top_wall_cluster_spread_pct": 0.09566964402196063,
+        "bottom_wall_cluster_spread_pct": 0.183656335269012,
+        "avg_quote_turnover": 3368.8973962711866,
+        "score": 83.621445,
+        "score_pct": 83.621445
+      },
+      "filter_metrics": {
+        "timeframe": "1m",
+        "lookback_candles": 59,
+        "min_score_pct": 83.621445,
+        "regime": {
+          "corridor_low": 0.57207,
+          "corridor_high": 0.5745899999999999,
+          "corridor_mid": 0.5733299999999999,
+          "min_corridor_pct": 0.43953743917115223,
+          "max_corridor_pct": 0.43953743917115223,
+          "min_chop": 71.36596707185798,
+          "max_efficiency_ratio": 0.06590649942987264,
+          "max_slope_to_corridor_ratio": 0.11781006187785077
+        },
+        "wicks": {
+          "min_avg_wick_ratio": 4.310618641187497,
+          "min_long_wick_share": 0.4576271186440678,
+          "min_two_sided_wick_share": 0.2711864406779661,
+          "min_false_break_reclaim_share": 0.1864406779661017
+        },
+        "axis": {
+          "structural_axis": 0.5732349166666666,
+          "axis_touch_count": 56,
+          "min_axis_touch_share": 0.9491525423728814,
+          "min_recent_axis_touches": 21,
+          "recent_axis_touch_share": 0.875,
+          "min_rotation_count": 27,
+          "avg_axis_distance_pct": 0.04086186246973493,
+          "last_close_distance_to_axis_pct": 0.317772571134636
+        },
+        "wall": {
+          "wall_side": "lower",
+          "min_recent_wall_touch_share": 0.9444444444444444,
+          "min_full_wall_touch_share": 0.9491525423728814,
+          "max_cluster_spread_pct": 0.183656335269012,
+          "recent_top_wall_touch_share": 0.8333333333333334,
+          "recent_bottom_wall_touch_share": 0.9444444444444444,
+          "top_wall_touch_share": 0.9491525423728814,
+          "bottom_wall_touch_share": 0.9491525423728814,
+          "top_wall_cluster_spread_pct": 0.09566964402196063,
+          "bottom_wall_cluster_spread_pct": 0.183656335269012
+        },
+        "activity": {
+          "min_path_to_corridor_ratio": 8.932539682540341,
+          "min_return_to_axis_count": 4,
+          "avg_quote_turnover": 3368.8973962711866
+        },
+        "reclaim": {
+          "min_false_break_reclaim_share": 0.1864406779661017
+        },
+        "liquidity": {
+          "min_avg_quote_turnover": 3368.8973962711866
+        }
+      },
+      "active_filter": {
+        "timeframe": "1m",
+        "lookback_candles": 59,
+        "min_score_pct": 78.1,
+        "approximation": {
+          "enabled": true,
+          "min_match_pct": 95.0
+        },
+        "regime": {
+          "enabled": true,
+          "min_corridor_pct": 5.71,
+          "max_corridor_pct": 7.21,
+          "quantile_low": 0.15,
+          "quantile_high": 0.85,
+          "min_chop": 51.3,
+          "max_efficiency_ratio": 0.053,
+          "max_slope_to_corridor_ratio": 0.35
+        },
+        "wicks": {
+          "enabled": true,
+          "long_wick_ratio": 1.85,
+          "min_dominant_wick_share": 0.31,
+          "body_floor_pct": 0.012,
+          "body_floor_range_share": 0.045,
+          "min_avg_wick_ratio": 3.47,
+          "min_long_wick_share": 0.349,
+          "min_two_sided_wick_share": 0.25,
+          "min_two_sided_share_per_candle": 0.1,
+          "max_two_sided_imbalance": 3.0
+        },
+        "axis": {
+          "enabled": true,
+          "tolerance_pct": 0.24,
+          "recent_window": 24,
+          "min_axis_touch_share": 0.598,
+          "min_recent_axis_touches": 14,
+          "min_rotation_count": 14,
+          "mode_bins": 31,
+          "use_hlc3": true,
+          "close_weight": 0.5,
+          "hlc3_weight": 0.5
+        },
+        "wall": {
+          "enabled": true,
+          "touch_tolerance_pct": 0.35,
+          "recent_window": 18,
+          "min_recent_wall_touch_share": 0.0,
+          "min_full_wall_touch_share": 0.0329,
+          "top_k_highs": 8,
+          "bottom_k_lows": 8,
+          "max_cluster_spread_pct": 5.34
+        },
+        "activity": {
+          "enabled": true,
+          "min_path_to_corridor_ratio": 6.85,
+          "ema_period": 20,
+          "axis_band_pct": 0.2,
+          "min_return_to_axis_count": 4
+        },
+        "reclaim": {
+          "enabled": true,
+          "lookback": 6,
+          "min_false_break_reclaim_share": 0.132
+        },
+        "liquidity": {
+          "enabled": false,
+          "min_avg_quote_turnover": 0.0
+        }
+      },
+      "filter_checks": {
+        "score": {
+          "enabled": true,
+          "score_pct": {
+            "actual": 83.621445,
+            "min": 78.1,
+            "passed": true
+          }
+        },
+        "regime": {
+          "enabled": true,
+          "corridor_min": {
+            "actual": 0.43953743917115223,
+            "min": 5.71,
+            "passed": false
+          },
+          "corridor_max": {
+            "actual": 0.43953743917115223,
+            "max": 7.21,
+            "passed": true
+          },
+          "chop": {
+            "actual": 71.36596707185798,
+            "min": 51.3,
+            "passed": true
+          },
+          "efficiency_ratio": {
+            "actual": 0.06590649942987264,
+            "max": 0.053,
+            "passed": false
+          },
+          "slope_to_corridor_ratio": {
+            "actual": 0.11781006187785077,
+            "max": 0.35,
+            "passed": true
+          }
+        },
+        "wicks": {
+          "enabled": true,
+          "avg_wick_ratio": {
+            "actual": 4.310618641187497,
+            "min": 3.47,
+            "passed": true
+          },
+          "long_wick_share": {
+            "actual": 0.4576271186440678,
+            "min": 0.349,
+            "passed": true
+          },
+          "two_sided_wick_share": {
+            "actual": 0.2711864406779661,
+            "min": 0.25,
+            "passed": true
+          }
+        },
+        "axis": {
+          "enabled": true,
+          "axis_touch_share": {
+            "actual": 0.9491525423728814,
+            "min": 0.598,
+            "passed": true
+          },
+          "recent_axis_touch_count": {
+            "actual": 21,
+            "min": 14,
+            "passed": true
+          },
+          "rotation_count": {
+            "actual": 27,
+            "min": 14,
+            "passed": true
+          }
+        },
+        "wall": {
+          "enabled": true,
+          "recent_wall_touch_share": {
+            "actual": 0.9444444444444444,
+            "min": 0.0,
+            "passed": true
+          },
+          "wall_touch_share": {
+            "actual": 0.9491525423728814,
+            "min": 0.0329,
+            "passed": true
+          },
+          "wall_cluster_spread_pct": {
+            "actual": 0.183656335269012,
+            "max": 5.34,
+            "passed": true
+          }
+        },
+        "activity": {
+          "enabled": true,
+          "path_to_corridor_ratio": {
+            "actual": 8.932539682540341,
+            "min": 6.85,
+            "passed": true
+          },
+          "return_to_axis_count": {
+            "actual": 4,
+            "min": 4,
+            "passed": true
+          }
+        },
+        "reclaim": {
+          "enabled": true,
+          "false_break_reclaim_share": {
+            "actual": 0.1864406779661017,
+            "min": 0.132,
+            "passed": true
+          }
+        },
+        "liquidity": {
+          "enabled": false,
+          "avg_quote_turnover": {
+            "actual": 3368.8973962711866,
+            "min": 0.0,
+            "passed": true
+          }
+        }
+      }
+    },
+    {
+      "symbol": "FRAXUSDTM",
+      "score": 82.411923,
+      "fail_reasons": [
+        "corridor_too_narrow",
+        "avg_wick_ratio",
+        "long_wick_share",
+        "two_sided_wick_share",
+        "score_pct"
+      ],
+      "metrics": {
+        "symbol": "FRAXUSDTM",
+        "candles_count": 59,
+        "corridor_low": 0.61207,
+        "corridor_high": 0.6163,
+        "corridor_mid": 0.614185,
+        "corridor_pct": 0.6887175688106932,
+        "structural_axis": 0.6149277715053763,
+        "axis_touch_count": 49,
+        "axis_touch_share": 0.8305084745762712,
+        "recent_axis_touch_count": 19,
+        "recent_axis_touch_share": 0.7916666666666666,
+        "rotation_count": 22,
+        "return_to_axis_count": 11,
+        "avg_axis_distance_pct": 0.11349735176420508,
+        "last_close_distance_to_axis_pct": 0.32975767225672026,
+        "avg_wick_ratio": 3.4538623275373013,
+        "long_wick_share": 0.3050847457627119,
+        "two_sided_wick_share": 0.01694915254237288,
+        "false_break_reclaim_share": 0.1864406779661017,
+        "chop": 71.97962198367517,
+        "efficiency_ratio": 0.01298701298701307,
+        "slope_to_corridor_ratio": 0.002083583764070174,
+        "path_to_corridor_ratio": 10.417651694247555,
+        "wall_side": "upper",
+        "wall_touch_share": 0.6949152542372882,
+        "recent_wall_touch_share": 0.6666666666666666,
+        "recent_top_wall_touch_share": 0.6666666666666666,
+        "recent_bottom_wall_touch_share": 0.5,
+        "wall_cluster_spread_pct": 0.08110300081103908,
+        "top_wall_touch_share": 0.6949152542372882,
+        "bottom_wall_touch_share": 0.4406779661016949,
+        "top_wall_cluster_spread_pct": 0.08110300081103908,
+        "bottom_wall_cluster_spread_pct": 0.11442582754393688,
+        "avg_quote_turnover": 328.87583050847456,
+        "score": 82.411923,
+        "score_pct": 82.411923
+      },
+      "filter_metrics": {
+        "timeframe": "1m",
+        "lookback_candles": 59,
+        "min_score_pct": 82.411923,
+        "regime": {
+          "corridor_low": 0.61207,
+          "corridor_high": 0.6163,
+          "corridor_mid": 0.614185,
+          "min_corridor_pct": 0.6887175688106932,
+          "max_corridor_pct": 0.6887175688106932,
+          "min_chop": 71.97962198367517,
+          "max_efficiency_ratio": 0.01298701298701307,
+          "max_slope_to_corridor_ratio": 0.002083583764070174
+        },
+        "wicks": {
+          "min_avg_wick_ratio": 3.4538623275373013,
+          "min_long_wick_share": 0.3050847457627119,
+          "min_two_sided_wick_share": 0.01694915254237288,
+          "min_false_break_reclaim_share": 0.1864406779661017
+        },
+        "axis": {
+          "structural_axis": 0.6149277715053763,
+          "axis_touch_count": 49,
+          "min_axis_touch_share": 0.8305084745762712,
+          "min_recent_axis_touches": 19,
+          "recent_axis_touch_share": 0.7916666666666666,
+          "min_rotation_count": 22,
+          "avg_axis_distance_pct": 0.11349735176420508,
+          "last_close_distance_to_axis_pct": 0.32975767225672026
+        },
+        "wall": {
+          "wall_side": "upper",
+          "min_recent_wall_touch_share": 0.6666666666666666,
+          "min_full_wall_touch_share": 0.6949152542372882,
+          "max_cluster_spread_pct": 0.08110300081103908,
+          "recent_top_wall_touch_share": 0.6666666666666666,
+          "recent_bottom_wall_touch_share": 0.5,
+          "top_wall_touch_share": 0.6949152542372882,
+          "bottom_wall_touch_share": 0.4406779661016949,
+          "top_wall_cluster_spread_pct": 0.08110300081103908,
+          "bottom_wall_cluster_spread_pct": 0.11442582754393688
+        },
+        "activity": {
+          "min_path_to_corridor_ratio": 10.417651694247555,
+          "min_return_to_axis_count": 11,
+          "avg_quote_turnover": 328.87583050847456
+        },
+        "reclaim": {
+          "min_false_break_reclaim_share": 0.1864406779661017
+        },
+        "liquidity": {
+          "min_avg_quote_turnover": 328.87583050847456
+        }
+      },
+      "active_filter": {
+        "timeframe": "1m",
+        "lookback_candles": 59,
+        "min_score_pct": 78.1,
+        "approximation": {
+          "enabled": true,
+          "min_match_pct": 95.0
+        },
+        "regime": {
+          "enabled": true,
+          "min_corridor_pct": 5.71,
+          "max_corridor_pct": 7.21,
+          "quantile_low": 0.15,
+          "quantile_high": 0.85,
+          "min_chop": 51.3,
+          "max_efficiency_ratio": 0.053,
+          "max_slope_to_corridor_ratio": 0.35
+        },
+        "wicks": {
+          "enabled": true,
+          "long_wick_ratio": 1.85,
+          "min_dominant_wick_share": 0.31,
+          "body_floor_pct": 0.012,
+          "body_floor_range_share": 0.045,
+          "min_avg_wick_ratio": 3.47,
+          "min_long_wick_share": 0.349,
+          "min_two_sided_wick_share": 0.25,
+          "min_two_sided_share_per_candle": 0.1,
+          "max_two_sided_imbalance": 3.0
+        },
+        "axis": {
+          "enabled": true,
+          "tolerance_pct": 0.24,
+          "recent_window": 24,
+          "min_axis_touch_share": 0.598,
+          "min_recent_axis_touches": 14,
+          "min_rotation_count": 14,
+          "mode_bins": 31,
+          "use_hlc3": true,
+          "close_weight": 0.5,
+          "hlc3_weight": 0.5
+        },
+        "wall": {
+          "enabled": true,
+          "touch_tolerance_pct": 0.35,
+          "recent_window": 18,
+          "min_recent_wall_touch_share": 0.0,
+          "min_full_wall_touch_share": 0.0329,
+          "top_k_highs": 8,
+          "bottom_k_lows": 8,
+          "max_cluster_spread_pct": 5.34
+        },
+        "activity": {
+          "enabled": true,
+          "min_path_to_corridor_ratio": 6.85,
+          "ema_period": 20,
+          "axis_band_pct": 0.2,
+          "min_return_to_axis_count": 4
+        },
+        "reclaim": {
+          "enabled": true,
+          "lookback": 6,
+          "min_false_break_reclaim_share": 0.132
+        },
+        "liquidity": {
+          "enabled": false,
+          "min_avg_quote_turnover": 0.0
+        }
+      },
+      "filter_checks": {
+        "score": {
+          "enabled": true,
+          "score_pct": {
+            "actual": 82.411923,
+            "min": 78.1,
+            "passed": true
+          }
+        },
+        "regime": {
+          "enabled": true,
+          "corridor_min": {
+            "actual": 0.6887175688106932,
+            "min": 5.71,
+            "passed": false
+          },
+          "corridor_max": {
+            "actual": 0.6887175688106932,
+            "max": 7.21,
+            "passed": true
+          },
+          "chop": {
+            "actual": 71.97962198367517,
+            "min": 51.3,
+            "passed": true
+          },
+          "efficiency_ratio": {
+            "actual": 0.01298701298701307,
+            "max": 0.053,
+            "passed": true
+          },
+          "slope_to_corridor_ratio": {
+            "actual": 0.002083583764070174,
+            "max": 0.35,
+            "passed": true
+          }
+        },
+        "wicks": {
+          "enabled": true,
+          "avg_wick_ratio": {
+            "actual": 3.4538623275373013,
+            "min": 3.47,
+            "passed": false
+          },
+          "long_wick_share": {
+            "actual": 0.3050847457627119,
+            "min": 0.349,
+            "passed": false
+          },
+          "two_sided_wick_share": {
+            "actual": 0.01694915254237288,
+            "min": 0.25,
+            "passed": false
+          }
+        },
+        "axis": {
+          "enabled": true,
+          "axis_touch_share": {
+            "actual": 0.8305084745762712,
+            "min": 0.598,
+            "passed": true
+          },
+          "recent_axis_touch_count": {
+            "actual": 19,
+            "min": 14,
+            "passed": true
+          },
+          "rotation_count": {
+            "actual": 22,
+            "min": 14,
+            "passed": true
+          }
+        },
+        "wall": {
+          "enabled": true,
+          "recent_wall_touch_share": {
+            "actual": 0.6666666666666666,
+            "min": 0.0,
+            "passed": true
+          },
+          "wall_touch_share": {
+            "actual": 0.6949152542372882,
+            "min": 0.0329,
+            "passed": true
+          },
+          "wall_cluster_spread_pct": {
+            "actual": 0.08110300081103908,
+            "max": 5.34,
+            "passed": true
+          }
+        },
+        "activity": {
+          "enabled": true,
+          "path_to_corridor_ratio": {
+            "actual": 10.417651694247555,
+            "min": 6.85,
+            "passed": true
+          },
+          "return_to_axis_count": {
+            "actual": 11,
+            "min": 4,
+            "passed": true
+          }
+        },
+        "reclaim": {
+          "enabled": true,
+          "false_break_reclaim_share": {
+            "actual": 0.1864406779661017,
+            "min": 0.132,
+            "passed": true
+          }
+        },
+        "liquidity": {
+          "enabled": false,
+          "avg_quote_turnover": {
+            "actual": 328.87583050847456,
+            "min": 0.0,
+            "passed": true
+          }
+        }
+      }
+    },
+    {
+      "symbol": "LABUSDTM",
+      "score": 79.490011,
+      "fail_reasons": [
+        "corridor_too_narrow",
+        "slope",
+        "two_sided_wick_share",
+        "axis_touch_share",
+        "rotation_count",
+        "path_to_corridor",
+        "false_break_reclaim",
+        "score_pct"
+      ],
+      "metrics": {
+        "symbol": "LABUSDTM",
+        "candles_count": 59,
+        "corridor_low": 0.15315,
+        "corridor_high": 0.15510200000000002,
+        "corridor_mid": 0.154126,
+        "corridor_pct": 1.2664962433333826,
+        "structural_axis": 0.15426234139784945,
+        "axis_touch_count": 30,
+        "axis_touch_share": 0.5084745762711864,
+        "recent_axis_touch_count": 19,
+        "recent_axis_touch_share": 0.7916666666666666,
+        "rotation_count": 13,
+        "return_to_axis_count": 7,
+        "avg_axis_distance_pct": 0.26486147373457974,
+        "last_close_distance_to_axis_pct": 0.0,
+        "avg_wick_ratio": 5.193247084732504,
+        "long_wick_share": 0.3559322033898305,
+        "two_sided_wick_share": 0.15254237288135594,
+        "false_break_reclaim_share": 0.1016949152542373,
+        "chop": 60.445304015088055,
+        "efficiency_ratio": 0.01110461718293368,
+        "slope_to_corridor_ratio": 0.43881981105862505,
+        "path_to_corridor_ratio": 5.298838797814231,
+        "wall_side": "upper",
+        "wall_touch_share": 0.3220338983050847,
+        "recent_wall_touch_share": 0.3333333333333333,
+        "recent_top_wall_touch_share": 0.3333333333333333,
+        "recent_bottom_wall_touch_share": 0.0,
+        "wall_cluster_spread_pct": 0.4053793192201221,
+        "top_wall_touch_share": 0.3220338983050847,
+        "bottom_wall_touch_share": 0.3220338983050847,
+        "top_wall_cluster_spread_pct": 0.4053793192201221,
+        "bottom_wall_cluster_spread_pct": 0.13719661581682013,
+        "avg_quote_turnover": 8882.481986440678,
+        "score": 79.490011,
+        "score_pct": 79.490011
+      },
+      "filter_metrics": {
+        "timeframe": "1m",
+        "lookback_candles": 59,
+        "min_score_pct": 79.490011,
+        "regime": {
+          "corridor_low": 0.15315,
+          "corridor_high": 0.15510200000000002,
+          "corridor_mid": 0.154126,
+          "min_corridor_pct": 1.2664962433333826,
+          "max_corridor_pct": 1.2664962433333826,
+          "min_chop": 60.445304015088055,
+          "max_efficiency_ratio": 0.01110461718293368,
+          "max_slope_to_corridor_ratio": 0.43881981105862505
+        },
+        "wicks": {
+          "min_avg_wick_ratio": 5.193247084732504,
+          "min_long_wick_share": 0.3559322033898305,
+          "min_two_sided_wick_share": 0.15254237288135594,
+          "min_false_break_reclaim_share": 0.1016949152542373
+        },
+        "axis": {
+          "structural_axis": 0.15426234139784945,
+          "axis_touch_count": 30,
+          "min_axis_touch_share": 0.5084745762711864,
+          "min_recent_axis_touches": 19,
+          "recent_axis_touch_share": 0.7916666666666666,
+          "min_rotation_count": 13,
+          "avg_axis_distance_pct": 0.26486147373457974,
+          "last_close_distance_to_axis_pct": 0.0
+        },
+        "wall": {
+          "wall_side": "upper",
+          "min_recent_wall_touch_share": 0.3333333333333333,
+          "min_full_wall_touch_share": 0.3220338983050847,
+          "max_cluster_spread_pct": 0.4053793192201221,
+          "recent_top_wall_touch_share": 0.3333333333333333,
+          "recent_bottom_wall_touch_share": 0.0,
+          "top_wall_touch_share": 0.3220338983050847,
+          "bottom_wall_touch_share": 0.3220338983050847,
+          "top_wall_cluster_spread_pct": 0.4053793192201221,
+          "bottom_wall_cluster_spread_pct": 0.13719661581682013
+        },
+        "activity": {
+          "min_path_to_corridor_ratio": 5.298838797814231,
+          "min_return_to_axis_count": 7,
+          "avg_quote_turnover": 8882.481986440678
+        },
+        "reclaim": {
+          "min_false_break_reclaim_share": 0.1016949152542373
+        },
+        "liquidity": {
+          "min_avg_quote_turnover": 8882.481986440678
+        }
+      },
+      "active_filter": {
+        "timeframe": "1m",
+        "lookback_candles": 59,
+        "min_score_pct": 78.1,
+        "approximation": {
+          "enabled": true,
+          "min_match_pct": 95.0
+        },
+        "regime": {
+          "enabled": true,
+          "min_corridor_pct": 5.71,
+          "max_corridor_pct": 7.21,
+          "quantile_low": 0.15,
+          "quantile_high": 0.85,
+          "min_chop": 51.3,
+          "max_efficiency_ratio": 0.053,
+          "max_slope_to_corridor_ratio": 0.35
+        },
+        "wicks": {
+          "enabled": true,
+          "long_wick_ratio": 1.85,
+          "min_dominant_wick_share": 0.31,
+          "body_floor_pct": 0.012,
+          "body_floor_range_share": 0.045,
+          "min_avg_wick_ratio": 3.47,
+          "min_long_wick_share": 0.349,
+          "min_two_sided_wick_share": 0.25,
+          "min_two_sided_share_per_candle": 0.1,
+          "max_two_sided_imbalance": 3.0
+        },
+        "axis": {
+          "enabled": true,
+          "tolerance_pct": 0.24,
+          "recent_window": 24,
+          "min_axis_touch_share": 0.598,
+          "min_recent_axis_touches": 14,
+          "min_rotation_count": 14,
+          "mode_bins": 31,
+          "use_hlc3": true,
+          "close_weight": 0.5,
+          "hlc3_weight": 0.5
+        },
+        "wall": {
+          "enabled": true,
+          "touch_tolerance_pct": 0.35,
+          "recent_window": 18,
+          "min_recent_wall_touch_share": 0.0,
+          "min_full_wall_touch_share": 0.0329,
+          "top_k_highs": 8,
+          "bottom_k_lows": 8,
+          "max_cluster_spread_pct": 5.34
+        },
+        "activity": {
+          "enabled": true,
+          "min_path_to_corridor_ratio": 6.85,
+          "ema_period": 20,
+          "axis_band_pct": 0.2,
+          "min_return_to_axis_count": 4
+        },
+        "reclaim": {
+          "enabled": true,
+          "lookback": 6,
+          "min_false_break_reclaim_share": 0.132
+        },
+        "liquidity": {
+          "enabled": false,
+          "min_avg_quote_turnover": 0.0
+        }
+      },
+      "filter_checks": {
+        "score": {
+          "enabled": true,
+          "score_pct": {
+            "actual": 79.490011,
+            "min": 78.1,
+            "passed": true
+          }
+        },
+        "regime": {
+          "enabled": true,
+          "corridor_min": {
+            "actual": 1.2664962433333826,
+            "min": 5.71,
+            "passed": false
+          },
+          "corridor_max": {
+            "actual": 1.2664962433333826,
+            "max": 7.21,
+            "passed": true
+          },
+          "chop": {
+            "actual": 60.445304015088055,
+            "min": 51.3,
+            "passed": true
+          },
+          "efficiency_ratio": {
+            "actual": 0.01110461718293368,
+            "max": 0.053,
+            "passed": true
+          },
+          "slope_to_corridor_ratio": {
+            "actual": 0.43881981105862505,
+            "max": 0.35,
+            "passed": false
+          }
+        },
+        "wicks": {
+          "enabled": true,
+          "avg_wick_ratio": {
+            "actual": 5.193247084732504,
+            "min": 3.47,
+            "passed": true
+          },
+          "long_wick_share": {
+            "actual": 0.3559322033898305,
+            "min": 0.349,
+            "passed": true
+          },
+          "two_sided_wick_share": {
+            "actual": 0.15254237288135594,
+            "min": 0.25,
+            "passed": false
+          }
+        },
+        "axis": {
+          "enabled": true,
+          "axis_touch_share": {
+            "actual": 0.5084745762711864,
+            "min": 0.598,
+            "passed": false
+          },
+          "recent_axis_touch_count": {
+            "actual": 19,
+            "min": 14,
+            "passed": true
+          },
+          "rotation_count": {
+            "actual": 13,
+            "min": 14,
+            "passed": false
+          }
+        },
+        "wall": {
+          "enabled": true,
+          "recent_wall_touch_share": {
+            "actual": 0.3333333333333333,
+            "min": 0.0,
+            "passed": true
+          },
+          "wall_touch_share": {
+            "actual": 0.3220338983050847,
+            "min": 0.0329,
+            "passed": true
+          },
+          "wall_cluster_spread_pct": {
+            "actual": 0.4053793192201221,
+            "max": 5.34,
+            "passed": true
+          }
+        },
+        "activity": {
+          "enabled": true,
+          "path_to_corridor_ratio": {
+            "actual": 5.298838797814231,
+            "min": 6.85,
+            "passed": false
+          },
+          "return_to_axis_count": {
+            "actual": 7,
+            "min": 4,
+            "passed": true
+          }
+        },
+        "reclaim": {
+          "enabled": true,
+          "false_break_reclaim_share": {
+            "actual": 0.1016949152542373,
+            "min": 0.132,
+            "passed": false
+          }
+        },
+        "liquidity": {
+          "enabled": false,
+          "avg_quote_turnover": {
+            "actual": 8882.481986440678,
+            "min": 0.0,
+            "passed": true
+          }
+        }
+      }
+    },
+    {
+      "symbol": "TWTUSDTM",
+      "score": 78.757888,
+      "fail_reasons": [
+        "corridor_too_narrow",
+        "slope",
+        "avg_wick_ratio",
+        "long_wick_share",
+        "return_to_axis",
+        "score_pct"
+      ],
+      "metrics": {
+        "symbol": "TWTUSDTM",
+        "candles_count": 59,
+        "corridor_low": 0.489,
+        "corridor_high": 0.49043000000000003,
+        "corridor_mid": 0.489715,
+        "corridor_pct": 0.29200657525296186,
+        "structural_axis": 0.4894057123655914,
+        "axis_touch_count": 55,
+        "axis_touch_share": 0.9322033898305084,
+        "recent_axis_touch_count": 20,
+        "recent_axis_touch_share": 0.8333333333333334,
+        "rotation_count": 21,
+        "return_to_axis_count": 3,
+        "avg_axis_distance_pct": 0.05306300265333811,
+        "last_close_distance_to_axis_pct": 0.04203309450497181,
+        "avg_wick_ratio": 2.250848378138738,
+        "long_wick_share": 0.3050847457627119,
+        "two_sided_wick_share": 0.2711864406779661,
+        "false_break_reclaim_share": 0.1694915254237288,
+        "chop": 63.07026711413226,
+        "efficiency_ratio": 0.02325581395348825,
+        "slope_to_corridor_ratio": 0.6104065426099254,
+        "path_to_corridor_ratio": 10.885780885780957,
+        "wall_side": "lower",
+        "wall_touch_share": 0.9491525423728814,
+        "recent_wall_touch_share": 0.8333333333333334,
+        "recent_top_wall_touch_share": 0.6666666666666666,
+        "recent_bottom_wall_touch_share": 0.8333333333333334,
+        "wall_cluster_spread_pct": 0.06136224176722581,
+        "top_wall_touch_share": 0.423728813559322,
+        "bottom_wall_touch_share": 0.9491525423728814,
+        "top_wall_cluster_spread_pct": 0.244125724748241,
+        "bottom_wall_cluster_spread_pct": 0.06136224176722581,
+        "avg_quote_turnover": 5688.563654237288,
+        "score": 78.757888,
+        "score_pct": 78.757888
+      },
+      "filter_metrics": {
+        "timeframe": "1m",
+        "lookback_candles": 59,
+        "min_score_pct": 78.757888,
+        "regime": {
+          "corridor_low": 0.489,
+          "corridor_high": 0.49043000000000003,
+          "corridor_mid": 0.489715,
+          "min_corridor_pct": 0.29200657525296186,
+          "max_corridor_pct": 0.29200657525296186,
+          "min_chop": 63.07026711413226,
+          "max_efficiency_ratio": 0.02325581395348825,
+          "max_slope_to_corridor_ratio": 0.6104065426099254
+        },
+        "wicks": {
+          "min_avg_wick_ratio": 2.250848378138738,
+          "min_long_wick_share": 0.3050847457627119,
+          "min_two_sided_wick_share": 0.2711864406779661,
+          "min_false_break_reclaim_share": 0.1694915254237288
+        },
+        "axis": {
+          "structural_axis": 0.4894057123655914,
+          "axis_touch_count": 55,
+          "min_axis_touch_share": 0.9322033898305084,
+          "min_recent_axis_touches": 20,
+          "recent_axis_touch_share": 0.8333333333333334,
+          "min_rotation_count": 21,
+          "avg_axis_distance_pct": 0.05306300265333811,
+          "last_close_distance_to_axis_pct": 0.04203309450497181
+        },
+        "wall": {
+          "wall_side": "lower",
+          "min_recent_wall_touch_share": 0.8333333333333334,
+          "min_full_wall_touch_share": 0.9491525423728814,
+          "max_cluster_spread_pct": 0.06136224176722581,
+          "recent_top_wall_touch_share": 0.6666666666666666,
+          "recent_bottom_wall_touch_share": 0.8333333333333334,
+          "top_wall_touch_share": 0.423728813559322,
+          "bottom_wall_touch_share": 0.9491525423728814,
+          "top_wall_cluster_spread_pct": 0.244125724748241,
+          "bottom_wall_cluster_spread_pct": 0.06136224176722581
+        },
+        "activity": {
+          "min_path_to_corridor_ratio": 10.885780885780957,
+          "min_return_to_axis_count": 3,
+          "avg_quote_turnover": 5688.563654237288
+        },
+        "reclaim": {
+          "min_false_break_reclaim_share": 0.1694915254237288
+        },
+        "liquidity": {
+          "min_avg_quote_turnover": 5688.563654237288
+        }
+      },
+      "active_filter": {
+        "timeframe": "1m",
+        "lookback_candles": 59,
+        "min_score_pct": 78.1,
+        "approximation": {
+          "enabled": true,
+          "min_match_pct": 95.0
+        },
+        "regime": {
+          "enabled": true,
+          "min_corridor_pct": 5.71,
+          "max_corridor_pct": 7.21,
+          "quantile_low": 0.15,
+          "quantile_high": 0.85,
+          "min_chop": 51.3,
+          "max_efficiency_ratio": 0.053,
+          "max_slope_to_corridor_ratio": 0.35
+        },
+        "wicks": {
+          "enabled": true,
+          "long_wick_ratio": 1.85,
+          "min_dominant_wick_share": 0.31,
+          "body_floor_pct": 0.012,
+          "body_floor_range_share": 0.045,
+          "min_avg_wick_ratio": 3.47,
+          "min_long_wick_share": 0.349,
+          "min_two_sided_wick_share": 0.25,
+          "min_two_sided_share_per_candle": 0.1,
+          "max_two_sided_imbalance": 3.0
+        },
+        "axis": {
+          "enabled": true,
+          "tolerance_pct": 0.24,
+          "recent_window": 24,
+          "min_axis_touch_share": 0.598,
+          "min_recent_axis_touches": 14,
+          "min_rotation_count": 14,
+          "mode_bins": 31,
+          "use_hlc3": true,
+          "close_weight": 0.5,
+          "hlc3_weight": 0.5
+        },
+        "wall": {
+          "enabled": true,
+          "touch_tolerance_pct": 0.35,
+          "recent_window": 18,
+          "min_recent_wall_touch_share": 0.0,
+          "min_full_wall_touch_share": 0.0329,
+          "top_k_highs": 8,
+          "bottom_k_lows": 8,
+          "max_cluster_spread_pct": 5.34
+        },
+        "activity": {
+          "enabled": true,
+          "min_path_to_corridor_ratio": 6.85,
+          "ema_period": 20,
+          "axis_band_pct": 0.2,
+          "min_return_to_axis_count": 4
+        },
+        "reclaim": {
+          "enabled": true,
+          "lookback": 6,
+          "min_false_break_reclaim_share": 0.132
+        },
+        "liquidity": {
+          "enabled": false,
+          "min_avg_quote_turnover": 0.0
+        }
+      },
+      "filter_checks": {
+        "score": {
+          "enabled": true,
+          "score_pct": {
+            "actual": 78.757888,
+            "min": 78.1,
+            "passed": true
+          }
+        },
+        "regime": {
+          "enabled": true,
+          "corridor_min": {
+            "actual": 0.29200657525296186,
+            "min": 5.71,
+            "passed": false
+          },
+          "corridor_max": {
+            "actual": 0.29200657525296186,
+            "max": 7.21,
+            "passed": true
+          },
+          "chop": {
+            "actual": 63.07026711413226,
+            "min": 51.3,
+            "passed": true
+          },
+          "efficiency_ratio": {
+            "actual": 0.02325581395348825,
+            "max": 0.053,
+            "passed": true
+          },
+          "slope_to_corridor_ratio": {
+            "actual": 0.6104065426099254,
+            "max": 0.35,
+            "passed": false
+          }
+        },
+        "wicks": {
+          "enabled": true,
+          "avg_wick_ratio": {
+            "actual": 2.250848378138738,
+            "min": 3.47,
+            "passed": false
+          },
+          "long_wick_share": {
+            "actual": 0.3050847457627119,
+            "min": 0.349,
+            "passed": false
+          },
+          "two_sided_wick_share": {
+            "actual": 0.2711864406779661,
+            "min": 0.25,
+            "passed": true
+          }
+        },
+        "axis": {
+          "enabled": true,
+          "axis_touch_share": {
+            "actual": 0.9322033898305084,
+            "min": 0.598,
+            "passed": true
+          },
+          "recent_axis_touch_count": {
+            "actual": 20,
+            "min": 14,
+            "passed": true
+          },
+          "rotation_count": {
+            "actual": 21,
+            "min": 14,
+            "passed": true
+          }
+        },
+        "wall": {
+          "enabled": true,
+          "recent_wall_touch_share": {
+            "actual": 0.8333333333333334,
+            "min": 0.0,
+            "passed": true
+          },
+          "wall_touch_share": {
+            "actual": 0.9491525423728814,
+            "min": 0.0329,
+            "passed": true
+          },
+          "wall_cluster_spread_pct": {
+            "actual": 0.06136224176722581,
+            "max": 5.34,
+            "passed": true
+          }
+        },
+        "activity": {
+          "enabled": true,
+          "path_to_corridor_ratio": {
+            "actual": 10.885780885780957,
+            "min": 6.85,
+            "passed": true
+          },
+          "return_to_axis_count": {
+            "actual": 3,
+            "min": 4,
+            "passed": false
+          }
+        },
+        "reclaim": {
+          "enabled": true,
+          "false_break_reclaim_share": {
+            "actual": 0.1694915254237288,
+            "min": 0.132,
+            "passed": true
+          }
+        },
+        "liquidity": {
+          "enabled": false,
+          "avg_quote_turnover": {
+            "actual": 5688.563654237288,
+            "min": 0.0,
+            "passed": true
+          }
+        }
+      }
+    },
+    {
+      "symbol": "ICNTUSDTM",
+      "score": 77.273079,
+      "fail_reasons": [
+        "corridor_too_narrow",
+        "trend_efficiency",
+        "slope",
+        "two_sided_wick_share",
+        "axis_touch_share",
+        "path_to_corridor",
+        "score_pct"
+      ],
+      "metrics": {
+        "symbol": "ICNTUSDTM",
+        "candles_count": 59,
+        "corridor_low": 0.32746600000000003,
+        "corridor_high": 0.33049300000000004,
+        "corridor_mid": 0.32897950000000004,
+        "corridor_pct": 0.9201181228617593,
+        "structural_axis": 0.32912236370967746,
+        "axis_touch_count": 32,
+        "axis_touch_share": 0.5423728813559322,
+        "recent_axis_touch_count": 15,
+        "recent_axis_touch_share": 0.625,
+        "rotation_count": 15,
+        "return_to_axis_count": 4,
+        "avg_axis_distance_pct": 0.1879450194771272,
+        "last_close_distance_to_axis_pct": 0.0,
+        "avg_wick_ratio": 4.219172795857812,
+        "long_wick_share": 0.3728813559322034,
+        "two_sided_wick_share": 0.1864406779661017,
+        "false_break_reclaim_share": 0.1694915254237288,
+        "chop": 62.09108771062032,
+        "efficiency_ratio": 0.08371385083713906,
+        "slope_to_corridor_ratio": 0.9775187157391387,
+        "path_to_corridor_ratio": 4.805638145578673,
+        "wall_side": "upper",
+        "wall_touch_share": 0.559322033898305,
+        "recent_wall_touch_share": 0.9444444444444444,
+        "recent_top_wall_touch_share": 0.9444444444444444,
+        "recent_bottom_wall_touch_share": 0.16666666666666666,
+        "wall_cluster_spread_pct": 0.275323732300607,
+        "top_wall_touch_share": 0.559322033898305,
+        "bottom_wall_touch_share": 0.4576271186440678,
+        "top_wall_cluster_spread_pct": 0.275323732300607,
+        "bottom_wall_cluster_spread_pct": 0.0916604286652613,
+        "avg_quote_turnover": 3754.54730338983,
+        "score": 77.273079,
+        "score_pct": 77.273079
+      },
+      "filter_metrics": {
+        "timeframe": "1m",
+        "lookback_candles": 59,
+        "min_score_pct": 77.273079,
+        "regime": {
+          "corridor_low": 0.32746600000000003,
+          "corridor_high": 0.33049300000000004,
+          "corridor_mid": 0.32897950000000004,
+          "min_corridor_pct": 0.9201181228617593,
+          "max_corridor_pct": 0.9201181228617593,
+          "min_chop": 62.09108771062032,
+          "max_efficiency_ratio": 0.08371385083713906,
+          "max_slope_to_corridor_ratio": 0.9775187157391387
+        },
+        "wicks": {
+          "min_avg_wick_ratio": 4.219172795857812,
+          "min_long_wick_share": 0.3728813559322034,
+          "min_two_sided_wick_share": 0.1864406779661017,
+          "min_false_break_reclaim_share": 0.1694915254237288
+        },
+        "axis": {
+          "structural_axis": 0.32912236370967746,
+          "axis_touch_count": 32,
+          "min_axis_touch_share": 0.5423728813559322,
+          "min_recent_axis_touches": 15,
+          "recent_axis_touch_share": 0.625,
+          "min_rotation_count": 15,
+          "avg_axis_distance_pct": 0.1879450194771272,
+          "last_close_distance_to_axis_pct": 0.0
+        },
+        "wall": {
+          "wall_side": "upper",
+          "min_recent_wall_touch_share": 0.9444444444444444,
+          "min_full_wall_touch_share": 0.559322033898305,
+          "max_cluster_spread_pct": 0.275323732300607,
+          "recent_top_wall_touch_share": 0.9444444444444444,
+          "recent_bottom_wall_touch_share": 0.16666666666666666,
+          "top_wall_touch_share": 0.559322033898305,
+          "bottom_wall_touch_share": 0.4576271186440678,
+          "top_wall_cluster_spread_pct": 0.275323732300607,
+          "bottom_wall_cluster_spread_pct": 0.0916604286652613
+        },
+        "activity": {
+          "min_path_to_corridor_ratio": 4.805638145578673,
+          "min_return_to_axis_count": 4,
+          "avg_quote_turnover": 3754.54730338983
+        },
+        "reclaim": {
+          "min_false_break_reclaim_share": 0.1694915254237288
+        },
+        "liquidity": {
+          "min_avg_quote_turnover": 3754.54730338983
+        }
+      },
+      "active_filter": {
+        "timeframe": "1m",
+        "lookback_candles": 59,
+        "min_score_pct": 78.1,
+        "approximation": {
+          "enabled": true,
+          "min_match_pct": 95.0
+        },
+        "regime": {
+          "enabled": true,
+          "min_corridor_pct": 5.71,
+          "max_corridor_pct": 7.21,
+          "quantile_low": 0.15,
+          "quantile_high": 0.85,
+          "min_chop": 51.3,
+          "max_efficiency_ratio": 0.053,
+          "max_slope_to_corridor_ratio": 0.35
+        },
+        "wicks": {
+          "enabled": true,
+          "long_wick_ratio": 1.85,
+          "min_dominant_wick_share": 0.31,
+          "body_floor_pct": 0.012,
+          "body_floor_range_share": 0.045,
+          "min_avg_wick_ratio": 3.47,
+          "min_long_wick_share": 0.349,
+          "min_two_sided_wick_share": 0.25,
+          "min_two_sided_share_per_candle": 0.1,
+          "max_two_sided_imbalance": 3.0
+        },
+        "axis": {
+          "enabled": true,
+          "tolerance_pct": 0.24,
+          "recent_window": 24,
+          "min_axis_touch_share": 0.598,
+          "min_recent_axis_touches": 14,
+          "min_rotation_count": 14,
+          "mode_bins": 31,
+          "use_hlc3": true,
+          "close_weight": 0.5,
+          "hlc3_weight": 0.5
+        },
+        "wall": {
+          "enabled": true,
+          "touch_tolerance_pct": 0.35,
+          "recent_window": 18,
+          "min_recent_wall_touch_share": 0.0,
+          "min_full_wall_touch_share": 0.0329,
+          "top_k_highs": 8,
+          "bottom_k_lows": 8,
+          "max_cluster_spread_pct": 5.34
+        },
+        "activity": {
+          "enabled": true,
+          "min_path_to_corridor_ratio": 6.85,
+          "ema_period": 20,
+          "axis_band_pct": 0.2,
+          "min_return_to_axis_count": 4
+        },
+        "reclaim": {
+          "enabled": true,
+          "lookback": 6,
+          "min_false_break_reclaim_share": 0.132
+        },
+        "liquidity": {
+          "enabled": false,
+          "min_avg_quote_turnover": 0.0
+        }
+      },
+      "filter_checks": {
+        "score": {
+          "enabled": true,
+          "score_pct": {
+            "actual": 77.273079,
+            "min": 78.1,
+            "passed": false
+          }
+        },
+        "regime": {
+          "enabled": true,
+          "corridor_min": {
+            "actual": 0.9201181228617593,
+            "min": 5.71,
+            "passed": false
+          },
+          "corridor_max": {
+            "actual": 0.9201181228617593,
+            "max": 7.21,
+            "passed": true
+          },
+          "chop": {
+            "actual": 62.09108771062032,
+            "min": 51.3,
+            "passed": true
+          },
+          "efficiency_ratio": {
+            "actual": 0.08371385083713906,
+            "max": 0.053,
+            "passed": false
+          },
+          "slope_to_corridor_ratio": {
+            "actual": 0.9775187157391387,
+            "max": 0.35,
+            "passed": false
+          }
+        },
+        "wicks": {
+          "enabled": true,
+          "avg_wick_ratio": {
+            "actual": 4.219172795857812,
+            "min": 3.47,
+            "passed": true
+          },
+          "long_wick_share": {
+            "actual": 0.3728813559322034,
+            "min": 0.349,
+            "passed": true
+          },
+          "two_sided_wick_share": {
+            "actual": 0.1864406779661017,
+            "min": 0.25,
+            "passed": false
+          }
+        },
+        "axis": {
+          "enabled": true,
+          "axis_touch_share": {
+            "actual": 0.5423728813559322,
+            "min": 0.598,
+            "passed": false
+          },
+          "recent_axis_touch_count": {
+            "actual": 15,
+            "min": 14,
+            "passed": true
+          },
+          "rotation_count": {
+            "actual": 15,
+            "min": 14,
+            "passed": true
+          }
+        },
+        "wall": {
+          "enabled": true,
+          "recent_wall_touch_share": {
+            "actual": 0.9444444444444444,
+            "min": 0.0,
+            "passed": true
+          },
+          "wall_touch_share": {
+            "actual": 0.559322033898305,
+            "min": 0.0329,
+            "passed": true
+          },
+          "wall_cluster_spread_pct": {
+            "actual": 0.275323732300607,
+            "max": 5.34,
+            "passed": true
+          }
+        },
+        "activity": {
+          "enabled": true,
+          "path_to_corridor_ratio": {
+            "actual": 4.805638145578673,
+            "min": 6.85,
+            "passed": false
+          },
+          "return_to_axis_count": {
+            "actual": 4,
+            "min": 4,
+            "passed": true
+          }
+        },
+        "reclaim": {
+          "enabled": true,
+          "false_break_reclaim_share": {
+            "actual": 0.1694915254237288,
+            "min": 0.132,
+            "passed": true
+          }
+        },
+        "liquidity": {
+          "enabled": false,
+          "avg_quote_turnover": {
+            "actual": 3754.54730338983,
+            "min": 0.0,
+            "passed": true
+          }
+        }
+      }
+    },
+    {
+      "symbol": "NUMIUSDTM",
+      "score": 77.237064,
+      "fail_reasons": [
+        "corridor_too_narrow",
+        "two_sided_wick_share",
+        "false_break_reclaim",
+        "score_pct"
+      ],
+      "metrics": {
+        "symbol": "NUMIUSDTM",
+        "candles_count": 59,
+        "corridor_low": 0.03949,
+        "corridor_high": 0.039883,
+        "corridor_mid": 0.0396865,
+        "corridor_pct": 0.990261171935052,
+        "structural_axis": 0.03956849811827957,
+        "axis_touch_count": 49,
+        "axis_touch_share": 0.8305084745762712,
+        "recent_axis_touch_count": 22,
+        "recent_axis_touch_share": 0.9166666666666666,
+        "rotation_count": 20,
+        "return_to_axis_count": 11,
+        "avg_axis_distance_pct": 0.09937086758068552,
+        "last_close_distance_to_axis_pct": 0.029068279736188214,
+        "avg_wick_ratio": 5.46529362484354,
+        "long_wick_share": 0.3559322033898305,
+        "two_sided_wick_share": 0.0,
+        "false_break_reclaim_share": 0.06779661016949153,
+        "chop": 77.04267901771428,
+        "efficiency_ratio": 0.03193277310924383,
+        "slope_to_corridor_ratio": 0.045542761029890515,
+        "path_to_corridor_ratio": 12.052586938083214,
+        "wall_side": "lower",
+        "wall_touch_share": 0.8305084745762712,
+        "recent_wall_touch_share": 0.8888888888888888,
+        "recent_top_wall_touch_share": 0.16666666666666666,
+        "recent_bottom_wall_touch_share": 0.8888888888888888,
+        "wall_cluster_spread_pct": 0.025322866548483477,
+        "top_wall_touch_share": 0.2542372881355932,
+        "bottom_wall_touch_share": 0.8305084745762712,
+        "top_wall_cluster_spread_pct": 0.22547914317925544,
+        "bottom_wall_cluster_spread_pct": 0.025322866548483477,
+        "avg_quote_turnover": 367.7394762711864,
+        "score": 77.237064,
+        "score_pct": 77.237064
+      },
+      "filter_metrics": {
+        "timeframe": "1m",
+        "lookback_candles": 59,
+        "min_score_pct": 77.237064,
+        "regime": {
+          "corridor_low": 0.03949,
+          "corridor_high": 0.039883,
+          "corridor_mid": 0.0396865,
+          "min_corridor_pct": 0.990261171935052,
+          "max_corridor_pct": 0.990261171935052,
+          "min_chop": 77.04267901771428,
+          "max_efficiency_ratio": 0.03193277310924383,
+          "max_slope_to_corridor_ratio": 0.045542761029890515
+        },
+        "wicks": {
+          "min_avg_wick_ratio": 5.46529362484354,
+          "min_long_wick_share": 0.3559322033898305,
+          "min_two_sided_wick_share": 0.0,
+          "min_false_break_reclaim_share": 0.06779661016949153
+        },
+        "axis": {
+          "structural_axis": 0.03956849811827957,
+          "axis_touch_count": 49,
+          "min_axis_touch_share": 0.8305084745762712,
+          "min_recent_axis_touches": 22,
+          "recent_axis_touch_share": 0.9166666666666666,
+          "min_rotation_count": 20,
+          "avg_axis_distance_pct": 0.09937086758068552,
+          "last_close_distance_to_axis_pct": 0.029068279736188214
+        },
+        "wall": {
+          "wall_side": "lower",
+          "min_recent_wall_touch_share": 0.8888888888888888,
+          "min_full_wall_touch_share": 0.8305084745762712,
+          "max_cluster_spread_pct": 0.025322866548483477,
+          "recent_top_wall_touch_share": 0.16666666666666666,
+          "recent_bottom_wall_touch_share": 0.8888888888888888,
+          "top_wall_touch_share": 0.2542372881355932,
+          "bottom_wall_touch_share": 0.8305084745762712,
+          "top_wall_cluster_spread_pct": 0.22547914317925544,
+          "bottom_wall_cluster_spread_pct": 0.025322866548483477
+        },
+        "activity": {
+          "min_path_to_corridor_ratio": 12.052586938083214,
+          "min_return_to_axis_count": 11,
+          "avg_quote_turnover": 367.7394762711864
+        },
+        "reclaim": {
+          "min_false_break_reclaim_share": 0.06779661016949153
+        },
+        "liquidity": {
+          "min_avg_quote_turnover": 367.7394762711864
+        }
+      },
+      "active_filter": {
+        "timeframe": "1m",
+        "lookback_candles": 59,
+        "min_score_pct": 78.1,
+        "approximation": {
+          "enabled": true,
+          "min_match_pct": 95.0
+        },
+        "regime": {
+          "enabled": true,
+          "min_corridor_pct": 5.71,
+          "max_corridor_pct": 7.21,
+          "quantile_low": 0.15,
+          "quantile_high": 0.85,
+          "min_chop": 51.3,
+          "max_efficiency_ratio": 0.053,
+          "max_slope_to_corridor_ratio": 0.35
+        },
+        "wicks": {
+          "enabled": true,
+          "long_wick_ratio": 1.85,
+          "min_dominant_wick_share": 0.31,
+          "body_floor_pct": 0.012,
+          "body_floor_range_share": 0.045,
+          "min_avg_wick_ratio": 3.47,
+          "min_long_wick_share": 0.349,
+          "min_two_sided_wick_share": 0.25,
+          "min_two_sided_share_per_candle": 0.1,
+          "max_two_sided_imbalance": 3.0
+        },
+        "axis": {
+          "enabled": true,
+          "tolerance_pct": 0.24,
+          "recent_window": 24,
+          "min_axis_touch_share": 0.598,
+          "min_recent_axis_touches": 14,
+          "min_rotation_count": 14,
+          "mode_bins": 31,
+          "use_hlc3": true,
+          "close_weight": 0.5,
+          "hlc3_weight": 0.5
+        },
+        "wall": {
+          "enabled": true,
+          "touch_tolerance_pct": 0.35,
+          "recent_window": 18,
+          "min_recent_wall_touch_share": 0.0,
+          "min_full_wall_touch_share": 0.0329,
+          "top_k_highs": 8,
+          "bottom_k_lows": 8,
+          "max_cluster_spread_pct": 5.34
+        },
+        "activity": {
+          "enabled": true,
+          "min_path_to_corridor_ratio": 6.85,
+          "ema_period": 20,
+          "axis_band_pct": 0.2,
+          "min_return_to_axis_count": 4
+        },
+        "reclaim": {
+          "enabled": true,
+          "lookback": 6,
+          "min_false_break_reclaim_share": 0.132
+        },
+        "liquidity": {
+          "enabled": false,
+          "min_avg_quote_turnover": 0.0
+        }
+      },
+      "filter_checks": {
+        "score": {
+          "enabled": true,
+          "score_pct": {
+            "actual": 77.237064,
+            "min": 78.1,
+            "passed": false
+          }
+        },
+        "regime": {
+          "enabled": true,
+          "corridor_min": {
+            "actual": 0.990261171935052,
+            "min": 5.71,
+            "passed": false
+          },
+          "corridor_max": {
+            "actual": 0.990261171935052,
+            "max": 7.21,
+            "passed": true
+          },
+          "chop": {
+            "actual": 77.04267901771428,
+            "min": 51.3,
+            "passed": true
+          },
+          "efficiency_ratio": {
+            "actual": 0.03193277310924383,
+            "max": 0.053,
+            "passed": true
+          },
+          "slope_to_corridor_ratio": {
+            "actual": 0.045542761029890515,
+            "max": 0.35,
+            "passed": true
+          }
+        },
+        "wicks": {
+          "enabled": true,
+          "avg_wick_ratio": {
+            "actual": 5.46529362484354,
+            "min": 3.47,
+            "passed": true
+          },
+          "long_wick_share": {
+            "actual": 0.3559322033898305,
+            "min": 0.349,
+            "passed": true
+          },
+          "two_sided_wick_share": {
+            "actual": 0.0,
+            "min": 0.25,
+            "passed": false
+          }
+        },
+        "axis": {
+          "enabled": true,
+          "axis_touch_share": {
+            "actual": 0.8305084745762712,
+            "min": 0.598,
+            "passed": true
+          },
+          "recent_axis_touch_count": {
+            "actual": 22,
+            "min": 14,
+            "passed": true
+          },
+          "rotation_count": {
+            "actual": 20,
+            "min": 14,
+            "passed": true
+          }
+        },
+        "wall": {
+          "enabled": true,
+          "recent_wall_touch_share": {
+            "actual": 0.8888888888888888,
+            "min": 0.0,
+            "passed": true
+          },
+          "wall_touch_share": {
+            "actual": 0.8305084745762712,
+            "min": 0.0329,
+            "passed": true
+          },
+          "wall_cluster_spread_pct": {
+            "actual": 0.025322866548483477,
+            "max": 5.34,
+            "passed": true
+          }
+        },
+        "activity": {
+          "enabled": true,
+          "path_to_corridor_ratio": {
+            "actual": 12.052586938083214,
+            "min": 6.85,
+            "passed": true
+          },
+          "return_to_axis_count": {
+            "actual": 11,
+            "min": 4,
+            "passed": true
+          }
+        },
+        "reclaim": {
+          "enabled": true,
+          "false_break_reclaim_share": {
+            "actual": 0.06779661016949153,
+            "min": 0.132,
+            "passed": false
+          }
+        },
+        "liquidity": {
+          "enabled": false,
+          "avg_quote_turnover": {
+            "actual": 367.7394762711864,
+            "min": 0.0,
+            "passed": true
+          }
+        }
+      }
+    },
+    {
+      "symbol": "PIEVERSEUSDTM",
+      "score": 76.748749,
+      "fail_reasons": [
+        "corridor_too_narrow",
+        "slope",
+        "two_sided_wick_share",
+        "recent_axis_touches",
+        "rotation_count",
+        "path_to_corridor",
+        "score_pct"
+      ],
+      "metrics": {
+        "symbol": "PIEVERSEUSDTM",
+        "candles_count": 59,
+        "corridor_low": 0.48026099999999994,
+        "corridor_high": 0.484638,
+        "corridor_mid": 0.4824495,
+        "corridor_pct": 0.9072452142659648,
+        "structural_axis": 0.4819522959677419,
+        "axis_touch_count": 39,
+        "axis_touch_share": 0.6610169491525424,
+        "recent_axis_touch_count": 9,
+        "recent_axis_touch_share": 0.375,
+        "rotation_count": 9,
+        "return_to_axis_count": 8,
+        "avg_axis_distance_pct": 0.19349242949772838,
+        "last_close_distance_to_axis_pct": 0.20908792025456624,
+        "avg_wick_ratio": 4.562999854199657,
+        "long_wick_share": 0.4406779661016949,
+        "two_sided_wick_share": 0.2033898305084746,
+        "false_break_reclaim_share": 0.15254237288135594,
+        "chop": 57.44316256298862,
+        "efficiency_ratio": 0.03737373737373688,
+        "slope_to_corridor_ratio": 0.7930747396831508,
+        "path_to_corridor_ratio": 5.746706267610905,
+        "wall_side": "upper",
+        "wall_touch_share": 0.288135593220339,
+        "recent_wall_touch_share": 0.7777777777777778,
+        "recent_top_wall_touch_share": 0.7777777777777778,
+        "recent_bottom_wall_touch_share": 0.0,
+        "wall_cluster_spread_pct": 0.5151081211946393,
+        "top_wall_touch_share": 0.288135593220339,
+        "bottom_wall_touch_share": 0.5254237288135594,
+        "top_wall_cluster_spread_pct": 0.5151081211946393,
+        "bottom_wall_cluster_spread_pct": 0.14167699728105465,
+        "avg_quote_turnover": 3580.484954237288,
+        "score": 76.748749,
+        "score_pct": 76.748749
+      },
+      "filter_metrics": {
+        "timeframe": "1m",
+        "lookback_candles": 59,
+        "min_score_pct": 76.748749,
+        "regime": {
+          "corridor_low": 0.48026099999999994,
+          "corridor_high": 0.484638,
+          "corridor_mid": 0.4824495,
+          "min_corridor_pct": 0.9072452142659648,
+          "max_corridor_pct": 0.9072452142659648,
+          "min_chop": 57.44316256298862,
+          "max_efficiency_ratio": 0.03737373737373688,
+          "max_slope_to_corridor_ratio": 0.7930747396831508
+        },
+        "wicks": {
+          "min_avg_wick_ratio": 4.562999854199657,
+          "min_long_wick_share": 0.4406779661016949,
+          "min_two_sided_wick_share": 0.2033898305084746,
+          "min_false_break_reclaim_share": 0.15254237288135594
+        },
+        "axis": {
+          "structural_axis": 0.4819522959677419,
+          "axis_touch_count": 39,
+          "min_axis_touch_share": 0.6610169491525424,
+          "min_recent_axis_touches": 9,
+          "recent_axis_touch_share": 0.375,
+          "min_rotation_count": 9,
+          "avg_axis_distance_pct": 0.19349242949772838,
+          "last_close_distance_to_axis_pct": 0.20908792025456624
+        },
+        "wall": {
+          "wall_side": "upper",
+          "min_recent_wall_touch_share": 0.7777777777777778,
+          "min_full_wall_touch_share": 0.288135593220339,
+          "max_cluster_spread_pct": 0.5151081211946393,
+          "recent_top_wall_touch_share": 0.7777777777777778,
+          "recent_bottom_wall_touch_share": 0.0,
+          "top_wall_touch_share": 0.288135593220339,
+          "bottom_wall_touch_share": 0.5254237288135594,
+          "top_wall_cluster_spread_pct": 0.5151081211946393,
+          "bottom_wall_cluster_spread_pct": 0.14167699728105465
+        },
+        "activity": {
+          "min_path_to_corridor_ratio": 5.746706267610905,
+          "min_return_to_axis_count": 8,
+          "avg_quote_turnover": 3580.484954237288
+        },
+        "reclaim": {
+          "min_false_break_reclaim_share": 0.15254237288135594
+        },
+        "liquidity": {
+          "min_avg_quote_turnover": 3580.484954237288
+        }
+      },
+      "active_filter": {
+        "timeframe": "1m",
+        "lookback_candles": 59,
+        "min_score_pct": 78.1,
+        "approximation": {
+          "enabled": true,
+          "min_match_pct": 95.0
+        },
+        "regime": {
+          "enabled": true,
+          "min_corridor_pct": 5.71,
+          "max_corridor_pct": 7.21,
+          "quantile_low": 0.15,
+          "quantile_high": 0.85,
+          "min_chop": 51.3,
+          "max_efficiency_ratio": 0.053,
+          "max_slope_to_corridor_ratio": 0.35
+        },
+        "wicks": {
+          "enabled": true,
+          "long_wick_ratio": 1.85,
+          "min_dominant_wick_share": 0.31,
+          "body_floor_pct": 0.012,
+          "body_floor_range_share": 0.045,
+          "min_avg_wick_ratio": 3.47,
+          "min_long_wick_share": 0.349,
+          "min_two_sided_wick_share": 0.25,
+          "min_two_sided_share_per_candle": 0.1,
+          "max_two_sided_imbalance": 3.0
+        },
+        "axis": {
+          "enabled": true,
+          "tolerance_pct": 0.24,
+          "recent_window": 24,
+          "min_axis_touch_share": 0.598,
+          "min_recent_axis_touches": 14,
+          "min_rotation_count": 14,
+          "mode_bins": 31,
+          "use_hlc3": true,
+          "close_weight": 0.5,
+          "hlc3_weight": 0.5
+        },
+        "wall": {
+          "enabled": true,
+          "touch_tolerance_pct": 0.35,
+          "recent_window": 18,
+          "min_recent_wall_touch_share": 0.0,
+          "min_full_wall_touch_share": 0.0329,
+          "top_k_highs": 8,
+          "bottom_k_lows": 8,
+          "max_cluster_spread_pct": 5.34
+        },
+        "activity": {
+          "enabled": true,
+          "min_path_to_corridor_ratio": 6.85,
+          "ema_period": 20,
+          "axis_band_pct": 0.2,
+          "min_return_to_axis_count": 4
+        },
+        "reclaim": {
+          "enabled": true,
+          "lookback": 6,
+          "min_false_break_reclaim_share": 0.132
+        },
+        "liquidity": {
+          "enabled": false,
+          "min_avg_quote_turnover": 0.0
+        }
+      },
+      "filter_checks": {
+        "score": {
+          "enabled": true,
+          "score_pct": {
+            "actual": 76.748749,
+            "min": 78.1,
+            "passed": false
+          }
+        },
+        "regime": {
+          "enabled": true,
+          "corridor_min": {
+            "actual": 0.9072452142659648,
+            "min": 5.71,
+            "passed": false
+          },
+          "corridor_max": {
+            "actual": 0.9072452142659648,
+            "max": 7.21,
+            "passed": true
+          },
+          "chop": {
+            "actual": 57.44316256298862,
+            "min": 51.3,
+            "passed": true
+          },
+          "efficiency_ratio": {
+            "actual": 0.03737373737373688,
+            "max": 0.053,
+            "passed": true
+          },
+          "slope_to_corridor_ratio": {
+            "actual": 0.7930747396831508,
+            "max": 0.35,
+            "passed": false
+          }
+        },
+        "wicks": {
+          "enabled": true,
+          "avg_wick_ratio": {
+            "actual": 4.562999854199657,
+            "min": 3.47,
+            "passed": true
+          },
+          "long_wick_share": {
+            "actual": 0.4406779661016949,
+            "min": 0.349,
+            "passed": true
+          },
+          "two_sided_wick_share": {
+            "actual": 0.2033898305084746,
+            "min": 0.25,
+            "passed": false
+          }
+        },
+        "axis": {
+          "enabled": true,
+          "axis_touch_share": {
+            "actual": 0.6610169491525424,
+            "min": 0.598,
+            "passed": true
+          },
+          "recent_axis_touch_count": {
+            "actual": 9,
+            "min": 14,
+            "passed": false
+          },
+          "rotation_count": {
+            "actual": 9,
+            "min": 14,
+            "passed": false
+          }
+        },
+        "wall": {
+          "enabled": true,
+          "recent_wall_touch_share": {
+            "actual": 0.7777777777777778,
+            "min": 0.0,
+            "passed": true
+          },
+          "wall_touch_share": {
+            "actual": 0.288135593220339,
+            "min": 0.0329,
+            "passed": true
+          },
+          "wall_cluster_spread_pct": {
+            "actual": 0.5151081211946393,
+            "max": 5.34,
+            "passed": true
+          }
+        },
+        "activity": {
+          "enabled": true,
+          "path_to_corridor_ratio": {
+            "actual": 5.746706267610905,
+            "min": 6.85,
+            "passed": false
+          },
+          "return_to_axis_count": {
+            "actual": 8,
+            "min": 4,
+            "passed": true
+          }
+        },
+        "reclaim": {
+          "enabled": true,
+          "false_break_reclaim_share": {
+            "actual": 0.15254237288135594,
+            "min": 0.132,
+            "passed": true
+          }
+        },
+        "liquidity": {
+          "enabled": false,
+          "avg_quote_turnover": {
+            "actual": 3580.484954237288,
+            "min": 0.0,
+            "passed": true
+          }
+        }
+      }
+    },
+    {
+      "symbol": "KGENUSDTM",
+      "score": 75.96486,
+      "fail_reasons": [
+        "corridor_too_narrow",
+        "chop",
+        "trend_efficiency",
+        "slope",
+        "avg_wick_ratio",
+        "recent_axis_touches",
+        "rotation_count",
+        "path_to_corridor",
+        "score_pct"
+      ],
+      "metrics": {
+        "symbol": "KGENUSDTM",
+        "candles_count": 59,
+        "corridor_low": 0.207733,
+        "corridor_high": 0.211702,
+        "corridor_mid": 0.2097175,
+        "corridor_pct": 1.89254592487513,
+        "structural_axis": 0.21118135994623655,
+        "axis_touch_count": 42,
+        "axis_touch_share": 0.711864406779661,
+        "recent_axis_touch_count": 12,
+        "recent_axis_touch_share": 0.5,
+        "rotation_count": 12,
+        "return_to_axis_count": 4,
+        "avg_axis_distance_pct": 0.36682337138436527,
+        "last_close_distance_to_axis_pct": 1.353351741664521,
+        "avg_wick_ratio": 3.026713977829236,
+        "long_wick_share": 0.3898305084745763,
+        "two_sided_wick_share": 0.4576271186440678,
+        "false_break_reclaim_share": 0.13559322033898305,
+        "chop": 41.675658634621854,
+        "efficiency_ratio": 0.17453183520599277,
+        "slope_to_corridor_ratio": 0.6643435779836107,
+        "path_to_corridor_ratio": 2.697572856302939,
+        "wall_side": "lower",
+        "wall_touch_share": 0.1694915254237288,
+        "recent_wall_touch_share": 0.5555555555555556,
+        "recent_top_wall_touch_share": 0.3333333333333333,
+        "recent_bottom_wall_touch_share": 0.5555555555555556,
+        "wall_cluster_spread_pct": 0.15420200462606726,
+        "top_wall_touch_share": 0.559322033898305,
+        "bottom_wall_touch_share": 0.1694915254237288,
+        "top_wall_cluster_spread_pct": 0.10381275953189788,
+        "bottom_wall_cluster_spread_pct": 0.15420200462606726,
+        "avg_quote_turnover": 8055.099384745762,
+        "score": 75.96486,
+        "score_pct": 75.96486
+      },
+      "filter_metrics": {
+        "timeframe": "1m",
+        "lookback_candles": 59,
+        "min_score_pct": 75.96486,
+        "regime": {
+          "corridor_low": 0.207733,
+          "corridor_high": 0.211702,
+          "corridor_mid": 0.2097175,
+          "min_corridor_pct": 1.89254592487513,
+          "max_corridor_pct": 1.89254592487513,
+          "min_chop": 41.675658634621854,
+          "max_efficiency_ratio": 0.17453183520599277,
+          "max_slope_to_corridor_ratio": 0.6643435779836107
+        },
+        "wicks": {
+          "min_avg_wick_ratio": 3.026713977829236,
+          "min_long_wick_share": 0.3898305084745763,
+          "min_two_sided_wick_share": 0.4576271186440678,
+          "min_false_break_reclaim_share": 0.13559322033898305
+        },
+        "axis": {
+          "structural_axis": 0.21118135994623655,
+          "axis_touch_count": 42,
+          "min_axis_touch_share": 0.711864406779661,
+          "min_recent_axis_touches": 12,
+          "recent_axis_touch_share": 0.5,
+          "min_rotation_count": 12,
+          "avg_axis_distance_pct": 0.36682337138436527,
+          "last_close_distance_to_axis_pct": 1.353351741664521
+        },
+        "wall": {
+          "wall_side": "lower",
+          "min_recent_wall_touch_share": 0.5555555555555556,
+          "min_full_wall_touch_share": 0.1694915254237288,
+          "max_cluster_spread_pct": 0.15420200462606726,
+          "recent_top_wall_touch_share": 0.3333333333333333,
+          "recent_bottom_wall_touch_share": 0.5555555555555556,
+          "top_wall_touch_share": 0.559322033898305,
+          "bottom_wall_touch_share": 0.1694915254237288,
+          "top_wall_cluster_spread_pct": 0.10381275953189788,
+          "bottom_wall_cluster_spread_pct": 0.15420200462606726
+        },
+        "activity": {
+          "min_path_to_corridor_ratio": 2.697572856302939,
+          "min_return_to_axis_count": 4,
+          "avg_quote_turnover": 8055.099384745762
+        },
+        "reclaim": {
+          "min_false_break_reclaim_share": 0.13559322033898305
+        },
+        "liquidity": {
+          "min_avg_quote_turnover": 8055.099384745762
+        }
+      },
+      "active_filter": {
+        "timeframe": "1m",
+        "lookback_candles": 59,
+        "min_score_pct": 78.1,
+        "approximation": {
+          "enabled": true,
+          "min_match_pct": 95.0
+        },
+        "regime": {
+          "enabled": true,
+          "min_corridor_pct": 5.71,
+          "max_corridor_pct": 7.21,
+          "quantile_low": 0.15,
+          "quantile_high": 0.85,
+          "min_chop": 51.3,
+          "max_efficiency_ratio": 0.053,
+          "max_slope_to_corridor_ratio": 0.35
+        },
+        "wicks": {
+          "enabled": true,
+          "long_wick_ratio": 1.85,
+          "min_dominant_wick_share": 0.31,
+          "body_floor_pct": 0.012,
+          "body_floor_range_share": 0.045,
+          "min_avg_wick_ratio": 3.47,
+          "min_long_wick_share": 0.349,
+          "min_two_sided_wick_share": 0.25,
+          "min_two_sided_share_per_candle": 0.1,
+          "max_two_sided_imbalance": 3.0
+        },
+        "axis": {
+          "enabled": true,
+          "tolerance_pct": 0.24,
+          "recent_window": 24,
+          "min_axis_touch_share": 0.598,
+          "min_recent_axis_touches": 14,
+          "min_rotation_count": 14,
+          "mode_bins": 31,
+          "use_hlc3": true,
+          "close_weight": 0.5,
+          "hlc3_weight": 0.5
+        },
+        "wall": {
+          "enabled": true,
+          "touch_tolerance_pct": 0.35,
+          "recent_window": 18,
+          "min_recent_wall_touch_share": 0.0,
+          "min_full_wall_touch_share": 0.0329,
+          "top_k_highs": 8,
+          "bottom_k_lows": 8,
+          "max_cluster_spread_pct": 5.34
+        },
+        "activity": {
+          "enabled": true,
+          "min_path_to_corridor_ratio": 6.85,
+          "ema_period": 20,
+          "axis_band_pct": 0.2,
+          "min_return_to_axis_count": 4
+        },
+        "reclaim": {
+          "enabled": true,
+          "lookback": 6,
+          "min_false_break_reclaim_share": 0.132
+        },
+        "liquidity": {
+          "enabled": false,
+          "min_avg_quote_turnover": 0.0
+        }
+      },
+      "filter_checks": {
+        "score": {
+          "enabled": true,
+          "score_pct": {
+            "actual": 75.96486,
+            "min": 78.1,
+            "passed": false
+          }
+        },
+        "regime": {
+          "enabled": true,
+          "corridor_min": {
+            "actual": 1.89254592487513,
+            "min": 5.71,
+            "passed": false
+          },
+          "corridor_max": {
+            "actual": 1.89254592487513,
+            "max": 7.21,
+            "passed": true
+          },
+          "chop": {
+            "actual": 41.675658634621854,
+            "min": 51.3,
+            "passed": false
+          },
+          "efficiency_ratio": {
+            "actual": 0.17453183520599277,
+            "max": 0.053,
+            "passed": false
+          },
+          "slope_to_corridor_ratio": {
+            "actual": 0.6643435779836107,
+            "max": 0.35,
+            "passed": false
+          }
+        },
+        "wicks": {
+          "enabled": true,
+          "avg_wick_ratio": {
+            "actual": 3.026713977829236,
+            "min": 3.47,
+            "passed": false
+          },
+          "long_wick_share": {
+            "actual": 0.3898305084745763,
+            "min": 0.349,
+            "passed": true
+          },
+          "two_sided_wick_share": {
+            "actual": 0.4576271186440678,
+            "min": 0.25,
+            "passed": true
+          }
+        },
+        "axis": {
+          "enabled": true,
+          "axis_touch_share": {
+            "actual": 0.711864406779661,
+            "min": 0.598,
+            "passed": true
+          },
+          "recent_axis_touch_count": {
+            "actual": 12,
+            "min": 14,
+            "passed": false
+          },
+          "rotation_count": {
+            "actual": 12,
+            "min": 14,
+            "passed": false
+          }
+        },
+        "wall": {
+          "enabled": true,
+          "recent_wall_touch_share": {
+            "actual": 0.5555555555555556,
+            "min": 0.0,
+            "passed": true
+          },
+          "wall_touch_share": {
+            "actual": 0.1694915254237288,
+            "min": 0.0329,
+            "passed": true
+          },
+          "wall_cluster_spread_pct": {
+            "actual": 0.15420200462606726,
+            "max": 5.34,
+            "passed": true
+          }
+        },
+        "activity": {
+          "enabled": true,
+          "path_to_corridor_ratio": {
+            "actual": 2.697572856302939,
+            "min": 6.85,
+            "passed": false
+          },
+          "return_to_axis_count": {
+            "actual": 4,
+            "min": 4,
+            "passed": true
+          }
+        },
+        "reclaim": {
+          "enabled": true,
+          "false_break_reclaim_share": {
+            "actual": 0.13559322033898305,
+            "min": 0.132,
+            "passed": true
+          }
+        },
+        "liquidity": {
+          "enabled": false,
+          "avg_quote_turnover": {
+            "actual": 8055.099384745762,
+            "min": 0.0,
+            "passed": true
+          }
+        }
+      }
+    },
+    {
+      "symbol": "GUAUSDTM",
+      "score": 75.396776,
+      "fail_reasons": [
+        "corridor_too_narrow",
+        "slope",
+        "long_wick_share",
+        "two_sided_wick_share",
+        "rotation_count",
+        "path_to_corridor",
+        "false_break_reclaim",
+        "score_pct"
+      ],
+      "metrics": {
+        "symbol": "GUAUSDTM",
+        "candles_count": 59,
+        "corridor_low": 0.28407,
+        "corridor_high": 0.286522,
+        "corridor_mid": 0.285296,
+        "corridor_pct": 0.8594582468734261,
+        "structural_axis": 0.28432437311827957,
+        "axis_touch_count": 38,
+        "axis_touch_share": 0.6440677966101694,
+        "recent_axis_touch_count": 23,
+        "recent_axis_touch_share": 0.9583333333333334,
+        "rotation_count": 12,
+        "return_to_axis_count": 5,
+        "avg_axis_distance_pct": 0.22582311843502886,
+        "last_close_distance_to_axis_pct": 0.0,
+        "avg_wick_ratio": 4.154814078628227,
+        "long_wick_share": 0.3050847457627119,
+        "two_sided_wick_share": 0.11864406779661017,
+        "false_break_reclaim_share": 0.06779661016949153,
+        "chop": 54.40210038040778,
+        "efficiency_ratio": 0.02069536423841041,
+        "slope_to_corridor_ratio": 0.5799900461746892,
+        "path_to_corridor_ratio": 6.462751495377946,
+        "wall_side": "lower",
+        "wall_touch_share": 0.6949152542372882,
+        "recent_wall_touch_share": 1.0,
+        "recent_top_wall_touch_share": 0.0,
+        "recent_bottom_wall_touch_share": 1.0,
+        "wall_cluster_spread_pct": 0.3558092017191416,
+        "top_wall_touch_share": 0.15254237288135594,
+        "bottom_wall_touch_share": 0.6949152542372882,
+        "top_wall_cluster_spread_pct": 0.6888633754305332,
+        "bottom_wall_cluster_spread_pct": 0.3558092017191416,
+        "avg_quote_turnover": 30412.249754237288,
+        "score": 75.396776,
+        "score_pct": 75.396776
+      },
+      "filter_metrics": {
+        "timeframe": "1m",
+        "lookback_candles": 59,
+        "min_score_pct": 75.396776,
+        "regime": {
+          "corridor_low": 0.28407,
+          "corridor_high": 0.286522,
+          "corridor_mid": 0.285296,
+          "min_corridor_pct": 0.8594582468734261,
+          "max_corridor_pct": 0.8594582468734261,
+          "min_chop": 54.40210038040778,
+          "max_efficiency_ratio": 0.02069536423841041,
+          "max_slope_to_corridor_ratio": 0.5799900461746892
+        },
+        "wicks": {
+          "min_avg_wick_ratio": 4.154814078628227,
+          "min_long_wick_share": 0.3050847457627119,
+          "min_two_sided_wick_share": 0.11864406779661017,
+          "min_false_break_reclaim_share": 0.06779661016949153
+        },
+        "axis": {
+          "structural_axis": 0.28432437311827957,
+          "axis_touch_count": 38,
+          "min_axis_touch_share": 0.6440677966101694,
+          "min_recent_axis_touches": 23,
+          "recent_axis_touch_share": 0.9583333333333334,
+          "min_rotation_count": 12,
+          "avg_axis_distance_pct": 0.22582311843502886,
+          "last_close_distance_to_axis_pct": 0.0
+        },
+        "wall": {
+          "wall_side": "lower",
+          "min_recent_wall_touch_share": 1.0,
+          "min_full_wall_touch_share": 0.6949152542372882,
+          "max_cluster_spread_pct": 0.3558092017191416,
+          "recent_top_wall_touch_share": 0.0,
+          "recent_bottom_wall_touch_share": 1.0,
+          "top_wall_touch_share": 0.15254237288135594,
+          "bottom_wall_touch_share": 0.6949152542372882,
+          "top_wall_cluster_spread_pct": 0.6888633754305332,
+          "bottom_wall_cluster_spread_pct": 0.3558092017191416
+        },
+        "activity": {
+          "min_path_to_corridor_ratio": 6.462751495377946,
+          "min_return_to_axis_count": 5,
+          "avg_quote_turnover": 30412.249754237288
+        },
+        "reclaim": {
+          "min_false_break_reclaim_share": 0.06779661016949153
+        },
+        "liquidity": {
+          "min_avg_quote_turnover": 30412.249754237288
+        }
+      },
+      "active_filter": {
+        "timeframe": "1m",
+        "lookback_candles": 59,
+        "min_score_pct": 78.1,
+        "approximation": {
+          "enabled": true,
+          "min_match_pct": 95.0
+        },
+        "regime": {
+          "enabled": true,
+          "min_corridor_pct": 5.71,
+          "max_corridor_pct": 7.21,
+          "quantile_low": 0.15,
+          "quantile_high": 0.85,
+          "min_chop": 51.3,
+          "max_efficiency_ratio": 0.053,
+          "max_slope_to_corridor_ratio": 0.35
+        },
+        "wicks": {
+          "enabled": true,
+          "long_wick_ratio": 1.85,
+          "min_dominant_wick_share": 0.31,
+          "body_floor_pct": 0.012,
+          "body_floor_range_share": 0.045,
+          "min_avg_wick_ratio": 3.47,
+          "min_long_wick_share": 0.349,
+          "min_two_sided_wick_share": 0.25,
+          "min_two_sided_share_per_candle": 0.1,
+          "max_two_sided_imbalance": 3.0
+        },
+        "axis": {
+          "enabled": true,
+          "tolerance_pct": 0.24,
+          "recent_window": 24,
+          "min_axis_touch_share": 0.598,
+          "min_recent_axis_touches": 14,
+          "min_rotation_count": 14,
+          "mode_bins": 31,
+          "use_hlc3": true,
+          "close_weight": 0.5,
+          "hlc3_weight": 0.5
+        },
+        "wall": {
+          "enabled": true,
+          "touch_tolerance_pct": 0.35,
+          "recent_window": 18,
+          "min_recent_wall_touch_share": 0.0,
+          "min_full_wall_touch_share": 0.0329,
+          "top_k_highs": 8,
+          "bottom_k_lows": 8,
+          "max_cluster_spread_pct": 5.34
+        },
+        "activity": {
+          "enabled": true,
+          "min_path_to_corridor_ratio": 6.85,
+          "ema_period": 20,
+          "axis_band_pct": 0.2,
+          "min_return_to_axis_count": 4
+        },
+        "reclaim": {
+          "enabled": true,
+          "lookback": 6,
+          "min_false_break_reclaim_share": 0.132
+        },
+        "liquidity": {
+          "enabled": false,
+          "min_avg_quote_turnover": 0.0
+        }
+      },
+      "filter_checks": {
+        "score": {
+          "enabled": true,
+          "score_pct": {
+            "actual": 75.396776,
+            "min": 78.1,
+            "passed": false
+          }
+        },
+        "regime": {
+          "enabled": true,
+          "corridor_min": {
+            "actual": 0.8594582468734261,
+            "min": 5.71,
+            "passed": false
+          },
+          "corridor_max": {
+            "actual": 0.8594582468734261,
+            "max": 7.21,
+            "passed": true
+          },
+          "chop": {
+            "actual": 54.40210038040778,
+            "min": 51.3,
+            "passed": true
+          },
+          "efficiency_ratio": {
+            "actual": 0.02069536423841041,
+            "max": 0.053,
+            "passed": true
+          },
+          "slope_to_corridor_ratio": {
+            "actual": 0.5799900461746892,
+            "max": 0.35,
+            "passed": false
+          }
+        },
+        "wicks": {
+          "enabled": true,
+          "avg_wick_ratio": {
+            "actual": 4.154814078628227,
+            "min": 3.47,
+            "passed": true
+          },
+          "long_wick_share": {
+            "actual": 0.3050847457627119,
+            "min": 0.349,
+            "passed": false
+          },
+          "two_sided_wick_share": {
+            "actual": 0.11864406779661017,
+            "min": 0.25,
+            "passed": false
+          }
+        },
+        "axis": {
+          "enabled": true,
+          "axis_touch_share": {
+            "actual": 0.6440677966101694,
+            "min": 0.598,
+            "passed": true
+          },
+          "recent_axis_touch_count": {
+            "actual": 23,
+            "min": 14,
+            "passed": true
+          },
+          "rotation_count": {
+            "actual": 12,
+            "min": 14,
+            "passed": false
+          }
+        },
+        "wall": {
+          "enabled": true,
+          "recent_wall_touch_share": {
+            "actual": 1.0,
+            "min": 0.0,
+            "passed": true
+          },
+          "wall_touch_share": {
+            "actual": 0.6949152542372882,
+            "min": 0.0329,
+            "passed": true
+          },
+          "wall_cluster_spread_pct": {
+            "actual": 0.3558092017191416,
+            "max": 5.34,
+            "passed": true
+          }
+        },
+        "activity": {
+          "enabled": true,
+          "path_to_corridor_ratio": {
+            "actual": 6.462751495377946,
+            "min": 6.85,
+            "passed": false
+          },
+          "return_to_axis_count": {
+            "actual": 5,
+            "min": 4,
+            "passed": true
+          }
+        },
+        "reclaim": {
+          "enabled": true,
+          "false_break_reclaim_share": {
+            "actual": 0.06779661016949153,
+            "min": 0.132,
+            "passed": false
+          }
+        },
+        "liquidity": {
+          "enabled": false,
+          "avg_quote_turnover": {
+            "actual": 30412.249754237288,
+            "min": 0.0,
+            "passed": true
+          }
+        }
+      }
+    },
+    {
+      "symbol": "MUSDTM",
+      "score": 74.974218,
+      "fail_reasons": [
+        "corridor_too_narrow",
+        "trend_efficiency",
+        "slope",
+        "two_sided_wick_share",
+        "rotation_count",
+        "path_to_corridor",
+        "score_pct"
+      ],
+      "metrics": {
+        "symbol": "MUSDTM",
+        "candles_count": 59,
+        "corridor_low": 1.441804,
+        "corridor_high": 1.456401,
+        "corridor_mid": 1.4491025,
+        "corridor_pct": 1.0073131472756394,
+        "structural_axis": 1.4451546965053765,
+        "axis_touch_count": 40,
+        "axis_touch_share": 0.6779661016949152,
+        "recent_axis_touch_count": 20,
+        "recent_axis_touch_share": 0.8333333333333334,
+        "rotation_count": 7,
+        "return_to_axis_count": 6,
+        "avg_axis_distance_pct": 0.23146471441901348,
+        "last_close_distance_to_axis_pct": 0.2895673740323953,
+        "avg_wick_ratio": 4.962759666136901,
+        "long_wick_share": 0.4576271186440678,
+        "two_sided_wick_share": 0.2033898305084746,
+        "false_break_reclaim_share": 0.15254237288135594,
+        "chop": 57.23494272313048,
+        "efficiency_ratio": 0.19004867495943484,
+        "slope_to_corridor_ratio": 1.0499719584823008,
+        "path_to_corridor_ratio": 3.8083167774201794,
+        "wall_side": "lower",
+        "wall_touch_share": 0.5932203389830508,
+        "recent_wall_touch_share": 1.0,
+        "recent_top_wall_touch_share": 0.0,
+        "recent_bottom_wall_touch_share": 1.0,
+        "wall_cluster_spread_pct": 0.14373303151709826,
+        "top_wall_touch_share": 0.2542372881355932,
+        "bottom_wall_touch_share": 0.5932203389830508,
+        "top_wall_cluster_spread_pct": 0.14743396329923583,
+        "bottom_wall_cluster_spread_pct": 0.14373303151709826,
+        "avg_quote_turnover": 8970.686567796609,
+        "score": 74.974218,
+        "score_pct": 74.974218
+      },
+      "filter_metrics": {
+        "timeframe": "1m",
+        "lookback_candles": 59,
+        "min_score_pct": 74.974218,
+        "regime": {
+          "corridor_low": 1.441804,
+          "corridor_high": 1.456401,
+          "corridor_mid": 1.4491025,
+          "min_corridor_pct": 1.0073131472756394,
+          "max_corridor_pct": 1.0073131472756394,
+          "min_chop": 57.23494272313048,
+          "max_efficiency_ratio": 0.19004867495943484,
+          "max_slope_to_corridor_ratio": 1.0499719584823008
+        },
+        "wicks": {
+          "min_avg_wick_ratio": 4.962759666136901,
+          "min_long_wick_share": 0.4576271186440678,
+          "min_two_sided_wick_share": 0.2033898305084746,
+          "min_false_break_reclaim_share": 0.15254237288135594
+        },
+        "axis": {
+          "structural_axis": 1.4451546965053765,
+          "axis_touch_count": 40,
+          "min_axis_touch_share": 0.6779661016949152,
+          "min_recent_axis_touches": 20,
+          "recent_axis_touch_share": 0.8333333333333334,
+          "min_rotation_count": 7,
+          "avg_axis_distance_pct": 0.23146471441901348,
+          "last_close_distance_to_axis_pct": 0.2895673740323953
+        },
+        "wall": {
+          "wall_side": "lower",
+          "min_recent_wall_touch_share": 1.0,
+          "min_full_wall_touch_share": 0.5932203389830508,
+          "max_cluster_spread_pct": 0.14373303151709826,
+          "recent_top_wall_touch_share": 0.0,
+          "recent_bottom_wall_touch_share": 1.0,
+          "top_wall_touch_share": 0.2542372881355932,
+          "bottom_wall_touch_share": 0.5932203389830508,
+          "top_wall_cluster_spread_pct": 0.14743396329923583,
+          "bottom_wall_cluster_spread_pct": 0.14373303151709826
+        },
+        "activity": {
+          "min_path_to_corridor_ratio": 3.8083167774201794,
+          "min_return_to_axis_count": 6,
+          "avg_quote_turnover": 8970.686567796609
+        },
+        "reclaim": {
+          "min_false_break_reclaim_share": 0.15254237288135594
+        },
+        "liquidity": {
+          "min_avg_quote_turnover": 8970.686567796609
+        }
+      },
+      "active_filter": {
+        "timeframe": "1m",
+        "lookback_candles": 59,
+        "min_score_pct": 78.1,
+        "approximation": {
+          "enabled": true,
+          "min_match_pct": 95.0
+        },
+        "regime": {
+          "enabled": true,
+          "min_corridor_pct": 5.71,
+          "max_corridor_pct": 7.21,
+          "quantile_low": 0.15,
+          "quantile_high": 0.85,
+          "min_chop": 51.3,
+          "max_efficiency_ratio": 0.053,
+          "max_slope_to_corridor_ratio": 0.35
+        },
+        "wicks": {
+          "enabled": true,
+          "long_wick_ratio": 1.85,
+          "min_dominant_wick_share": 0.31,
+          "body_floor_pct": 0.012,
+          "body_floor_range_share": 0.045,
+          "min_avg_wick_ratio": 3.47,
+          "min_long_wick_share": 0.349,
+          "min_two_sided_wick_share": 0.25,
+          "min_two_sided_share_per_candle": 0.1,
+          "max_two_sided_imbalance": 3.0
+        },
+        "axis": {
+          "enabled": true,
+          "tolerance_pct": 0.24,
+          "recent_window": 24,
+          "min_axis_touch_share": 0.598,
+          "min_recent_axis_touches": 14,
+          "min_rotation_count": 14,
+          "mode_bins": 31,
+          "use_hlc3": true,
+          "close_weight": 0.5,
+          "hlc3_weight": 0.5
+        },
+        "wall": {
+          "enabled": true,
+          "touch_tolerance_pct": 0.35,
+          "recent_window": 18,
+          "min_recent_wall_touch_share": 0.0,
+          "min_full_wall_touch_share": 0.0329,
+          "top_k_highs": 8,
+          "bottom_k_lows": 8,
+          "max_cluster_spread_pct": 5.34
+        },
+        "activity": {
+          "enabled": true,
+          "min_path_to_corridor_ratio": 6.85,
+          "ema_period": 20,
+          "axis_band_pct": 0.2,
+          "min_return_to_axis_count": 4
+        },
+        "reclaim": {
+          "enabled": true,
+          "lookback": 6,
+          "min_false_break_reclaim_share": 0.132
+        },
+        "liquidity": {
+          "enabled": false,
+          "min_avg_quote_turnover": 0.0
+        }
+      },
+      "filter_checks": {
+        "score": {
+          "enabled": true,
+          "score_pct": {
+            "actual": 74.974218,
+            "min": 78.1,
+            "passed": false
+          }
+        },
+        "regime": {
+          "enabled": true,
+          "corridor_min": {
+            "actual": 1.0073131472756394,
+            "min": 5.71,
+            "passed": false
+          },
+          "corridor_max": {
+            "actual": 1.0073131472756394,
+            "max": 7.21,
+            "passed": true
+          },
+          "chop": {
+            "actual": 57.23494272313048,
+            "min": 51.3,
+            "passed": true
+          },
+          "efficiency_ratio": {
+            "actual": 0.19004867495943484,
+            "max": 0.053,
+            "passed": false
+          },
+          "slope_to_corridor_ratio": {
+            "actual": 1.0499719584823008,
+            "max": 0.35,
+            "passed": false
+          }
+        },
+        "wicks": {
+          "enabled": true,
+          "avg_wick_ratio": {
+            "actual": 4.962759666136901,
+            "min": 3.47,
+            "passed": true
+          },
+          "long_wick_share": {
+            "actual": 0.4576271186440678,
+            "min": 0.349,
+            "passed": true
+          },
+          "two_sided_wick_share": {
+            "actual": 0.2033898305084746,
+            "min": 0.25,
+            "passed": false
+          }
+        },
+        "axis": {
+          "enabled": true,
+          "axis_touch_share": {
+            "actual": 0.6779661016949152,
+            "min": 0.598,
+            "passed": true
+          },
+          "recent_axis_touch_count": {
+            "actual": 20,
+            "min": 14,
+            "passed": true
+          },
+          "rotation_count": {
+            "actual": 7,
+            "min": 14,
+            "passed": false
+          }
+        },
+        "wall": {
+          "enabled": true,
+          "recent_wall_touch_share": {
+            "actual": 1.0,
+            "min": 0.0,
+            "passed": true
+          },
+          "wall_touch_share": {
+            "actual": 0.5932203389830508,
+            "min": 0.0329,
+            "passed": true
+          },
+          "wall_cluster_spread_pct": {
+            "actual": 0.14373303151709826,
+            "max": 5.34,
+            "passed": true
+          }
+        },
+        "activity": {
+          "enabled": true,
+          "path_to_corridor_ratio": {
+            "actual": 3.8083167774201794,
+            "min": 6.85,
+            "passed": false
+          },
+          "return_to_axis_count": {
+            "actual": 6,
+            "min": 4,
+            "passed": true
+          }
+        },
+        "reclaim": {
+          "enabled": true,
+          "false_break_reclaim_share": {
+            "actual": 0.15254237288135594,
+            "min": 0.132,
+            "passed": true
+          }
+        },
+        "liquidity": {
+          "enabled": false,
+          "avg_quote_turnover": {
+            "actual": 8970.686567796609,
+            "min": 0.0,
+            "passed": true
+          }
+        }
+      }
+    },
+    {
+      "symbol": "TURBOUSDTM",
+      "score": 74.332185,
+      "fail_reasons": [
+        "corridor_too_narrow",
+        "trend_efficiency",
+        "slope",
+        "avg_wick_ratio",
+        "two_sided_wick_share",
+        "axis_touch_share",
+        "rotation_count",
+        "path_to_corridor",
+        "score_pct"
+      ],
+      "metrics": {
+        "symbol": "TURBOUSDTM",
+        "candles_count": 59,
+        "corridor_low": 0.00090394,
+        "corridor_high": 0.0009086999999999999,
+        "corridor_mid": 0.00090632,
+        "corridor_pct": 0.5252008120751964,
+        "structural_axis": 0.0009048859032258065,
+        "axis_touch_count": 34,
+        "axis_touch_share": 0.576271186440678,
+        "recent_axis_touch_count": 18,
+        "recent_axis_touch_share": 0.75,
+        "rotation_count": 7,
+        "return_to_axis_count": 8,
+        "avg_axis_distance_pct": 0.18247750632290222,
+        "last_close_distance_to_axis_pct": 0.08685108509313529,
+        "avg_wick_ratio": 3.464222654266342,
+        "long_wick_share": 0.423728813559322,
+        "two_sided_wick_share": 0.1694915254237288,
+        "false_break_reclaim_share": 0.1864406779661017,
+        "chop": 64.51789369354535,
+        "efficiency_ratio": 0.09404990403071048,
+        "slope_to_corridor_ratio": 0.8884062099416202,
+        "path_to_corridor_ratio": 5.987394957983473,
+        "wall_side": "lower",
+        "wall_touch_share": 0.4745762711864407,
+        "recent_wall_touch_share": 0.7777777777777778,
+        "recent_top_wall_touch_share": 0.3888888888888889,
+        "recent_bottom_wall_touch_share": 0.7777777777777778,
+        "wall_cluster_spread_pct": 0.12187690432662705,
+        "top_wall_touch_share": 0.8135593220338984,
+        "bottom_wall_touch_share": 0.4745762711864407,
+        "top_wall_cluster_spread_pct": 0.044004400440045076,
+        "bottom_wall_cluster_spread_pct": 0.12187690432662705,
+        "avg_quote_turnover": 3846.218389830509,
+        "score": 74.332185,
+        "score_pct": 74.332185
+      },
+      "filter_metrics": {
+        "timeframe": "1m",
+        "lookback_candles": 59,
+        "min_score_pct": 74.332185,
+        "regime": {
+          "corridor_low": 0.00090394,
+          "corridor_high": 0.0009086999999999999,
+          "corridor_mid": 0.00090632,
+          "min_corridor_pct": 0.5252008120751964,
+          "max_corridor_pct": 0.5252008120751964,
+          "min_chop": 64.51789369354535,
+          "max_efficiency_ratio": 0.09404990403071048,
+          "max_slope_to_corridor_ratio": 0.8884062099416202
+        },
+        "wicks": {
+          "min_avg_wick_ratio": 3.464222654266342,
+          "min_long_wick_share": 0.423728813559322,
+          "min_two_sided_wick_share": 0.1694915254237288,
+          "min_false_break_reclaim_share": 0.1864406779661017
+        },
+        "axis": {
+          "structural_axis": 0.0009048859032258065,
+          "axis_touch_count": 34,
+          "min_axis_touch_share": 0.576271186440678,
+          "min_recent_axis_touches": 18,
+          "recent_axis_touch_share": 0.75,
+          "min_rotation_count": 7,
+          "avg_axis_distance_pct": 0.18247750632290222,
+          "last_close_distance_to_axis_pct": 0.08685108509313529
+        },
+        "wall": {
+          "wall_side": "lower",
+          "min_recent_wall_touch_share": 0.7777777777777778,
+          "min_full_wall_touch_share": 0.4745762711864407,
+          "max_cluster_spread_pct": 0.12187690432662705,
+          "recent_top_wall_touch_share": 0.3888888888888889,
+          "recent_bottom_wall_touch_share": 0.7777777777777778,
+          "top_wall_touch_share": 0.8135593220338984,
+          "bottom_wall_touch_share": 0.4745762711864407,
+          "top_wall_cluster_spread_pct": 0.044004400440045076,
+          "bottom_wall_cluster_spread_pct": 0.12187690432662705
+        },
+        "activity": {
+          "min_path_to_corridor_ratio": 5.987394957983473,
+          "min_return_to_axis_count": 8,
+          "avg_quote_turnover": 3846.218389830509
+        },
+        "reclaim": {
+          "min_false_break_reclaim_share": 0.1864406779661017
+        },
+        "liquidity": {
+          "min_avg_quote_turnover": 3846.218389830509
+        }
+      },
+      "active_filter": {
+        "timeframe": "1m",
+        "lookback_candles": 59,
+        "min_score_pct": 78.1,
+        "approximation": {
+          "enabled": true,
+          "min_match_pct": 95.0
+        },
+        "regime": {
+          "enabled": true,
+          "min_corridor_pct": 5.71,
+          "max_corridor_pct": 7.21,
+          "quantile_low": 0.15,
+          "quantile_high": 0.85,
+          "min_chop": 51.3,
+          "max_efficiency_ratio": 0.053,
+          "max_slope_to_corridor_ratio": 0.35
+        },
+        "wicks": {
+          "enabled": true,
+          "long_wick_ratio": 1.85,
+          "min_dominant_wick_share": 0.31,
+          "body_floor_pct": 0.012,
+          "body_floor_range_share": 0.045,
+          "min_avg_wick_ratio": 3.47,
+          "min_long_wick_share": 0.349,
+          "min_two_sided_wick_share": 0.25,
+          "min_two_sided_share_per_candle": 0.1,
+          "max_two_sided_imbalance": 3.0
+        },
+        "axis": {
+          "enabled": true,
+          "tolerance_pct": 0.24,
+          "recent_window": 24,
+          "min_axis_touch_share": 0.598,
+          "min_recent_axis_touches": 14,
+          "min_rotation_count": 14,
+          "mode_bins": 31,
+          "use_hlc3": true,
+          "close_weight": 0.5,
+          "hlc3_weight": 0.5
+        },
+        "wall": {
+          "enabled": true,
+          "touch_tolerance_pct": 0.35,
+          "recent_window": 18,
+          "min_recent_wall_touch_share": 0.0,
+          "min_full_wall_touch_share": 0.0329,
+          "top_k_highs": 8,
+          "bottom_k_lows": 8,
+          "max_cluster_spread_pct": 5.34
+        },
+        "activity": {
+          "enabled": true,
+          "min_path_to_corridor_ratio": 6.85,
+          "ema_period": 20,
+          "axis_band_pct": 0.2,
+          "min_return_to_axis_count": 4
+        },
+        "reclaim": {
+          "enabled": true,
+          "lookback": 6,
+          "min_false_break_reclaim_share": 0.132
+        },
+        "liquidity": {
+          "enabled": false,
+          "min_avg_quote_turnover": 0.0
+        }
+      },
+      "filter_checks": {
+        "score": {
+          "enabled": true,
+          "score_pct": {
+            "actual": 74.332185,
+            "min": 78.1,
+            "passed": false
+          }
+        },
+        "regime": {
+          "enabled": true,
+          "corridor_min": {
+            "actual": 0.5252008120751964,
+            "min": 5.71,
+            "passed": false
+          },
+          "corridor_max": {
+            "actual": 0.5252008120751964,
+            "max": 7.21,
+            "passed": true
+          },
+          "chop": {
+            "actual": 64.51789369354535,
+            "min": 51.3,
+            "passed": true
+          },
+          "efficiency_ratio": {
+            "actual": 0.09404990403071048,
+            "max": 0.053,
+            "passed": false
+          },
+          "slope_to_corridor_ratio": {
+            "actual": 0.8884062099416202,
+            "max": 0.35,
+            "passed": false
+          }
+        },
+        "wicks": {
+          "enabled": true,
+          "avg_wick_ratio": {
+            "actual": 3.464222654266342,
+            "min": 3.47,
+            "passed": false
+          },
+          "long_wick_share": {
+            "actual": 0.423728813559322,
+            "min": 0.349,
+            "passed": true
+          },
+          "two_sided_wick_share": {
+            "actual": 0.1694915254237288,
+            "min": 0.25,
+            "passed": false
+          }
+        },
+        "axis": {
+          "enabled": true,
+          "axis_touch_share": {
+            "actual": 0.576271186440678,
+            "min": 0.598,
+            "passed": false
+          },
+          "recent_axis_touch_count": {
+            "actual": 18,
+            "min": 14,
+            "passed": true
+          },
+          "rotation_count": {
+            "actual": 7,
+            "min": 14,
+            "passed": false
+          }
+        },
+        "wall": {
+          "enabled": true,
+          "recent_wall_touch_share": {
+            "actual": 0.7777777777777778,
+            "min": 0.0,
+            "passed": true
+          },
+          "wall_touch_share": {
+            "actual": 0.4745762711864407,
+            "min": 0.0329,
+            "passed": true
+          },
+          "wall_cluster_spread_pct": {
+            "actual": 0.12187690432662705,
+            "max": 5.34,
+            "passed": true
+          }
+        },
+        "activity": {
+          "enabled": true,
+          "path_to_corridor_ratio": {
+            "actual": 5.987394957983473,
+            "min": 6.85,
+            "passed": false
+          },
+          "return_to_axis_count": {
+            "actual": 8,
+            "min": 4,
+            "passed": true
+          }
+        },
+        "reclaim": {
+          "enabled": true,
+          "false_break_reclaim_share": {
+            "actual": 0.1864406779661017,
+            "min": 0.132,
+            "passed": true
+          }
+        },
+        "liquidity": {
+          "enabled": false,
+          "avg_quote_turnover": {
+            "actual": 3846.218389830509,
+            "min": 0.0,
+            "passed": true
+          }
+        }
+      }
+    }
+  ],
+  "benchmark_calibration": {
+    "mode": "reverse_then_scan",
+    "benchmarks_enabled": true,
+    "benchmarks_total": 1,
+    "benchmarks": [
+      {
+        "symbol": "WILDUSDT",
+        "symbol_used": "WILDUSDTM",
+        "slot_requested": "base",
+        "slot_used": "base",
+        "window_start_iso": "2026-02-24T18:04:00+00:00",
+        "window_end_iso": "2026-02-24T19:04:00+00:00",
+        "window_start_ms": 1771956240000,
+        "window_end_ms": 1771959840000,
+        "samples_computed": 13,
+        "candles_fetched": 120,
+        "recommended_preset": "base",
+        "report_file": "reverse_01_WILDUSDT.json",
+        "slots_file": "reverse_01_WILDUSDT_slots.json",
+        "slot_filter": {
+          "timeframe": "1m",
+          "lookback_candles": 59,
+          "min_score_pct": 78.1,
+          "approximation": {
+            "enabled": true,
+            "min_match_pct": 95.0
+          },
+          "regime": {
+            "enabled": true,
+            "min_corridor_pct": 5.71,
+            "max_corridor_pct": 7.21,
+            "quantile_low": 0.15,
+            "quantile_high": 0.85,
+            "min_chop": 51.3,
+            "max_efficiency_ratio": 0.053,
+            "max_slope_to_corridor_ratio": 0.35
+          },
+          "wicks": {
+            "enabled": true,
+            "long_wick_ratio": 1.85,
+            "min_dominant_wick_share": 0.31,
+            "body_floor_pct": 0.012,
+            "body_floor_range_share": 0.045,
+            "min_avg_wick_ratio": 3.47,
+            "min_long_wick_share": 0.349,
+            "min_two_sided_wick_share": 0.25,
+            "min_two_sided_share_per_candle": 0.1,
+            "max_two_sided_imbalance": 3.0
+          },
+          "axis": {
+            "enabled": true,
+            "tolerance_pct": 0.24,
+            "recent_window": 24,
+            "min_axis_touch_share": 0.598,
+            "min_recent_axis_touches": 14,
+            "min_rotation_count": 14,
+            "mode_bins": 31,
+            "use_hlc3": true,
+            "close_weight": 0.5,
+            "hlc3_weight": 0.5
+          },
+          "wall": {
+            "enabled": true,
+            "touch_tolerance_pct": 0.35,
+            "recent_window": 18,
+            "min_recent_wall_touch_share": 0.0,
+            "min_full_wall_touch_share": 0.0329,
+            "top_k_highs": 8,
+            "bottom_k_lows": 8,
+            "max_cluster_spread_pct": 5.34
+          },
+          "activity": {
+            "enabled": true,
+            "min_path_to_corridor_ratio": 6.85,
+            "ema_period": 20,
+            "axis_band_pct": 0.2,
+            "min_return_to_axis_count": 4
+          },
+          "reclaim": {
+            "enabled": true,
+            "lookback": 6,
+            "min_false_break_reclaim_share": 0.132
+          },
+          "liquidity": {
+            "enabled": false,
+            "min_avg_quote_turnover": 0.0
+          }
+        }
+      }
+    ],
+    "time_helper_hint": {
+      "iso_to_ms_example": "python time_helper.py to-ms 2026-02-24T21:00:00+00:00",
+      "ms_to_iso_example": "python time_helper.py to-iso 1771966800000"
+    },
+    "aggregate": {
+      "slot_default": "base",
+      "filter_source": "reverse_computed_from_benchmarks",
+      "fallback_template_source": "runtime_cfg.filter",
+      "filter": {
+        "timeframe": "1m",
+        "lookback_candles": 59,
+        "min_score_pct": 78.1,
+        "approximation": {
+          "enabled": true,
+          "min_match_pct": 95.0
+        },
+        "regime": {
+          "enabled": true,
+          "min_corridor_pct": 5.71,
+          "max_corridor_pct": 7.21,
+          "quantile_low": 0.15,
+          "quantile_high": 0.85,
+          "min_chop": 51.3,
+          "max_efficiency_ratio": 0.053,
+          "max_slope_to_corridor_ratio": 0.35
+        },
+        "wicks": {
+          "enabled": true,
+          "long_wick_ratio": 1.85,
+          "min_dominant_wick_share": 0.31,
+          "body_floor_pct": 0.012,
+          "body_floor_range_share": 0.045,
+          "min_avg_wick_ratio": 3.47,
+          "min_long_wick_share": 0.349,
+          "min_two_sided_wick_share": 0.25,
+          "min_two_sided_share_per_candle": 0.1,
+          "max_two_sided_imbalance": 3.0
+        },
+        "axis": {
+          "enabled": true,
+          "tolerance_pct": 0.24,
+          "recent_window": 24,
+          "min_axis_touch_share": 0.598,
+          "min_recent_axis_touches": 14,
+          "min_rotation_count": 14,
+          "mode_bins": 31,
+          "use_hlc3": true,
+          "close_weight": 0.5,
+          "hlc3_weight": 0.5
+        },
+        "wall": {
+          "enabled": true,
+          "touch_tolerance_pct": 0.35,
+          "recent_window": 18,
+          "min_recent_wall_touch_share": 0.0,
+          "min_full_wall_touch_share": 0.0329,
+          "top_k_highs": 8,
+          "bottom_k_lows": 8,
+          "max_cluster_spread_pct": 5.34
+        },
+        "activity": {
+          "enabled": true,
+          "min_path_to_corridor_ratio": 6.85,
+          "ema_period": 20,
+          "axis_band_pct": 0.2,
+          "min_return_to_axis_count": 4
+        },
+        "reclaim": {
+          "enabled": true,
+          "lookback": 6,
+          "min_false_break_reclaim_share": 0.132
+        },
+        "liquidity": {
+          "enabled": false,
+          "min_avg_quote_turnover": 0.0
+        }
+      },
+      "benchmark_symbols": [
+        "WILDUSDT"
+      ],
+      "benchmark_symbol_windows": [
+        {
+          "symbol": "WILDUSDT",
+          "start_ms": 1771956240000,
+          "end_ms": 1771959840000,
+          "start_iso": "2026-02-24T18:04:00+00:00",
+          "end_iso": "2026-02-24T19:04:00+00:00",
+          "slot": "base"
+        }
+      ]
+    }
+  }
+}

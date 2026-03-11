@@ -1,0 +1,426 @@
+from __future__ import annotations
+
+import json
+from dataclasses import asdict, dataclass, field
+from pathlib import Path
+from typing import Any, Dict
+
+
+class ConfigError(RuntimeError):
+    pass
+
+
+DEFAULT_CFG: Dict[str, Any] = {
+    "app": {
+        "quote": "USDT",
+        "max_symbols": 0,
+        "concurrent_symbols": 3,
+        "top_n": 20,
+        "request_interval_ms": 250,
+    },
+    "exchange": {
+        "proxy": "",
+        "api_key": "",
+        "api_secret": "",
+    },
+    "reverse": {
+        "enabled": False,
+        "step_min": 5,
+        "slot": "base",
+        "benchmarks": [],
+    },
+    "filter": {
+        "timeframe": "1m",
+        "lookback_candles": 120,
+        "min_score_pct": 68.0,
+        "approximation": {
+            "enabled": False,
+            "min_match_pct": 100.0,
+        },
+        "regime": {
+            "enabled": True,
+            "min_corridor_pct": 1.2,
+            "max_corridor_pct": 5.6,
+            "quantile_low": 0.15,
+            "quantile_high": 0.85,
+            "min_chop": 56.0,
+            "max_efficiency_ratio": 0.38,
+            "max_slope_to_corridor_ratio": 0.33,
+        },
+        "wicks": {
+            "enabled": True,
+            "long_wick_ratio": 3.0,
+            "min_dominant_wick_share": 0.45,
+            "body_floor_pct": 0.03,
+            "body_floor_range_share": 0.10,
+            "min_avg_wick_ratio": 2.10,
+            "min_long_wick_share": 0.20,
+            "min_two_sided_wick_share": 0.08,
+            "min_two_sided_share_per_candle": 0.12,
+            "max_two_sided_imbalance": 3.2,
+        },
+        "axis": {
+            "enabled": True,
+            "tolerance_pct": 0.24,
+            "recent_window": 24,
+            "min_axis_touch_share": 0.18,
+            "min_recent_axis_touches": 5,
+            "min_rotation_count": 5,
+            "mode_bins": 31,
+            "use_hlc3": True,
+            "close_weight": 0.50,
+            "hlc3_weight": 0.50,
+        },
+        "wall": {
+            "enabled": True,
+            "touch_tolerance_pct": 0.35,
+            "recent_window": 18,
+            "min_recent_wall_touch_share": 0.22,
+            "min_full_wall_touch_share": 0.08,
+            "top_k_highs": 8,
+            "bottom_k_lows": 8,
+            "max_cluster_spread_pct": 1.20,
+        },
+        "activity": {
+            "enabled": True,
+            "min_path_to_corridor_ratio": 4.6,
+            "ema_period": 20,
+            "axis_band_pct": 0.20,
+            "min_return_to_axis_count": 6,
+        },
+        "reclaim": {
+            "enabled": True,
+            "lookback": 6,
+            "min_false_break_reclaim_share": 0.05,
+        },
+        "liquidity": {
+            "enabled": False,
+            "min_avg_quote_turnover": 0.0,
+        },
+    },
+}
+
+
+def _strip_meta_keys(value: Any) -> Any:
+    if isinstance(value, dict):
+        cleaned: Dict[str, Any] = {}
+        for k, v in value.items():
+            if isinstance(k, str) and k.startswith("_"):
+                continue
+            cleaned[k] = _strip_meta_keys(v)
+        return cleaned
+    if isinstance(value, list):
+        return [_strip_meta_keys(x) for x in value]
+    return value
+
+
+def _deep_merge(base: Dict[str, Any], override: Dict[str, Any]) -> Dict[str, Any]:
+    out: Dict[str, Any] = dict(base)
+    for k, v in (override or {}).items():
+        if isinstance(v, dict) and isinstance(out.get(k), dict):
+            out[k] = _deep_merge(out[k], v)
+        else:
+            out[k] = v
+    return out
+
+
+@dataclass
+class AppSection:
+    quote: str = "USDT"
+    max_symbols: int = 0
+    concurrent_symbols: int = 3
+    top_n: int = 20
+    request_interval_ms: int = 250
+
+
+@dataclass
+class ReverseSection:
+    enabled: bool = False
+    step_min: int = 5
+    slot: str = "base"
+    benchmarks: list[Dict[str, Any]] = field(default_factory=list)
+
+
+@dataclass
+class RegimeSection:
+    enabled: bool = True
+    min_corridor_pct: float = 1.2
+    max_corridor_pct: float = 5.6
+    quantile_low: float = 0.15
+    quantile_high: float = 0.85
+    min_chop: float = 56.0
+    max_efficiency_ratio: float = 0.38
+    max_slope_to_corridor_ratio: float = 0.33
+
+
+@dataclass
+class WicksSection:
+    enabled: bool = True
+    long_wick_ratio: float = 3.0
+    min_dominant_wick_share: float = 0.45
+    body_floor_pct: float = 0.03
+    body_floor_range_share: float = 0.10
+    min_avg_wick_ratio: float = 2.10
+    min_long_wick_share: float = 0.20
+    min_two_sided_wick_share: float = 0.08
+    min_two_sided_share_per_candle: float = 0.12
+    max_two_sided_imbalance: float = 3.2
+
+
+@dataclass
+class AxisSection:
+    enabled: bool = True
+    tolerance_pct: float = 0.24
+    recent_window: int = 24
+    min_axis_touch_share: float = 0.18
+    min_recent_axis_touches: int = 5
+    min_rotation_count: int = 5
+    mode_bins: int = 31
+    use_hlc3: bool = True
+    close_weight: float = 0.50
+    hlc3_weight: float = 0.50
+
+
+@dataclass
+class WallSection:
+    enabled: bool = True
+    touch_tolerance_pct: float = 0.35
+    recent_window: int = 18
+    min_recent_wall_touch_share: float = 0.22
+    min_full_wall_touch_share: float = 0.08
+    top_k_highs: int = 8
+    bottom_k_lows: int = 8
+    max_cluster_spread_pct: float = 1.20
+
+
+@dataclass
+class ActivitySection:
+    enabled: bool = True
+    min_path_to_corridor_ratio: float = 4.6
+    ema_period: int = 20
+    axis_band_pct: float = 0.20
+    min_return_to_axis_count: int = 6
+
+
+@dataclass
+class ReclaimSection:
+    enabled: bool = True
+    lookback: int = 6
+    min_false_break_reclaim_share: float = 0.05
+
+
+@dataclass
+class LiquiditySection:
+    enabled: bool = False
+    min_avg_quote_turnover: float = 0.0
+
+
+@dataclass
+class ApproximationSection:
+    enabled: bool = False
+    min_match_pct: float = 100.0
+
+
+@dataclass
+class FilterSection:
+    timeframe: str = "1m"
+    lookback_candles: int = 120
+    min_score_pct: float = 68.0
+    approximation: ApproximationSection = field(default_factory=ApproximationSection)
+    regime: RegimeSection = field(default_factory=RegimeSection)
+    wicks: WicksSection = field(default_factory=WicksSection)
+    axis: AxisSection = field(default_factory=AxisSection)
+    wall: WallSection = field(default_factory=WallSection)
+    activity: ActivitySection = field(default_factory=ActivitySection)
+    reclaim: ReclaimSection = field(default_factory=ReclaimSection)
+    liquidity: LiquiditySection = field(default_factory=LiquiditySection)
+
+
+@dataclass
+class AppConfig:
+    app: AppSection = field(default_factory=AppSection)
+    exchange: Dict[str, Any] = field(default_factory=dict)
+    reverse: ReverseSection = field(default_factory=ReverseSection)
+    filter: FilterSection = field(default_factory=FilterSection)
+    raw: Dict[str, Any] = field(default_factory=dict)
+
+    def snapshot(self) -> Dict[str, Any]:
+        payload = asdict(self)
+        payload.pop("raw", None)
+        return payload
+
+
+class ConfigLoader:
+    @staticmethod
+    def from_dict(user_raw: Dict[str, Any]) -> AppConfig:
+        user_raw = _strip_meta_keys(user_raw or {})
+        merged = _deep_merge(DEFAULT_CFG, user_raw)
+
+        app_d = merged.get("app") or {}
+        reverse_d = merged.get("reverse") or {}
+        filt_d = merged.get("filter") or {}
+        user_reverse_d = user_raw.get("reverse") or {}
+
+        # ---- Backward compatibility with v4 / v5.x / v6.3 ----
+        counter_condition_pct = filt_d.get("counter_condition_pct")
+        if counter_condition_pct is not None and "min_score_pct" not in (user_raw.get("filter") or {}):
+            filt_d["min_score_pct"] = float(counter_condition_pct) * 2.1
+
+        if "slot" not in user_reverse_d:
+            legacy_slot = user_reverse_d.get("preset_mode") or user_reverse_d.get("default_preset")
+            if legacy_slot is not None:
+                reverse_d["slot"] = legacy_slot
+
+        old_range = filt_d.get("range_condition") or filt_d.get("range") or {}
+        old_spikes = filt_d.get("spikes_condition") or filt_d.get("spikes") or {}
+        old_hl = filt_d.get("high_low_condition") or {}
+        old_axis = filt_d.get("axis_condition") or {}
+        old_reclaim = filt_d.get("reclaim") or {}
+        old_mean_rev = filt_d.get("mean_reversion") or {}
+
+        regime_user = filt_d.get("regime") or {}
+        if "min_corridor_pct" not in regime_user:
+            if old_range.get("min_range_distance_pct") is not None:
+                regime_user["min_corridor_pct"] = old_range.get("min_range_distance_pct")
+            elif old_range.get("min_effective_range_delta_pct") is not None:
+                regime_user["min_corridor_pct"] = old_range.get("min_effective_range_delta_pct")
+        filt_d["regime"] = _deep_merge(DEFAULT_CFG["filter"]["regime"], regime_user)
+
+        wicks_user = filt_d.get("wicks") or {}
+        alias_map = {
+            "long_wick_ratio": old_spikes.get("spikes_ratio") or old_spikes.get("spike_ratio_threshold"),
+            "min_dominant_wick_share": old_spikes.get("min_wick_share") or old_spikes.get("min_shadow_share_of_range"),
+            "body_floor_pct": old_spikes.get("body_floor_pct") or old_spikes.get("body_floor_price_pct"),
+            "body_floor_range_share": old_spikes.get("body_floor_range_share"),
+            "min_avg_wick_ratio": old_spikes.get("min_avg_wickiness_ratio"),
+            "min_long_wick_share": old_spikes.get("min_long_wick_share"),
+            "min_two_sided_wick_share": old_spikes.get("min_two_sided_wick_share"),
+            "min_two_sided_share_per_candle": old_spikes.get("min_two_sided_share_per_candle"),
+            "max_two_sided_imbalance": old_spikes.get("max_two_sided_imbalance"),
+        }
+        for k, v in alias_map.items():
+            if v is not None and k not in wicks_user:
+                wicks_user[k] = v
+        filt_d["wicks"] = _deep_merge(DEFAULT_CFG["filter"]["wicks"], wicks_user)
+
+        axis_user = filt_d.get("axis") or {}
+        axis_alias = {
+            "tolerance_pct": old_axis.get("touch_tolerance_pct"),
+            "recent_window": old_axis.get("recent_window"),
+            "min_recent_axis_touches": old_axis.get("min_touches"),
+            "close_weight": old_axis.get("close_weight"),
+            "hlc3_weight": old_axis.get("hlc3_weight"),
+        }
+        for k, v in axis_alias.items():
+            if v is not None and k not in axis_user:
+                axis_user[k] = v
+        filt_d["axis"] = _deep_merge(DEFAULT_CFG["filter"]["axis"], axis_user)
+
+        wall_user = filt_d.get("wall") or {}
+        wall_alias = {
+            "top_k_highs": old_range.get("top_k_highs"),
+            "bottom_k_lows": old_range.get("bottom_k_lows"),
+            "max_cluster_spread_pct": max(
+                float(old_range.get("max_top_high_cluster_spread_pct") or DEFAULT_CFG["filter"]["wall"]["max_cluster_spread_pct"]),
+                float(old_range.get("max_bottom_low_cluster_spread_pct") or DEFAULT_CFG["filter"]["wall"]["max_cluster_spread_pct"]),
+            ) if old_range else None,
+        }
+        for k, v in wall_alias.items():
+            if v is not None and k not in wall_user:
+                wall_user[k] = v
+        filt_d["wall"] = _deep_merge(DEFAULT_CFG["filter"]["wall"], wall_user)
+
+        activity_user = filt_d.get("activity") or {}
+        activity_alias = {
+            "ema_period": old_mean_rev.get("ema_period"),
+            "axis_band_pct": old_mean_rev.get("ema_band_pct"),
+            "min_return_to_axis_count": old_mean_rev.get("min_return_to_ema_count"),
+        }
+        for k, v in activity_alias.items():
+            if v is not None and k not in activity_user:
+                activity_user[k] = v
+        filt_d["activity"] = _deep_merge(DEFAULT_CFG["filter"]["activity"], activity_user)
+
+        reclaim_user = filt_d.get("reclaim") or {}
+        reclaim_alias = {
+            "lookback": old_reclaim.get("lookback") or old_spikes.get("reclaim_lookback"),
+            "min_false_break_reclaim_share": old_reclaim.get("min_false_break_reclaim_share") or old_spikes.get("min_false_break_reclaim_share"),
+        }
+        for k, v in reclaim_alias.items():
+            if v is not None and k not in reclaim_user:
+                reclaim_user[k] = v
+        filt_d["reclaim"] = _deep_merge(DEFAULT_CFG["filter"]["reclaim"], reclaim_user)
+
+        liq_user = filt_d.get("liquidity") or {}
+        filt_d["liquidity"] = _deep_merge(DEFAULT_CFG["filter"]["liquidity"], liq_user)
+
+        approximation_user = filt_d.get("approximation") or {}
+        filt_d["approximation"] = _deep_merge(DEFAULT_CFG["filter"]["approximation"], approximation_user)
+
+        cfg = AppConfig(
+            app=AppSection(
+                quote=str(app_d.get("quote") or "USDT").upper().strip(),
+                max_symbols=max(0, int(app_d.get("max_symbols") or 0)),
+                concurrent_symbols=max(1, int(app_d.get("concurrent_symbols") or 3)),
+                top_n=max(1, int(app_d.get("top_n") or 20)),
+                request_interval_ms=max(0, int(app_d.get("request_interval_ms") or 250)),
+            ),
+            exchange=merged.get("exchange") or {},
+            reverse=ReverseSection(
+                enabled=bool(reverse_d.get("enabled", False)),
+                step_min=max(1, int(reverse_d.get("step_min") or 5)),
+                slot=str(reverse_d.get("slot") or "base").strip().lower(),
+                benchmarks=list(reverse_d.get("benchmarks") or []),
+            ),
+            filter=FilterSection(
+                timeframe=str(filt_d.get("timeframe") or "1m").lower().strip(),
+                lookback_candles=max(20, int(filt_d.get("lookback_candles") or 120)),
+                min_score_pct=float(filt_d.get("min_score_pct") or 68.0),
+                approximation=ApproximationSection(**filt_d["approximation"]),
+                regime=RegimeSection(**filt_d["regime"]),
+                wicks=WicksSection(**filt_d["wicks"]),
+                axis=AxisSection(**filt_d["axis"]),
+                wall=WallSection(**filt_d["wall"]),
+                activity=ActivitySection(**filt_d["activity"]),
+                reclaim=ReclaimSection(**filt_d["reclaim"]),
+                liquidity=LiquiditySection(**filt_d["liquidity"]),
+            ),
+            raw=merged,
+        )
+        ConfigLoader._validate(cfg)
+        return cfg
+
+    @staticmethod
+    def _validate(cfg: AppConfig) -> None:
+        if cfg.app.concurrent_symbols <= 0:
+            raise ConfigError("app.concurrent_symbols must be > 0")
+        if cfg.filter.lookback_candles <= 0:
+            raise ConfigError("filter.lookback_candles must be > 0")
+        if cfg.filter.regime.min_corridor_pct <= 0:
+            raise ConfigError("filter.regime.min_corridor_pct must be > 0")
+        if cfg.filter.regime.max_corridor_pct <= cfg.filter.regime.min_corridor_pct:
+            raise ConfigError("filter.regime.max_corridor_pct must be > min_corridor_pct")
+        if not (0.0 < cfg.filter.regime.quantile_low < cfg.filter.regime.quantile_high < 1.0):
+            raise ConfigError("filter.regime quantiles must satisfy 0 < low < high < 1")
+        if cfg.filter.axis.mode_bins < 3:
+            raise ConfigError("filter.axis.mode_bins must be >= 3")
+        if cfg.reverse.slot not in {"soft", "base", "strict"}:
+            raise ConfigError("reverse.slot must be one of: soft, base, strict")
+        if not (0.0 < cfg.filter.approximation.min_match_pct <= 100.0):
+            raise ConfigError("filter.approximation.min_match_pct must be in (0, 100]")
+
+
+ROOT = Path(__file__).resolve().parent
+CFG_PATH = ROOT / "cfg.json"
+
+
+def load_config(path: Path = CFG_PATH) -> AppConfig:
+    if not path.exists():
+        raise ConfigError(f"cfg not found: {path}")
+    try:
+        user_raw = json.loads(path.read_text(encoding="utf-8"))
+    except Exception as e:
+        raise ConfigError(f"failed to read cfg: {e}") from e
+    if not isinstance(user_raw, dict):
+        raise ConfigError("cfg root must be object")
+    return ConfigLoader.from_dict(user_raw)
