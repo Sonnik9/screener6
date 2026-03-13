@@ -1,4 +1,4 @@
-# britva_bot v6.5
+# britva_bot v6.6
 
 Скринер для поиска 1m-монет под паттерн типа «волатильный боковик вокруг оси с длинными тенями и упором в стенку».
 
@@ -57,9 +57,10 @@ python time_helper.py to-iso 1771966800000
 - `candidates.json` — итоговый скан
 
 - `cfg.json` — базовый конфиг остаётся неизменным
-- `reverse_runtime_cfg.json` — runtime-конфиг с вычисленным benchmark `filter`, который используется сканером только при `reverse.enabled=true`
+- `bm_cfg.json` — основной runtime-конфиг с вычисленным benchmark `filter`, который используется сканером только при `reverse.enabled=true`
+- `reverse_runtime_cfg.json` — совместимый дубликат runtime-конфига для старого пайплайна
 
-- `cfg.json` — main обновляет секцию `filter` вычисленными benchmark-параметрами
+- `cfg.json` не перезаписывается benchmark-параметрами
 
 - `reverse_runs/reverse_*.json` — отдельные отчёты по каждому эталону
 - `reverse_runs/reverse_*_slots.json` — ready-to-paste слоты по каждому эталону

@@ -2,3 +2,17 @@
 2026-03-11 13:23:23 | INFO | scanner_engine | scan symbols total=544 concurrent=3
 2026-03-11 13:30:28 | INFO | scanner_engine | scanner init timeframe=1m lookback=59 quote=USDT
 2026-03-11 13:30:29 | INFO | scanner_engine | scan symbols total=544 concurrent=3
+2026-03-11 15:48:17 | INFO | scanner_engine | scanner init timeframe=1m lookback=59 quote=USDT
+2026-03-11 15:48:18 | INFO | scanner_engine | scan symbols total=544 concurrent=3
+2026-03-11 15:49:24 | INFO | scanner_engine | scanner init timeframe=1m lookback=59 quote=USDT
+2026-03-11 15:49:24 | INFO | scanner_engine | scan symbols total=544 concurrent=3
+2026-03-11 16:02:53 | INFO | scanner_engine | scanner init timeframe=1m lookback=59 quote=USDT
+2026-03-11 16:02:54 | INFO | scanner_engine | scan symbols total=544 concurrent=3
+2026-03-11 16:21:07 | INFO | scanner_engine | scanner init timeframe=1m lookback=60 quote=USDT
+2026-03-11 16:21:07 | INFO | scanner_engine | scan symbols total=544 concurrent=3
+2026-03-11 16:27:40 | INFO | scanner_engine | scanner init timeframe=1m lookback=60 quote=USDT
+2026-03-11 16:27:40 | INFO | scanner_engine | scan symbols total=544 concurrent=3
+2026-03-11 16:38:58 | INFO | scanner_engine | scanner init timeframe=1m lookback=60 quote=USDT
+2026-03-11 16:38:58 | INFO | scanner_engine | scan symbols total=544 concurrent=3
+2026-03-11 16:49:12 | INFO | scanner_engine | scanner init timeframe=1m lookback=60 quote=USDT
+2026-03-11 16:49:13 | INFO | scanner_engine | scan symbols total=544 concurrent=3

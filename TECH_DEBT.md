@@ -1,4 +1,4 @@
-# TECH_DEBT v6.5
+# TECH_DEBT v6.6
 
 ## Critical
 
@@ -15,6 +15,10 @@
 
 ## Progress
 
+- [x] Исправлен цикл импортов `benchmark_pipeline -> reverse -> reverse` (восстановлен настоящий `reverse.py`).
+- [x] Исправлена логическая ошибка `main.py`: убран повторный второй запуск benchmark+scan.
+- [x] Формальные python-ошибки и целостность пайплайна перепроверены через `py_compile`.
+- [x] При `reverse.enabled=true` runtime-конфиг теперь сохраняется в `bm_cfg.json` и дублируется в `reverse_runtime_cfg.json` для совместимости.
 - [x] Кастомный логер подключен в ключевых точках пайплайна.
 - [x] При `reverse.enabled=true` benchmark-калибровка применяется в бою.
 - [x] Свечной эталон кешируется в `reverse_runs/candles_*.json`.
@@ -22,18 +26,6 @@
 - [x] `DEFAULT_CFG` удален из `config.py`.
 - [x] Версия переименована в v6.5.
 - [x] В режиме `reverse.enabled=true` боевые параметры подхватываются из отдельного runtime-конфига (`reverse_runtime_cfg.json`), без перезаписи базового `cfg.json`.
-
-
-## Git protocol (обязательно)
-
-- Работать только в ветке `master`.
-- Не создавать новые ветки.
-- Не делать pull request.
-- Не делать merge.
-- Не делать rebase.
-- Все изменения вносить только в `master`.
-- Если нужен commit — коммитить только в `master`.
-- Если нужен push — пушить только в `master`.
 
 
 New: (Critical):
@@ -49,4 +41,17 @@ New: (Critical):
 
 Отмечай техдолг
 
+НОВОЕ!
 
+Критично:
+
+1. Проверяй весь пейплайн на предмет того насколько выполнено вышесказанное
+
+2. Также проверь формальные ошибки чисто питоновские и логические и исправь
+
+## Closed in v6.6
+
+- Восстановлен файл `reverse.py`, который был ошибочно перезаписан содержимым `benchmark_pipeline.py`.
+- Исправлен `ImportError: cannot import name run_reverse from partially initialized module reverse`.
+- Исправлен двойной прогон в `main.py`, из-за которого пайплайн стартовал дважды и смешивал runtime/base cfg.
+- Проверено, что при `reverse.enabled=false` используется `cfg.json`, а при `reverse.enabled=true` строится отдельный runtime cfg (`bm_cfg.json`).
