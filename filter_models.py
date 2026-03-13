@@ -18,10 +18,14 @@ class FilterSummary:
     rotation_count: int
     return_to_axis_count: int
     avg_axis_distance_pct: float
-    long_wick_share: float
-    two_sided_wick_share: float
+    # Primary wicks metrics (v9 simplified)
     avg_wick_ratio: float
+    wick_count: int
+    wick_share: float
+    # Secondary: reclaim section
     false_break_reclaim_share: float
+    # Primary: donchain
+    donchain_range: float
     chop: float
     efficiency_ratio: float
     slope_to_corridor_ratio: float

@@ -23,7 +23,7 @@ CFG_TEMPLATE: Dict[str, Any] = {
         "api_key": "",
         "api_secret": "",
     },
-    "reverse": {
+    "benchmark": {
         "enabled": False,
         "step_min": 5,
         "slot": "base",
@@ -38,6 +38,7 @@ CFG_TEMPLATE: Dict[str, Any] = {
             "min_match_pct": 100.0,
         },
         "regime": {
+            # secondary/optional — geomtry of the sideways: corridor width, choppiness, trendlessness
             "enabled": True,
             "min_corridor_pct": 1.2,
             "max_corridor_pct": 5.6,
@@ -48,18 +49,21 @@ CFG_TEMPLATE: Dict[str, Any] = {
             "max_slope_to_corridor_ratio": 0.33,
         },
         "wicks": {
+            # PRIMARY — (high-low)/abs(open-close) for candles passing the pct_range gate
             "enabled": True,
-            "long_wick_ratio": 3.0,
-            "min_dominant_wick_share": 0.45,
-            "body_floor_pct": 0.03,
-            "body_floor_range_share": 0.10,
-            "min_avg_wick_ratio": 2.10,
-            "min_long_wick_share": 0.20,
-            "min_two_sided_wick_share": 0.08,
-            "min_two_sided_share_per_candle": 0.12,
-            "max_two_sided_imbalance": 3.2,
+            "min_pct_range": 0.3,
+            "min_avg_wick_ratio": 2.0,
+            "min_wick_count": 10,
+        },
+        "donchain": {
+            # PRIMARY — average range breadth: (mean(highs) / mean(lows) - 1) * 100 over window N
+            "enabled": True,
+            "window": 20,
+            "min_donchain_range": 0.3,
+            "max_donchain_range": 5.0,
         },
         "axis": {
+            # secondary/optional — mean-reversion axis touches and rotations
             "enabled": True,
             "tolerance_pct": 0.24,
             "recent_window": 24,
@@ -72,6 +76,7 @@ CFG_TEMPLATE: Dict[str, Any] = {
             "hlc3_weight": 0.50,
         },
         "wall": {
+            # secondary/optional — pressure against upper/lower range walls
             "enabled": True,
             "touch_tolerance_pct": 0.35,
             "recent_window": 18,
@@ -82,6 +87,7 @@ CFG_TEMPLATE: Dict[str, Any] = {
             "max_cluster_spread_pct": 1.20,
         },
         "activity": {
+            # secondary/optional — how actively price moves inside the range
             "enabled": True,
             "min_path_to_corridor_ratio": 4.6,
             "ema_period": 20,
@@ -89,11 +95,13 @@ CFG_TEMPLATE: Dict[str, Any] = {
             "min_return_to_axis_count": 6,
         },
         "reclaim": {
+            # secondary/optional — false breakouts with reclaim back inside
             "enabled": True,
             "lookback": 6,
             "min_false_break_reclaim_share": 0.05,
         },
         "liquidity": {
+            # secondary/optional — rough liquidity gate
             "enabled": False,
             "min_avg_quote_turnover": 0.0,
         },
@@ -134,7 +142,7 @@ class AppSection:
 
 
 @dataclass
-class ReverseSection:
+class BenchmarkSection:
     enabled: bool = False
     step_min: int = 5
     slot: str = "base"
@@ -155,16 +163,28 @@ class RegimeSection:
 
 @dataclass
 class WicksSection:
+    """Primary wicks filter (v9 simplified).
+
+    min_pct_range:     gate — only count candles where (high/low - 1) * 100 >= this.
+    min_avg_wick_ratio: filter — avg (high-low)/abs(open-close) >= this.
+    min_wick_count:    filter — at least this many qualifying candles.
+    """
     enabled: bool = True
-    long_wick_ratio: float = 3.0
-    min_dominant_wick_share: float = 0.45
-    body_floor_pct: float = 0.03
-    body_floor_range_share: float = 0.10
-    min_avg_wick_ratio: float = 2.10
-    min_long_wick_share: float = 0.20
-    min_two_sided_wick_share: float = 0.08
-    min_two_sided_share_per_candle: float = 0.12
-    max_two_sided_imbalance: float = 3.2
+    min_pct_range: float = 0.3
+    min_avg_wick_ratio: float = 2.0
+    min_wick_count: int = 10
+
+
+@dataclass
+class DonchainSection:
+    """Primary donchain range filter (v9).
+
+    donchain_range = (mean(highs[-window:]) / mean(lows[-window:]) - 1) * 100
+    """
+    enabled: bool = True
+    window: int = 20
+    min_donchain_range: float = 0.3
+    max_donchain_range: float = 5.0
 
 
 @dataclass
@@ -229,6 +249,7 @@ class FilterSection:
     approximation: ApproximationSection = field(default_factory=ApproximationSection)
     regime: RegimeSection = field(default_factory=RegimeSection)
     wicks: WicksSection = field(default_factory=WicksSection)
+    donchain: DonchainSection = field(default_factory=DonchainSection)
     axis: AxisSection = field(default_factory=AxisSection)
     wall: WallSection = field(default_factory=WallSection)
     activity: ActivitySection = field(default_factory=ActivitySection)
@@ -240,7 +261,7 @@ class FilterSection:
 class AppConfig:
     app: AppSection = field(default_factory=AppSection)
     exchange: Dict[str, Any] = field(default_factory=dict)
-    reverse: ReverseSection = field(default_factory=ReverseSection)
+    benchmark: BenchmarkSection = field(default_factory=BenchmarkSection)
     filter: FilterSection = field(default_factory=FilterSection)
     raw: Dict[str, Any] = field(default_factory=dict)
 
@@ -257,25 +278,26 @@ class ConfigLoader:
         merged = _deep_merge(CFG_TEMPLATE, user_raw)
 
         app_d = merged.get("app") or {}
-        reverse_d = merged.get("reverse") or {}
         filt_d = merged.get("filter") or {}
-        user_reverse_d = user_raw.get("reverse") or {}
 
-        # ---- Backward compatibility with v4 / v5.x / v6.3 ----
+        # ---- benchmark section: read "benchmark", fall back to legacy "reverse" ----
+        bm_d = merged.get("benchmark") or merged.get("reverse") or {}
+        user_bm_d = user_raw.get("benchmark") or user_raw.get("reverse") or {}
+
+        # ---- Backward compatibility: v4 / v5.x / v6.x ----
         counter_condition_pct = filt_d.get("counter_condition_pct")
         if counter_condition_pct is not None and "min_score_pct" not in (user_raw.get("filter") or {}):
             filt_d["min_score_pct"] = float(counter_condition_pct) * 2.1
 
-        if "slot" not in user_reverse_d:
-            legacy_slot = user_reverse_d.get("preset_mode") or user_reverse_d.get("default_preset")
+        # legacy slot names
+        if "slot" not in user_bm_d:
+            legacy_slot = user_bm_d.get("preset_mode") or user_bm_d.get("default_preset")
             if legacy_slot is not None:
-                reverse_d["slot"] = legacy_slot
+                bm_d["slot"] = legacy_slot
 
         old_range = filt_d.get("range_condition") or filt_d.get("range") or {}
         old_spikes = filt_d.get("spikes_condition") or filt_d.get("spikes") or {}
-        old_hl = filt_d.get("high_low_condition") or {}
         old_axis = filt_d.get("axis_condition") or {}
-        old_reclaim = filt_d.get("reclaim") or {}
         old_mean_rev = filt_d.get("mean_reversion") or {}
 
         regime_user = filt_d.get("regime") or {}
@@ -286,22 +308,18 @@ class ConfigLoader:
                 regime_user["min_corridor_pct"] = old_range.get("min_effective_range_delta_pct")
         filt_d["regime"] = _deep_merge(CFG_TEMPLATE["filter"]["regime"], regime_user)
 
+        # wicks: legacy alias mapping (v6 → v9)
         wicks_user = filt_d.get("wicks") or {}
-        alias_map = {
-            "long_wick_ratio": old_spikes.get("spikes_ratio") or old_spikes.get("spike_ratio_threshold"),
-            "min_dominant_wick_share": old_spikes.get("min_wick_share") or old_spikes.get("min_shadow_share_of_range"),
-            "body_floor_pct": old_spikes.get("body_floor_pct") or old_spikes.get("body_floor_price_pct"),
-            "body_floor_range_share": old_spikes.get("body_floor_range_share"),
+        legacy_wicks_alias = {
             "min_avg_wick_ratio": old_spikes.get("min_avg_wickiness_ratio"),
-            "min_long_wick_share": old_spikes.get("min_long_wick_share"),
-            "min_two_sided_wick_share": old_spikes.get("min_two_sided_wick_share"),
-            "min_two_sided_share_per_candle": old_spikes.get("min_two_sided_share_per_candle"),
-            "max_two_sided_imbalance": old_spikes.get("max_two_sided_imbalance"),
         }
-        for k, v in alias_map.items():
+        for k, v in legacy_wicks_alias.items():
             if v is not None and k not in wicks_user:
                 wicks_user[k] = v
         filt_d["wicks"] = _deep_merge(CFG_TEMPLATE["filter"]["wicks"], wicks_user)
+
+        donchain_user = filt_d.get("donchain") or {}
+        filt_d["donchain"] = _deep_merge(CFG_TEMPLATE["filter"]["donchain"], donchain_user)
 
         axis_user = filt_d.get("axis") or {}
         axis_alias = {
@@ -343,19 +361,15 @@ class ConfigLoader:
 
         reclaim_user = filt_d.get("reclaim") or {}
         reclaim_alias = {
-            "lookback": old_reclaim.get("lookback") or old_spikes.get("reclaim_lookback"),
-            "min_false_break_reclaim_share": old_reclaim.get("min_false_break_reclaim_share") or old_spikes.get("min_false_break_reclaim_share"),
+            "min_false_break_reclaim_share": old_spikes.get("min_false_break_reclaim_share"),
         }
         for k, v in reclaim_alias.items():
             if v is not None and k not in reclaim_user:
                 reclaim_user[k] = v
         filt_d["reclaim"] = _deep_merge(CFG_TEMPLATE["filter"]["reclaim"], reclaim_user)
 
-        liq_user = filt_d.get("liquidity") or {}
-        filt_d["liquidity"] = _deep_merge(CFG_TEMPLATE["filter"]["liquidity"], liq_user)
-
-        approximation_user = filt_d.get("approximation") or {}
-        filt_d["approximation"] = _deep_merge(CFG_TEMPLATE["filter"]["approximation"], approximation_user)
+        filt_d["liquidity"] = _deep_merge(CFG_TEMPLATE["filter"]["liquidity"], filt_d.get("liquidity") or {})
+        filt_d["approximation"] = _deep_merge(CFG_TEMPLATE["filter"]["approximation"], filt_d.get("approximation") or {})
 
         cfg = AppConfig(
             app=AppSection(
@@ -366,11 +380,11 @@ class ConfigLoader:
                 request_interval_ms=max(0, int(app_d.get("request_interval_ms") or 250)),
             ),
             exchange=merged.get("exchange") or {},
-            reverse=ReverseSection(
-                enabled=bool(reverse_d.get("enabled", False)),
-                step_min=max(1, int(reverse_d.get("step_min") or 5)),
-                slot=str(reverse_d.get("slot") or "base").strip().lower(),
-                benchmarks=list(reverse_d.get("benchmarks") or []),
+            benchmark=BenchmarkSection(
+                enabled=bool(bm_d.get("enabled", False)),
+                step_min=max(1, int(bm_d.get("step_min") or 5)),
+                slot=str(bm_d.get("slot") or "base").strip().lower(),
+                benchmarks=list(bm_d.get("benchmarks") or []),
             ),
             filter=FilterSection(
                 timeframe=str(filt_d.get("timeframe") or "1m").lower().strip(),
@@ -379,6 +393,7 @@ class ConfigLoader:
                 approximation=ApproximationSection(**filt_d["approximation"]),
                 regime=RegimeSection(**filt_d["regime"]),
                 wicks=WicksSection(**filt_d["wicks"]),
+                donchain=DonchainSection(**filt_d["donchain"]),
                 axis=AxisSection(**filt_d["axis"]),
                 wall=WallSection(**filt_d["wall"]),
                 activity=ActivitySection(**filt_d["activity"]),
@@ -404,10 +419,12 @@ class ConfigLoader:
             raise ConfigError("filter.regime quantiles must satisfy 0 < low < high < 1")
         if cfg.filter.axis.mode_bins < 3:
             raise ConfigError("filter.axis.mode_bins must be >= 3")
-        if cfg.reverse.slot not in {"soft", "base", "strict"}:
-            raise ConfigError("reverse.slot must be one of: soft, base, strict")
+        if cfg.benchmark.slot not in {"soft", "base", "strict"}:
+            raise ConfigError("benchmark.slot must be one of: soft, base, strict")
         if not (0.0 < cfg.filter.approximation.min_match_pct <= 100.0):
             raise ConfigError("filter.approximation.min_match_pct must be in (0, 100]")
+        if cfg.filter.donchain.min_donchain_range >= cfg.filter.donchain.max_donchain_range:
+            raise ConfigError("filter.donchain.max_donchain_range must be > min_donchain_range")
 
 
 ROOT = Path(__file__).resolve().parent

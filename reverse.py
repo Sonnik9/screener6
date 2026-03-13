@@ -154,9 +154,12 @@ def _summary_stats(rows: Sequence[Dict[str, Any]]) -> Dict[str, Any]:
         "chop",
         "efficiency_ratio",
         "slope_to_corridor_ratio",
+        # PRIMARY wicks (v9)
         "avg_wick_ratio",
-        "long_wick_share",
-        "two_sided_wick_share",
+        "wick_count",
+        "wick_share",
+        # PRIMARY donchain
+        "donchain_range",
         "axis_touch_share",
         "recent_axis_touch_count",
         "rotation_count",
@@ -210,9 +213,12 @@ def _build_base_filter(summary: Dict[str, Any], cfg_snapshot: Dict[str, Any]) ->
     eff_median = _s(summary, "efficiency_ratio", "median")
     slope_q90 = _s(summary, "slope_to_corridor_ratio", "q90")
     slope_median = _s(summary, "slope_to_corridor_ratio", "median")
+    # PRIMARY wicks (v9)
     avg_wick_q10 = _s(summary, "avg_wick_ratio", "q10")
-    long_wick_q10 = _s(summary, "long_wick_share", "q10")
-    two_sided_q10 = _s(summary, "two_sided_wick_share", "q10")
+    wick_count_q10 = _s(summary, "wick_count", "q10")
+    # PRIMARY donchain
+    donchain_q10 = _s(summary, "donchain_range", "q10")
+    donchain_q90 = _s(summary, "donchain_range", "q90")
     axis_touch_q10 = _s(summary, "axis_touch_share", "q10")
     recent_axis_q10 = _s(summary, "recent_axis_touch_count", "q10")
     rotation_q10 = _s(summary, "rotation_count", "q10")
@@ -237,10 +243,15 @@ def _build_base_filter(summary: Dict[str, Any], cfg_snapshot: Dict[str, Any]) ->
     base_slope = max(slope_q90 * 1.05, slope_median * 1.15, 0.35)
     regime["max_slope_to_corridor_ratio"] = _round_cfg_float(_clamp(base_slope, min_v=0.2, max_v=3.0))
 
+    # PRIMARY: wicks (v9 simplified)
     wicks = filt.setdefault("wicks", {})
     wicks["min_avg_wick_ratio"] = _round_cfg_float(max(0.1, avg_wick_q10 * 0.97))
-    wicks["min_long_wick_share"] = _round_cfg_float(_clamp(long_wick_q10 * 0.97, min_v=0.0, max_v=1.0))
-    wicks["min_two_sided_wick_share"] = _round_cfg_float(_clamp(two_sided_q10 * 0.97, min_v=0.0, max_v=1.0))
+    wicks["min_wick_count"] = max(1, _floor_int(wick_count_q10 * 0.95))
+
+    # PRIMARY: donchain
+    donchain = filt.setdefault("donchain", {})
+    donchain["min_donchain_range"] = _round_cfg_float(_clamp(donchain_q10 * 0.97, min_v=0.01))
+    donchain["max_donchain_range"] = _round_cfg_float(max(donchain["min_donchain_range"] + 0.1, donchain_q90 * 1.03))
 
     axis = filt.setdefault("axis", {})
     axis["min_axis_touch_share"] = _round_cfg_float(_clamp(axis_touch_q10 * 0.97, min_v=0.0, max_v=1.0))
@@ -265,6 +276,8 @@ def _build_base_filter(summary: Dict[str, Any], cfg_snapshot: Dict[str, Any]) ->
 
     if float(regime["max_corridor_pct"]) <= float(regime["min_corridor_pct"]):
         regime["max_corridor_pct"] = _round_cfg_float(float(regime["min_corridor_pct"]) + 0.2)
+    if float(donchain["max_donchain_range"]) <= float(donchain["min_donchain_range"]):
+        donchain["max_donchain_range"] = _round_cfg_float(float(donchain["min_donchain_range"]) + 0.2)
     return filt
 
 
@@ -279,10 +292,16 @@ def _soften_filter(base_filter: Dict[str, Any]) -> Dict[str, Any]:
     regime["max_efficiency_ratio"] = _round_cfg_float(_clamp(float(regime["max_efficiency_ratio"]) * 1.25, min_v=0.01, max_v=0.5))
     regime["max_slope_to_corridor_ratio"] = _round_cfg_float(_clamp(float(regime["max_slope_to_corridor_ratio"]) * 1.12, min_v=0.2, max_v=5.0))
 
+    # PRIMARY: wicks (v9)
     wicks = f["wicks"]
     wicks["min_avg_wick_ratio"] = _round_cfg_float(float(wicks["min_avg_wick_ratio"]) * 0.94)
-    wicks["min_long_wick_share"] = _round_cfg_float(_clamp(float(wicks["min_long_wick_share"]) * 0.92, min_v=0.0, max_v=1.0))
-    wicks["min_two_sided_wick_share"] = _round_cfg_float(_clamp(float(wicks["min_two_sided_wick_share"]) * 0.92, min_v=0.0, max_v=1.0))
+    wicks["min_wick_count"] = max(1, int(round(int(wicks.get("min_wick_count", 1)) * 0.85)))
+
+    # PRIMARY: donchain
+    donchain = f.get("donchain") or {}
+    donchain["min_donchain_range"] = _round_cfg_float(float(donchain.get("min_donchain_range", 0.1)) * 0.93)
+    donchain["max_donchain_range"] = _round_cfg_float(float(donchain.get("max_donchain_range", 5.0)) * 1.08)
+    f["donchain"] = donchain
 
     axis = f["axis"]
     axis["min_axis_touch_share"] = _round_cfg_float(_clamp(float(axis["min_axis_touch_share"]) * 0.90, min_v=0.0, max_v=1.0))
@@ -315,10 +334,16 @@ def _tighten_filter(base_filter: Dict[str, Any]) -> Dict[str, Any]:
     regime["max_efficiency_ratio"] = _round_cfg_float(_clamp(float(regime["max_efficiency_ratio"]) * 0.85, min_v=0.01, max_v=0.5))
     regime["max_slope_to_corridor_ratio"] = _round_cfg_float(_clamp(float(regime["max_slope_to_corridor_ratio"]) * 0.93, min_v=0.2, max_v=5.0))
 
+    # PRIMARY: wicks (v9)
     wicks = f["wicks"]
     wicks["min_avg_wick_ratio"] = _round_cfg_float(float(wicks["min_avg_wick_ratio"]) * 1.02)
-    wicks["min_long_wick_share"] = _round_cfg_float(_clamp(float(wicks["min_long_wick_share"]) * 1.03, min_v=0.0, max_v=1.0))
-    wicks["min_two_sided_wick_share"] = _round_cfg_float(_clamp(float(wicks["min_two_sided_wick_share"]) * 1.03, min_v=0.0, max_v=1.0))
+    wicks["min_wick_count"] = max(1, int(round(int(wicks.get("min_wick_count", 1)) * 1.08)))
+
+    # PRIMARY: donchain
+    donchain = f.get("donchain") or {}
+    donchain["min_donchain_range"] = _round_cfg_float(_clamp(float(donchain.get("min_donchain_range", 0.1)) * 1.03, min_v=0.01))
+    donchain["max_donchain_range"] = _round_cfg_float(max(float(donchain["min_donchain_range"]) + 0.1, float(donchain.get("max_donchain_range", 5.0)) * 0.96))
+    f["donchain"] = donchain
 
     axis = f["axis"]
     axis["min_axis_touch_share"] = _round_cfg_float(_clamp(float(axis["min_axis_touch_share"]) * 1.04, min_v=0.0, max_v=1.0))
@@ -355,9 +380,12 @@ METRIC_REFERENCE: Dict[str, Dict[str, str]] = {
     "chop": {"label": "Chop", "cfg_path": "filter.regime.min_chop", "why": "насколько цена реально пилит диапазон"},
     "efficiency_ratio": {"label": "Efficiency ratio", "cfg_path": "filter.regime.max_efficiency_ratio", "why": "насколько движение трендовое, а не боковое"},
     "slope_to_corridor_ratio": {"label": "Slope / corridor", "cfg_path": "filter.regime.max_slope_to_corridor_ratio", "why": "наклон диапазона, чтобы не ловить явный тренд"},
-    "avg_wick_ratio": {"label": "Средняя сила теней", "cfg_path": "filter.wicks.min_avg_wick_ratio", "why": "насколько тени длиннее тел"},
-    "long_wick_share": {"label": "Доля длинных теней", "cfg_path": "filter.wicks.min_long_wick_share", "why": "доля свечей с ярко выраженной тенью"},
-    "two_sided_wick_share": {"label": "Доля двусторонних теней", "cfg_path": "filter.wicks.min_two_sided_wick_share", "why": "цена вращается вокруг оси, а не просто отскакивает в одну сторону"},
+    # PRIMARY wicks (v9 simplified)
+    "avg_wick_ratio": {"label": "Средняя сила теней (wick ratio)", "cfg_path": "filter.wicks.min_avg_wick_ratio", "why": "(high-low)/abs(open-close) — тени длиннее тела"},
+    "wick_count": {"label": "Счётчик wick-свечей", "cfg_path": "filter.wicks.min_wick_count", "why": "количество квалифицированных свечей (pct_range gate + body>0)"},
+    "wick_share": {"label": "Доля wick-свечей", "cfg_path": "—", "why": "wick_count / lookback (для справки)"},
+    # PRIMARY donchain
+    "donchain_range": {"label": "Donchain range %", "cfg_path": "filter.donchain.min/max_donchain_range", "why": "(mean_high/mean_low - 1)*100 за окно"},
     "axis_touch_share": {"label": "Касания оси", "cfg_path": "filter.axis.min_axis_touch_share", "why": "цена часто возвращается к центру"},
     "recent_axis_touch_count": {"label": "Недавние касания оси", "cfg_path": "filter.axis.min_recent_axis_touches", "why": "паттерн активен прямо сейчас"},
     "rotation_count": {"label": "Rotation count", "cfg_path": "filter.axis.min_rotation_count", "why": "сколько раз цена пересекала ось"},
@@ -379,8 +407,9 @@ def _build_reference_ranges(summary: Dict[str, Any]) -> List[Dict[str, Any]]:
         "efficiency_ratio",
         "slope_to_corridor_ratio",
         "avg_wick_ratio",
-        "long_wick_share",
-        "two_sided_wick_share",
+        "wick_count",
+        "wick_share",
+        "donchain_range",
         "axis_touch_share",
         "recent_axis_touch_count",
         "rotation_count",

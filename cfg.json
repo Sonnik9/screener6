@@ -1,18 +1,11 @@
 {
   "_workflow": {
-    "mode_switch": "reverse.enabled=false -> обычный скан по filter из этого файла; reverse.enabled=true -> сначала benchmark-калибровка, потом скан.",
+    "mode_switch": "benchmark.enabled=false -> обычный скан по filter из этого файла; benchmark.enabled=true -> сначала benchmark-калибровка по эталонным окнам, потом скан.",
     "doc_keys": "Любые ключи, начинающиеся с _, используются как документация и игнорируются загрузчиком.",
-    "wicks_focus_hint": "Если хочешь делать акцент только на фитилеобразности, оставляй wicks.enabled=true, а regime/axis/wall/activity/reclaim/liquidity можно временно выключать по месту."
+    "primary_features": "wicks (simplified v9) и donchain — основные фичи. axis/wall/regime/activity/reclaim/liquidity — второстепенные, опциональные."
   },
   "app": {
     "_doc": "Базовые настройки прохода по рынку.",
-    "_fields": {
-      "quote": "Котируемая валюта для отбора фьючерсов. Обычно USDT.",
-      "max_symbols": "0 = брать все доступные символы. Любое положительное число = жёсткий лимит количества инструментов.",
-      "concurrent_symbols": "Сколько символов анализировать параллельно.",
-      "top_n": "Сколько лучших кандидатов и near miss хранить в итоговом JSON.",
-      "request_interval_ms": "Пауза между REST-запросами на свечи. Нужна против rate limit (429). Рекомендовано 250-350+ ms."
-    },
     "quote": "USDT",
     "max_symbols": 0,
     "concurrent_symbols": 3,
@@ -20,25 +13,25 @@
     "request_interval_ms": 250
   },
   "exchange": {
-    "_doc": "Секция под сетевые и приватные параметры. Для скринера в публичном режиме ключи могут быть пустыми.",
+    "_doc": "Сетевые и приватные параметры. Для скринера в публичном режиме ключи могут быть пустыми.",
     "proxy": "",
     "api_key": "",
     "api_secret": ""
   },
-  "reverse": {
-    "_doc": "Управление benchmark-калибровкой. Это отдельный шаг, который строит filter по эталонным окнам. Теперь включается только явным булевым флагом.",
+  "benchmark": {
+    "_doc": "Управление benchmark-калибровкой. Это отдельный шаг, который строит filter по эталонным окнам. Включается только явным флагом.",
     "_fields": {
-      "enabled": "false = main.py не трогает benchmarks и использует обычный filter ниже. true = сначала reverse по эталонам, потом scan.",
+      "enabled": "false = main.py не трогает benchmarks и использует обычный filter ниже. true = сначала calibration по эталонам, потом scan.",
       "step_min": "Шаг семплирования внутри reverse.py. Меньше шаг = подробнее, но дольше.",
       "slot": "Какой слот брать из reverse-отчёта по умолчанию: soft | base | strict.",
-      "benchmarks": "Список эталонных окон. Для каждого можно задать свой slot и свой step_min."
+      "benchmarks": "Список эталонных окон."
     },
     "enabled": true,
     "step_min": 1,
     "slot": "soft",
     "benchmarks": [
       {
-        "_doc": "Эталонный участок рынка. (Это и есть паттерн который на фото. Можно указывать start/end в ISO UTC, либо start_ms/end_ms в UTC milliseconds.",
+        "_doc": "Эталонный участок. Это паттерн с фото (target_pattern_1m.png). Указывай start/end в ISO UTC или start_ms/end_ms в UTC milliseconds.",
         "symbol": "WILDUSDT",
         "start": "2026-02-24T18:04:00+00:00",
         "end": "2026-02-24T19:04:00+00:00",
@@ -47,22 +40,31 @@
     ]
   },
   "filter": {
-    "_doc": "Основной фильтр паттерна. Именно он применяется напрямую, если reverse.enabled=false.",
-    "_fields": {
-      "timeframe": "Таймфрейм свечей. Для этой задачи обычно 1m.",
-      "lookback_candles": "Размер окна анализа в свечах.",
-      "min_score_pct": "Минимальный итоговый score для прохода. Даже если все секции отключены, score-порог остаётся глобальным.",
-      "approximation": "Толерантность соответствия эталону: enabled=false -> работает как раньше через min_score_pct; enabled=true -> порог score берётся из min_match_pct (например 80)."
-    },
+    "_doc": "Основной фильтр паттерна. Применяется напрямую если benchmark.enabled=false.",
     "timeframe": "1m",
     "lookback_candles": 60,
     "min_score_pct": 78.0,
     "approximation": {
+      "_doc": "Опционально. enabled=true -> порог score берётся из min_match_pct вместо min_score_pct.",
       "enabled": false,
       "min_match_pct": 76.0
     },
+    "wicks": {
+      "_doc": "ОСНОВНАЯ ФИЧА (v9 simplified). Для каждой свечи: если (high/low-1)*100 >= min_pct_range И body>0 И range>0 — свеча квалифицируется. Считаем ratio=(high-low)/abs(open-close). Фильтр: avg_ratio >= min_avg_wick_ratio И wick_count >= min_wick_count.",
+      "enabled": true,
+      "min_pct_range": 0.3,
+      "min_avg_wick_ratio": 1.4,
+      "min_wick_count": 15
+    },
+    "donchain": {
+      "_doc": "ОСНОВНАЯ ФИЧА. Donchain range = (mean(highs[-window:]) / mean(lows[-window:]) - 1) * 100. Фильтр: min_donchain_range <= range <= max_donchain_range.",
+      "enabled": true,
+      "window": 20,
+      "min_donchain_range": 0.3,
+      "max_donchain_range": 5.0
+    },
     "regime": {
-      "_doc": "Фильтр общей геометрии боковика: ширина коридора, чоповость, нетрендовость.",
+      "_doc": "Второстепенное/опциональное. Геометрия боковика: ширина коридора, чоповость, нетрендовость.",
       "enabled": false,
       "min_corridor_pct": 3.0,
       "max_corridor_pct": 9.4,
@@ -72,32 +74,8 @@
       "max_efficiency_ratio": 0.22,
       "max_slope_to_corridor_ratio": 1.10
     },
-    "wicks": {
-      "_doc": "Ключевая секция для текущей гипотезы. Оценивает доминирование теней над телами и долю 'колючих' свечей.",
-      "_fields": {
-        "long_wick_ratio": "Свеча считается длиннофитильной, если dominant_wick / body >= этого значения.",
-        "min_dominant_wick_share": "Минимальная доля dominant wick от полного диапазона свечи.",
-        "body_floor_pct": "Минимальный абсолютный floor тела в процентах цены, чтобы деление на почти ноль не разносило ratio.",
-        "body_floor_range_share": "Минимальный floor тела как доля свечного диапазона.",
-        "min_avg_wick_ratio": "Минимальное среднее отношение фитиля к телу по окну.",
-        "min_long_wick_share": "Минимальная доля свечей, которые считаются длиннофитильными.",
-        "min_two_sided_wick_share": "Минимальная доля свечей с фитилями с обеих сторон.",
-        "min_two_sided_share_per_candle": "Минимальная доля диапазона, которую должны занимать оба фитиля по отдельности, чтобы свеча считалась truly two-sided.",
-        "max_two_sided_imbalance": "Максимальный допустимый перекос верхнего и нижнего фитиля у two-sided свечей."
-      },
-      "enabled": true,
-      "long_wick_ratio": 1.48,
-      "min_dominant_wick_share": 0.26,
-      "body_floor_pct": 0.009,
-      "body_floor_range_share": 0.036,
-      "min_avg_wick_ratio": 1.40,
-      "min_long_wick_share": 0.30,
-      "min_two_sided_wick_share": 0.15,
-      "min_two_sided_share_per_candle": 0.07,
-      "max_two_sided_imbalance": 3.8
-    },
     "axis": {
-      "_doc": "Возвраты к оси/центру диапазона. Полезно для mean-reversion паттерна.",
+      "_doc": "Второстепенное/опциональное. Возвраты к оси/центру диапазона.",
       "enabled": false,
       "tolerance_pct": 0.36,
       "recent_window": 24,
@@ -110,7 +88,7 @@
       "hlc3_weight": 0.60
     },
     "wall": {
-      "_doc": "Прижатие к верхней или нижней стенке диапазона.",
+      "_doc": "Второстепенное/опциональное. Прижатие к верхней или нижней стенке диапазона.",
       "enabled": false,
       "touch_tolerance_pct": 0.35,
       "recent_window": 18,
@@ -121,7 +99,7 @@
       "max_cluster_spread_pct": 1.2
     },
     "activity": {
-      "_doc": "Насколько активно цена бегает внутри диапазона и возвращается к оси.",
+      "_doc": "Второстепенное/опциональное. Активность цены внутри диапазона и возвраты к оси.",
       "enabled": false,
       "min_path_to_corridor_ratio": 9.6,
       "ema_period": 16,
@@ -129,13 +107,13 @@
       "min_return_to_axis_count": 6
     },
     "reclaim": {
-      "_doc": "Ложные проколы с возвратом обратно внутрь диапазона.",
+      "_doc": "Второстепенное/опциональное. Ложные проколы диапазона с возвратом обратно.",
       "enabled": false,
       "lookback": 6,
       "min_false_break_reclaim_share": 0.12
     },
     "liquidity": {
-      "_doc": "Грубый фильтр ликвидности. Для отладки можно держать выключенным.",
+      "_doc": "Второстепенное/опциональное. Грубый фильтр ликвидности.",
       "enabled": false,
       "min_avg_quote_turnover": 0.0
     }

@@ -13,7 +13,7 @@
     "start_at_ms": 1771952640000,
     "end_at_ms": 1771959840000,
     "candles_fetched": 121,
-    "cache_hit": false,
+    "cache_hit": true,
     "first_candle_iso": "2026-02-24T17:04:00+00:00",
     "last_candle_iso": "2026-02-24T19:04:00+00:00"
   },
@@ -21,52 +21,58 @@
   "samples_total": 61,
   "samples_computed": 61,
   "samples_skipped": [],
-  "recommended_preset": "strict",
+  "recommended_preset": "base",
   "human_notes": [
-    "Текущий cfg пропускает 100.0% окон эталона.",
-    "Профили: soft=96.72%, base=93.44%, strict=57.38%.",
-    "Рекомендованный стартовый слот: strict."
+    "Текущий cfg пропускает 83.61% окон эталона.",
+    "Профили: soft=91.8%, base=81.97%, strict=9.84%.",
+    "Рекомендованный стартовый слот: base."
   ],
   "quick_guide": [
     "1. Запусти reverse.py по нужной монете и окну времени.",
     "2. Открой reverse_report_slots.json.",
-    "3. Возьми blocks.strict.filter и замени им объект filter в cfg.json.",
+    "3. Возьми blocks.base.filter и замени им объект filter в cfg.json.",
     "4. Запусти main.py и оцени поток кандидатов глазами.",
     "5. Если кандидатов мало — переходи на soft. Если мусора много — переходи на strict."
   ],
   "current_cfg_check": {
     "windows_total": 61,
-    "windows_passed": 61,
-    "pass_rate_pct": 100.0,
-    "top_fail_reasons": []
+    "windows_passed": 51,
+    "pass_rate_pct": 83.61,
+    "top_fail_reasons": [
+      {
+        "check": "donchain.donchain_range_max",
+        "fails_in_windows": 10,
+        "fail_rate_pct": 16.39
+      }
+    ]
   },
   "preset_check": {
     "soft": {
       "windows_total": 61,
-      "windows_passed": 59,
-      "pass_rate_pct": 96.72,
+      "windows_passed": 56,
+      "pass_rate_pct": 91.8,
       "top_fail_reasons": [
         {
-          "check": "wicks.avg_wick_ratio",
-          "fails_in_windows": 2,
-          "fail_rate_pct": 3.28
+          "check": "donchain.donchain_range_min",
+          "fails_in_windows": 5,
+          "fail_rate_pct": 8.2
         }
       ]
     },
     "base": {
       "windows_total": 61,
-      "windows_passed": 57,
-      "pass_rate_pct": 93.44,
+      "windows_passed": 50,
+      "pass_rate_pct": 81.97,
       "top_fail_reasons": [
         {
-          "check": "wicks.avg_wick_ratio",
-          "fails_in_windows": 2,
-          "fail_rate_pct": 3.28
+          "check": "donchain.donchain_range_min",
+          "fails_in_windows": 6,
+          "fail_rate_pct": 9.84
         },
         {
-          "check": "wicks.long_wick_share",
-          "fails_in_windows": 2,
-          "fail_rate_pct": 3.28
+          "check": "donchain.donchain_range_max",
+          "fails_in_windows": 4,
+          "fail_rate_pct": 6.56
         },
         {
           "check": "score.score_pct",
@@ -77,21 +83,31 @@
     },
     "strict": {
       "windows_total": 61,
-      "windows_passed": 35,
-      "pass_rate_pct": 57.38,
+      "windows_passed": 6,
+      "pass_rate_pct": 9.84,
       "top_fail_reasons": [
         {
+          "check": "wicks.wick_count",
+          "fails_in_windows": 39,
+          "fail_rate_pct": 63.93
+        },
+        {
           "check": "score.score_pct",
-          "fails_in_windows": 26,
-          "fail_rate_pct": 42.62
+          "fails_in_windows": 27,
+          "fail_rate_pct": 44.26
+        },
+        {
+          "check": "donchain.donchain_range_max",
+          "fails_in_windows": 7,
+          "fail_rate_pct": 11.48
+        },
+        {
+          "check": "donchain.donchain_range_min",
+          "fails_in_windows": 7,
+          "fail_rate_pct": 11.48
         },
         {
           "check": "wicks.avg_wick_ratio",
-          "fails_in_windows": 2,
-          "fail_rate_pct": 3.28
-        },
-        {
-          "check": "wicks.long_wick_share",
           "fails_in_windows": 2,
           "fail_rate_pct": 3.28
         }
@@ -103,7 +119,7 @@
       "filter": {
         "timeframe": "1m",
         "lookback_candles": 60,
-        "min_score_pct": 83.7,
+        "min_score_pct": 84.5,
         "approximation": {
           "enabled": false,
           "min_match_pct": 76.0
@@ -120,15 +136,15 @@
         },
         "wicks": {
           "enabled": true,
-          "long_wick_ratio": 1.48,
-          "min_dominant_wick_share": 0.26,
-          "body_floor_pct": 0.009,
-          "body_floor_range_share": 0.036,
-          "min_avg_wick_ratio": 3.75,
-          "min_long_wick_share": 0.401,
-          "min_two_sided_wick_share": 0.253,
-          "min_two_sided_share_per_candle": 0.07,
-          "max_two_sided_imbalance": 3.8
+          "min_pct_range": 0.3,
+          "min_avg_wick_ratio": 5.14,
+          "min_wick_count": 46
+        },
+        "donchain": {
+          "enabled": true,
+          "window": 20,
+          "min_donchain_range": 2.36,
+          "max_donchain_range": 5.89
         },
         "axis": {
           "enabled": false,
@@ -174,7 +190,7 @@
       "filter": {
         "timeframe": "1m",
         "lookback_candles": 60,
-        "min_score_pct": 86.3,
+        "min_score_pct": 87.1,
         "approximation": {
           "enabled": false,
           "min_match_pct": 76.0
@@ -191,15 +207,15 @@
         },
         "wicks": {
           "enabled": true,
-          "long_wick_ratio": 1.48,
-          "min_dominant_wick_share": 0.26,
-          "body_floor_pct": 0.009,
-          "body_floor_range_share": 0.036,
-          "min_avg_wick_ratio": 3.99,
-          "min_long_wick_share": 0.436,
-          "min_two_sided_wick_share": 0.275,
-          "min_two_sided_share_per_candle": 0.07,
-          "max_two_sided_imbalance": 3.8
+          "min_pct_range": 0.3,
+          "min_avg_wick_ratio": 5.47,
+          "min_wick_count": 54
+        },
+        "donchain": {
+          "enabled": true,
+          "window": 20,
+          "min_donchain_range": 2.54,
+          "max_donchain_range": 5.45
         },
         "axis": {
           "enabled": false,
@@ -245,7 +261,7 @@
       "filter": {
         "timeframe": "1m",
         "lookback_candles": 60,
-        "min_score_pct": 88.0,
+        "min_score_pct": 88.8,
         "approximation": {
           "enabled": false,
           "min_match_pct": 76.0
@@ -262,15 +278,15 @@
         },
         "wicks": {
           "enabled": true,
-          "long_wick_ratio": 1.48,
-          "min_dominant_wick_share": 0.26,
-          "body_floor_pct": 0.009,
-          "body_floor_range_share": 0.036,
-          "min_avg_wick_ratio": 4.07,
-          "min_long_wick_share": 0.449,
-          "min_two_sided_wick_share": 0.283,
-          "min_two_sided_share_per_candle": 0.07,
-          "max_two_sided_imbalance": 3.8
+          "min_pct_range": 0.3,
+          "min_avg_wick_ratio": 5.58,
+          "min_wick_count": 58
+        },
+        "donchain": {
+          "enabled": true,
+          "window": 20,
+          "min_donchain_range": 2.62,
+          "max_donchain_range": 5.23
         },
         "axis": {
           "enabled": false,
@@ -319,9 +335,9 @@
       "label": "Общий score",
       "paste_to": "filter.min_score_pct",
       "why_it_matters": "общая сила совпадения паттерна",
-      "q10": 87.2,
-      "median": 93.3,
-      "q90": 94.8
+      "q10": 87.9,
+      "median": 93.2,
+      "q90": 95.1
     },
     {
       "metric": "corridor_pct",
@@ -361,30 +377,39 @@
     },
     {
       "metric": "avg_wick_ratio",
-      "label": "Средняя сила теней",
+      "label": "Средняя сила теней (wick ratio)",
       "paste_to": "filter.wicks.min_avg_wick_ratio",
-      "why_it_matters": "насколько тени длиннее тел",
-      "q10": 4.11,
-      "median": 4.63,
-      "q90": 5.72
+      "why_it_matters": "(high-low)/abs(open-close) — тени длиннее тела",
+      "q10": 5.64,
+      "median": 6.64,
+      "q90": 7.9
     },
     {
-      "metric": "long_wick_share",
-      "label": "Доля длинных теней",
-      "paste_to": "filter.wicks.min_long_wick_share",
-      "why_it_matters": "доля свечей с ярко выраженной тенью",
-      "q10": 0.45,
-      "median": 0.5,
-      "q90": 0.55
+      "metric": "wick_count",
+      "label": "Счётчик wick-свечей",
+      "paste_to": "filter.wicks.min_wick_count",
+      "why_it_matters": "количество квалифицированных свечей (pct_range gate + body>0)",
+      "q10": 57.0,
+      "median": 57.0,
+      "q90": 58.0
     },
     {
-      "metric": "two_sided_wick_share",
-      "label": "Доля двусторонних теней",
-      "paste_to": "filter.wicks.min_two_sided_wick_share",
-      "why_it_matters": "цена вращается вокруг оси, а не просто отскакивает в одну сторону",
-      "q10": 0.283,
-      "median": 0.333,
-      "q90": 0.4
+      "metric": "wick_share",
+      "label": "Доля wick-свечей",
+      "paste_to": "—",
+      "why_it_matters": "wick_count / lookback (для справки)",
+      "q10": 0.95,
+      "median": 0.95,
+      "q90": 0.967
+    },
+    {
+      "metric": "donchain_range",
+      "label": "Donchain range %",
+      "paste_to": "filter.donchain.min/max_donchain_range",
+      "why_it_matters": "(mean_high/mean_low - 1)*100 за окно",
+      "q10": 2.61,
+      "median": 4.25,
+      "q90": 5.29
     },
     {
       "metric": "axis_touch_share",
@@ -470,11 +495,11 @@
   ],
   "metrics_summary": {
     "score_pct": {
-      "min": 86.141281,
-      "q10": 87.174042,
-      "median": 93.349174,
-      "q90": 94.75777,
-      "max": 95.533855
+      "min": 86.970436,
+      "q10": 87.941407,
+      "median": 93.19109,
+      "q90": 95.071408,
+      "max": 95.801061
     },
     "corridor_pct": {
       "min": 6.393323,
@@ -505,25 +530,32 @@
       "max": 0.164124
     },
     "avg_wick_ratio": {
-      "min": 3.719234,
-      "q10": 4.110619,
-      "median": 4.626047,
-      "q90": 5.719655,
-      "max": 6.055447
+      "min": 5.514202,
+      "q10": 5.643652,
+      "median": 6.638723,
+      "q90": 7.900847,
+      "max": 8.254313
     },
-    "long_wick_share": {
-      "min": 0.433333,
-      "q10": 0.45,
-      "median": 0.5,
-      "q90": 0.55,
-      "max": 0.566667
+    "wick_count": {
+      "min": 57.0,
+      "q10": 57.0,
+      "median": 57.0,
+      "q90": 58.0,
+      "max": 59.0
     },
-    "two_sided_wick_share": {
-      "min": 0.283333,
-      "q10": 0.283333,
-      "median": 0.333333,
-      "q90": 0.4,
-      "max": 0.4
+    "wick_share": {
+      "min": 0.95,
+      "q10": 0.95,
+      "median": 0.95,
+      "q90": 0.966667,
+      "max": 0.983333
+    },
+    "donchain_range": {
+      "min": 2.114374,
+      "q10": 2.614595,
+      "median": 4.2454,
+      "q90": 5.293025,
+      "max": 5.777001
     },
     "axis_touch_share": {
       "min": 0.533333,
@@ -593,40 +625,40 @@
     "filter": {
       "timeframe": "1m",
       "lookback_candles": 60,
-      "min_score_pct": 88.0,
+      "min_score_pct": 87.1,
       "approximation": {
         "enabled": false,
         "min_match_pct": 76.0
       },
       "regime": {
         "enabled": false,
-        "min_corridor_pct": 6.47,
-        "max_corridor_pct": 8.19,
+        "min_corridor_pct": 6.41,
+        "max_corridor_pct": 8.36,
         "quantile_low": 0.1,
         "quantile_high": 0.9,
-        "min_chop": 51.8,
-        "max_efficiency_ratio": 0.0535,
-        "max_slope_to_corridor_ratio": 0.326
+        "min_chop": 50.8,
+        "max_efficiency_ratio": 0.0629,
+        "max_slope_to_corridor_ratio": 0.35
       },
       "wicks": {
         "enabled": true,
-        "long_wick_ratio": 1.48,
-        "min_dominant_wick_share": 0.26,
-        "body_floor_pct": 0.009,
-        "body_floor_range_share": 0.036,
-        "min_avg_wick_ratio": 4.07,
-        "min_long_wick_share": 0.449,
-        "min_two_sided_wick_share": 0.283,
-        "min_two_sided_share_per_candle": 0.07,
-        "max_two_sided_imbalance": 3.8
+        "min_pct_range": 0.3,
+        "min_avg_wick_ratio": 5.47,
+        "min_wick_count": 54
+      },
+      "donchain": {
+        "enabled": true,
+        "window": 20,
+        "min_donchain_range": 2.54,
+        "max_donchain_range": 5.45
       },
       "axis": {
         "enabled": false,
         "tolerance_pct": 0.36,
         "recent_window": 24,
-        "min_axis_touch_share": 0.639,
-        "min_recent_axis_touches": 15,
-        "min_rotation_count": 15,
+        "min_axis_touch_share": 0.614,
+        "min_recent_axis_touches": 14,
+        "min_rotation_count": 14,
         "mode_bins": 27,
         "use_hlc3": true,
         "close_weight": 0.4,
@@ -637,22 +669,22 @@
         "touch_tolerance_pct": 0.35,
         "recent_window": 18,
         "min_recent_wall_touch_share": 0.0,
-        "min_full_wall_touch_share": 0.0339,
+        "min_full_wall_touch_share": 0.0323,
         "top_k_highs": 8,
         "bottom_k_lows": 8,
-        "max_cluster_spread_pct": 5.64
+        "max_cluster_spread_pct": 6.27
       },
       "activity": {
         "enabled": false,
-        "min_path_to_corridor_ratio": 6.17,
+        "min_path_to_corridor_ratio": 5.88,
         "ema_period": 16,
         "axis_band_pct": 0.28,
-        "min_return_to_axis_count": 7
+        "min_return_to_axis_count": 6
       },
       "reclaim": {
         "enabled": false,
         "lookback": 6,
-        "min_false_break_reclaim_share": 0.135
+        "min_false_break_reclaim_share": 0.129
       },
       "liquidity": {
         "enabled": false,

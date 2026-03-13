@@ -31,10 +31,14 @@ class SymbolMetrics:
     return_to_axis_count: int
     avg_axis_distance_pct: float
     last_close_distance_to_axis_pct: float
+    # Primary wicks (v9)
     avg_wick_ratio: float
-    long_wick_share: float
-    two_sided_wick_share: float
+    wick_count: int
+    wick_share: float
+    # Secondary: reclaim
     false_break_reclaim_share: float
+    # Primary: donchain
+    donchain_range: float
     chop: float
     efficiency_ratio: float
     slope_to_corridor_ratio: float
@@ -129,13 +133,19 @@ class CandidateScanner:
             if m.slope_to_corridor_ratio > filt.regime.max_slope_to_corridor_ratio:
                 fails.append("slope")
 
+        # PRIMARY: wicks
         if filt.wicks.enabled:
             if m.avg_wick_ratio < filt.wicks.min_avg_wick_ratio:
                 fails.append("avg_wick_ratio")
-            if m.long_wick_share < filt.wicks.min_long_wick_share:
-                fails.append("long_wick_share")
-            if m.two_sided_wick_share < filt.wicks.min_two_sided_wick_share:
-                fails.append("two_sided_wick_share")
+            if m.wick_count < filt.wicks.min_wick_count:
+                fails.append("wick_count")
+
+        # PRIMARY: donchain
+        if filt.donchain.enabled:
+            if m.donchain_range < filt.donchain.min_donchain_range:
+                fails.append("donchain_range_too_low")
+            if m.donchain_range > filt.donchain.max_donchain_range:
+                fails.append("donchain_range_too_high")
 
         if filt.axis.enabled:
             if m.axis_touch_share < filt.axis.min_axis_touch_share:
@@ -180,6 +190,9 @@ class CandidateScanner:
             "symbol": row["symbol"],
             "score_pct": metrics.get("score_pct", 0.0),
             "corridor_pct": metrics.get("corridor_pct", 0.0),
+            "donchain_range": metrics.get("donchain_range", 0.0),
+            "avg_wick_ratio": metrics.get("avg_wick_ratio", 0.0),
+            "wick_count": metrics.get("wick_count", 0),
             "wall_side": metrics.get("wall_side", "n/a"),
             "recent_wall_touch_share": metrics.get("recent_wall_touch_share", 0.0),
             "rotation_count": metrics.get("rotation_count", 0),
@@ -203,9 +216,9 @@ class CandidateScanner:
             "score": metrics.score,
             "sort_key": [
                 float(metrics.score_pct),
-                float(metrics.recent_wall_touch_share),
-                float(metrics.rotation_count),
-                float(metrics.path_to_corridor_ratio),
+                float(metrics.donchain_range),
+                float(metrics.avg_wick_ratio),
+                float(metrics.wick_count),
                 -float(metrics.last_close_distance_to_axis_pct),
             ],
         }

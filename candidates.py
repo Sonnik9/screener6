@@ -47,7 +47,7 @@ async def run_scan(
 
     print("=" * 168)
     print(
-        f"KUCOIN candidates scan v6.5 | timeframe={scanner.timeframe} | lookback={scanner.lookback} | "
+        f"KUCOIN candidates scan v9 | timeframe={scanner.timeframe} | lookback={scanner.lookback} | "
         f"symbols={symbols_total} | passed={symbols_passed} | rejected={symbols_rejected} | "
         f"elapsed_ms={payload.get('scan_elapsed_ms', 0)}"
     )
@@ -62,13 +62,12 @@ async def run_scan(
             print(
                 f"#{idx:02d} {row['symbol']:<14} "
                 f"score={_fmt_float(m.get('score_pct'), 2)} "
+                f"wicks={_fmt_float(m.get('avg_wick_ratio'), 2)}x/{int(m.get('wick_count', 0))}cnt "
+                f"dc={_fmt_float(m.get('donchain_range'), 2)}% "
                 f"corridor={_fmt_float(m.get('corridor_pct'), 2)}% "
                 f"chop={_fmt_float(m.get('chop'), 1)} "
-                f"wicks={_fmt_float(m.get('avg_wick_ratio'), 2)}/{_fmt_float(float(m.get('long_wick_share', 0))*100, 1)}% "
-                f"two_side={_fmt_float(float(m.get('two_sided_wick_share', 0))*100, 1)}% "
                 f"axis={int(m.get('recent_axis_touch_count', 0))}/{_fmt_float(float(m.get('axis_touch_share', 0))*100, 1)}% "
                 f"rot={int(m.get('rotation_count', 0))} "
-                f"returns={int(m.get('return_to_axis_count', 0))} "
                 f"wall={m.get('wall_side', 'n/a')}:{_fmt_float(float(m.get('recent_wall_touch_share', 0))*100, 1)}% "
                 f"path={_fmt_float(m.get('path_to_corridor_ratio'), 2)} "
                 f"eff={_fmt_float(m.get('efficiency_ratio'), 3)}"

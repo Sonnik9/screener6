@@ -39,11 +39,15 @@ def build_filter_metrics_view(timeframe: str, lookback_candles: int, metrics: Di
             "max_efficiency_ratio": _f(metrics, "efficiency_ratio"),
             "max_slope_to_corridor_ratio": _f(metrics, "slope_to_corridor_ratio"),
         },
+        # PRIMARY wicks (v9 simplified)
         "wicks": {
-            "min_avg_wick_ratio": _f(metrics, "avg_wick_ratio"),
-            "min_long_wick_share": _f(metrics, "long_wick_share"),
-            "min_two_sided_wick_share": _f(metrics, "two_sided_wick_share"),
-            "min_false_break_reclaim_share": _f(metrics, "false_break_reclaim_share"),
+            "avg_wick_ratio": _f(metrics, "avg_wick_ratio"),
+            "wick_count": _f(metrics, "wick_count", 0),
+            "wick_share": _f(metrics, "wick_share"),
+        },
+        # PRIMARY donchain
+        "donchain": {
+            "donchain_range": _f(metrics, "donchain_range"),
         },
         "axis": {
             "structural_axis": _f(metrics, "structural_axis"),
@@ -105,11 +109,17 @@ def build_filter_checks(filter_cfg: Any, metrics: Dict[str, Any]) -> Dict[str, A
             "efficiency_ratio": _max_check(_f(metrics, "efficiency_ratio"), filter_cfg.regime.max_efficiency_ratio),
             "slope_to_corridor_ratio": _max_check(_f(metrics, "slope_to_corridor_ratio"), filter_cfg.regime.max_slope_to_corridor_ratio),
         },
+        # PRIMARY wicks (v9)
         "wicks": {
             "enabled": bool(filter_cfg.wicks.enabled),
             "avg_wick_ratio": _min_check(_f(metrics, "avg_wick_ratio"), filter_cfg.wicks.min_avg_wick_ratio),
-            "long_wick_share": _min_check(_f(metrics, "long_wick_share"), filter_cfg.wicks.min_long_wick_share),
-            "two_sided_wick_share": _min_check(_f(metrics, "two_sided_wick_share"), filter_cfg.wicks.min_two_sided_wick_share),
+            "wick_count": _min_check(_f(metrics, "wick_count", 0), filter_cfg.wicks.min_wick_count),
+        },
+        # PRIMARY donchain
+        "donchain": {
+            "enabled": bool(filter_cfg.donchain.enabled),
+            "donchain_range_min": _min_check(_f(metrics, "donchain_range"), filter_cfg.donchain.min_donchain_range),
+            "donchain_range_max": _max_check(_f(metrics, "donchain_range"), filter_cfg.donchain.max_donchain_range),
         },
         "axis": {
             "enabled": bool(filter_cfg.axis.enabled),

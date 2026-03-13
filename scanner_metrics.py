@@ -20,10 +20,21 @@ class CorridorLevels:
 
 @dataclass(frozen=True)
 class WickStats:
+    """Primary wicks metric (v9 simplified).
+
+    avg_wick_ratio: mean of (high-low)/abs(open-close) for qualifying candles.
+    wick_count:     number of qualifying candles (pct_range gate passed, body > 0, range > 0).
+    wick_share:     wick_count / total_candles.
+    """
     avg_wick_ratio: float
-    long_wick_share: float
-    two_sided_wick_share: float
-    false_break_reclaim_share: float
+    wick_count: int
+    wick_share: float
+
+
+@dataclass(frozen=True)
+class DonchainStats:
+    """Donchain range: (mean(highs[-N:]) / mean(lows[-N:]) - 1) * 100."""
+    donchain_range: float
 
 
 @dataclass(frozen=True)
@@ -63,16 +74,13 @@ class RegimeStats:
     avg_quote_turnover: float
 
 
-
 def mean(xs: Iterable[float]) -> float:
     vals = [float(x) for x in xs]
     return float(sum(vals) / len(vals)) if vals else 0.0
 
 
-
 def safe_div(a: float, b: float, default: float = 0.0) -> float:
     return float(a / b) if abs(b) > EPS else float(default)
-
 
 
 def quantile(values: Sequence[float], q: float) -> float:
@@ -91,39 +99,14 @@ def quantile(values: Sequence[float], q: float) -> float:
     return arr[lo] * (1.0 - frac) + arr[hi] * frac
 
 
-
-def ema(values: Sequence[float], period: int) -> List[float]:
-    if not values:
-        return []
-    p = max(1, int(period))
-    alpha = 2.0 / (p + 1.0)
-    out = [float(values[0])]
-    for v in values[1:]:
-        out.append(alpha * float(v) + (1.0 - alpha) * out[-1])
-    return out
-
-
-
-def _body_floor(k: Kline, body_floor_range_share: float, body_floor_pct: float) -> float:
-    full_range = max(EPS, abs(float(k.high) - float(k.low)))
-    return max(
-        full_range * max(body_floor_range_share, 0.0),
-        abs(float(k.close)) * max(body_floor_pct, 0.0) / 100.0,
-        EPS,
-    )
-
-
-
 def _upper_lower_wicks(k: Kline) -> Tuple[float, float]:
     upper = max(0.0, float(k.high) - max(float(k.open), float(k.close)))
     lower = max(0.0, min(float(k.open), float(k.close)) - float(k.low))
     return upper, lower
 
 
-
 def _full_range(k: Kline) -> float:
     return max(0.0, float(k.high) - float(k.low))
-
 
 
 def _true_range(cur: Kline, prev_close: float | None) -> float:
@@ -134,14 +117,12 @@ def _true_range(cur: Kline, prev_close: float | None) -> float:
     return max(high - low, abs(high - prev_close), abs(low - prev_close))
 
 
-
 def direction_ratio(closes: Sequence[float]) -> float:
     if len(closes) < 2:
         return 1.0
     net_move = abs(closes[-1] - closes[0])
     path_sum = sum(abs(closes[i] - closes[i - 1]) for i in range(1, len(closes)))
     return safe_div(net_move, path_sum, default=1.0)
-
 
 
 def linear_slope_to_range_ratio(closes: Sequence[float], corridor_width: float) -> float:
@@ -156,7 +137,6 @@ def linear_slope_to_range_ratio(closes: Sequence[float], corridor_width: float) 
     slope = safe_div(num, den, default=0.0)
     total_line_move = abs(slope) * (n - 1)
     return safe_div(total_line_move, corridor_width, default=999.0)
-
 
 
 def choppiness_index(klines: Sequence[Kline]) -> float:
@@ -181,11 +161,9 @@ def choppiness_index(klines: Sequence[Kline]) -> float:
     return max(0.0, min(100.0, 100.0 * math.log10(total_tr / span) / math.log10(n)))
 
 
-
 def avg_quote_turnover(klines: Sequence[Kline]) -> float:
     vals = [k.turnover if k.turnover > 0 else (k.volume * k.close) for k in klines]
     return mean(vals)
-
 
 
 def cluster_spread_pct(values: Sequence[float], k: int, reverse: bool) -> Tuple[float, float]:
@@ -199,7 +177,6 @@ def cluster_spread_pct(values: Sequence[float], k: int, reverse: bool) -> Tuple[
         return 999.0, 0.0
     spread_pct = ((max(picked) - min(picked)) / ref) * 100.0
     return spread_pct, ref
-
 
 
 def build_corridor(klines: Sequence[Kline], q_low: float, q_high: float) -> CorridorLevels:
@@ -217,55 +194,78 @@ def build_corridor(klines: Sequence[Kline], q_low: float, q_high: float) -> Corr
     return CorridorLevels(low=low, high=high, mid=mid, pct=pct)
 
 
-
 def wick_stats(klines: Sequence[Kline], cfg) -> WickStats:
+    """Simplified wicks (v9).
+
+    A candle qualifies when:
+      - (high - low) > 0  and  abs(open - close) > 0
+      - (high / low - 1) * 100 >= cfg.min_pct_range
+
+    For qualifying candles: ratio = (high - low) / abs(open - close).
+    Returns avg ratio, count, and share of qualifying candles.
+    """
     if not klines:
-        return WickStats(0.0, 0.0, 0.0, 0.0)
+        return WickStats(0.0, 0, 0.0)
 
-    long_hits = 0
-    two_sided_hits = 0
-    false_reclaims = 0
-    wick_ratios: List[float] = []
+    min_pct_range = float(cfg.min_pct_range)
+    ratios: List[float] = []
 
-    for i, k in enumerate(klines):
-        full = max(_full_range(k), EPS)
-        upper, lower = _upper_lower_wicks(k)
-        body_eff = max(abs(float(k.open) - float(k.close)), _body_floor(k, cfg.body_floor_range_share, cfg.body_floor_pct))
-        dominant = max(upper, lower)
-        dominant_share = dominant / full
-        dominant_ratio = dominant / body_eff
-        wick_ratios.append((upper + lower) / body_eff)
-
-        if dominant_ratio >= cfg.long_wick_ratio and dominant_share >= cfg.min_dominant_wick_share:
-            long_hits += 1
-
-        upper_share = upper / full
-        lower_share = lower / full
-        if upper_share >= cfg.min_two_sided_share_per_candle and lower_share >= cfg.min_two_sided_share_per_candle:
-            small = min(upper, lower)
-            big = max(upper, lower)
-            imbalance = safe_div(big, max(small, EPS), default=999.0)
-            if imbalance <= cfg.max_two_sided_imbalance:
-                two_sided_hits += 1
-
-        if i >= max(1, int(getattr(cfg, "reclaim_lookback", 6) or 6)):
-            prev = klines[max(0, i - int(getattr(cfg, "reclaim_lookback", 6) or 6)):i]
-            prev_high = max(x.high for x in prev)
-            prev_low = min(x.low for x in prev)
-            close_inside_prev = prev_low <= k.close <= prev_high
-            broke_up = k.high > prev_high and close_inside_prev and k.close < k.high
-            broke_down = k.low < prev_low and close_inside_prev and k.close > k.low
-            if broke_up or broke_down:
-                false_reclaims += 1
+    for k in klines:
+        full = float(k.high) - float(k.low)
+        body = abs(float(k.open) - float(k.close))
+        low_price = float(k.low)
+        if body <= 0 or full <= 0 or low_price <= 0:
+            continue
+        pct_range = (float(k.high) / low_price - 1.0) * 100.0
+        if pct_range < min_pct_range:
+            continue
+        ratios.append(full / body)
 
     n = len(klines)
+    wick_count = len(ratios)
     return WickStats(
-        avg_wick_ratio=mean(wick_ratios),
-        long_wick_share=long_hits / n,
-        two_sided_wick_share=two_sided_hits / n,
-        false_break_reclaim_share=false_reclaims / n,
+        avg_wick_ratio=mean(ratios) if ratios else 0.0,
+        wick_count=wick_count,
+        wick_share=wick_count / n if n > 0 else 0.0,
     )
 
+
+def reclaim_share(klines: Sequence[Kline], lookback: int) -> float:
+    """Secondary metric: fraction of candles that break a prior range and reclaim it.
+    Used by the optional reclaim filter section.
+    """
+    if not klines:
+        return 0.0
+    lookback = max(1, int(lookback))
+    count = 0
+    for i in range(lookback, len(klines)):
+        k = klines[i]
+        prev = klines[max(0, i - lookback):i]
+        prev_high = max(float(x.high) for x in prev)
+        prev_low = min(float(x.low) for x in prev)
+        close_inside = prev_low <= float(k.close) <= prev_high
+        broke_up = float(k.high) > prev_high and close_inside and float(k.close) < float(k.high)
+        broke_down = float(k.low) < prev_low and close_inside and float(k.close) > float(k.low)
+        if broke_up or broke_down:
+            count += 1
+    return count / len(klines)
+
+
+def donchain_stats(klines: Sequence[Kline], window: int) -> DonchainStats:
+    """Donchain range over the last N candles.
+
+    Formula: (mean(highs[-N:]) / mean(lows[-N:]) - 1) * 100
+    """
+    if not klines:
+        return DonchainStats(0.0)
+    n = max(1, min(int(window), len(klines)))
+    recent = klines[-n:]
+    highs = [float(k.high) for k in recent if float(k.high) > 0]
+    lows = [float(k.low) for k in recent if float(k.low) > 0]
+    if not highs or not lows:
+        return DonchainStats(0.0)
+    dc_range = safe_div(mean(highs) - mean(lows), mean(lows), default=0.0) * 100.0
+    return DonchainStats(donchain_range=dc_range)
 
 
 def wall_stats(klines: Sequence[Kline], cfg) -> WallStats:
@@ -319,7 +319,6 @@ def wall_stats(klines: Sequence[Kline], cfg) -> WallStats:
     )
 
 
-
 def _build_mode_axis(values: Sequence[float], low: float, high: float, bins: int) -> float:
     finite = [float(x) for x in values if math.isfinite(float(x))]
     if not finite:
@@ -335,7 +334,6 @@ def _build_mode_axis(values: Sequence[float], low: float, high: float, bins: int
         counts[idx] += 1
     best = max(range(bins), key=lambda i: counts[i])
     return low + (best + 0.5) * step
-
 
 
 def axis_stats(klines: Sequence[Kline], corridor: CorridorLevels, cfg, activity_cfg) -> AxisStats:
@@ -370,7 +368,7 @@ def axis_stats(klines: Sequence[Kline], corridor: CorridorLevels, cfg, activity_
             touch_hits += 1
         signs.append(1 if close > axis else (-1 if close < axis else 0))
 
-    # Rotation count = sign flips across the axis, ignoring neutral touches.
+    # Rotation count: sign flips across axis, ignoring neutral touches.
     rotation_count = 0
     prev = 0
     for s in signs:
@@ -403,7 +401,6 @@ def axis_stats(klines: Sequence[Kline], corridor: CorridorLevels, cfg, activity_
         avg_axis_distance_pct=mean(distances),
         last_close_distance_to_axis_pct=distances[-1] if distances else 0.0,
     )
-
 
 
 def regime_stats(klines: Sequence[Kline], corridor: CorridorLevels) -> RegimeStats:

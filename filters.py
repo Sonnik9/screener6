@@ -3,7 +3,11 @@ from __future__ import annotations
 from typing import List
 
 from filter_models import FilterSummary
-from scanner_metrics import AxisStats, CorridorLevels, RegimeStats, WallStats, WickStats, axis_stats, build_corridor, regime_stats, wall_stats, wick_stats
+from scanner_metrics import (
+    AxisStats, CorridorLevels, DonchainStats, RegimeStats, WallStats, WickStats,
+    axis_stats, build_corridor, donchain_stats, reclaim_share, regime_stats,
+    wall_stats, wick_stats,
+)
 from KUCOIN.klines import Kline
 
 
@@ -24,7 +28,16 @@ class CalculatingEngine:
         overshoot = (value - hi) / span
         return self._clamp(1.0 - overshoot)
 
-    def _score(self, corridor: CorridorLevels, w: WickStats, a: AxisStats, ws: WallStats, r: RegimeStats) -> float:
+    def _score(
+        self,
+        corridor: CorridorLevels,
+        w: WickStats,
+        a: AxisStats,
+        ws: WallStats,
+        r: RegimeStats,
+        dc: DonchainStats,
+        false_break_reclaim: float,
+    ) -> float:
         cfg = self.filter_cfg
         regime = cfg.regime
         wick = cfg.wicks
@@ -32,35 +45,45 @@ class CalculatingEngine:
         wall = cfg.wall
         activity = cfg.activity
         reclaim = cfg.reclaim
+        donchain = cfg.donchain
 
+        # Secondary: regime geometry
         corridor_part = self._band_score(corridor.pct, regime.min_corridor_pct, regime.max_corridor_pct)
         chop_part = self._clamp(r.chop / max(regime.min_chop, 1e-12))
         efficiency_part = self._clamp(1.0 - (r.efficiency_ratio / max(regime.max_efficiency_ratio, 1e-12)))
         slope_part = self._clamp(1.0 - (r.slope_to_corridor_ratio / max(regime.max_slope_to_corridor_ratio, 1e-12)))
 
+        # PRIMARY: wicks (v9 simplified)
         avg_wick_part = self._clamp(w.avg_wick_ratio / max(wick.min_avg_wick_ratio, 1e-12))
-        long_wick_part = self._clamp(w.long_wick_share / max(wick.min_long_wick_share, 1e-12))
-        two_sided_part = self._clamp(w.two_sided_wick_share / max(wick.min_two_sided_wick_share, 1e-12))
-        reclaim_part = self._clamp(w.false_break_reclaim_share / max(reclaim.min_false_break_reclaim_share, 1e-12))
+        wick_count_part = self._clamp(w.wick_count / max(wick.min_wick_count, 1e-12))
 
+        # Secondary: reclaim
+        reclaim_part = self._clamp(false_break_reclaim / max(reclaim.min_false_break_reclaim_share, 1e-12))
+
+        # PRIMARY: donchain range
+        donchain_part = self._band_score(dc.donchain_range, donchain.min_donchain_range, donchain.max_donchain_range)
+
+        # Secondary: axis
         axis_touch_part = self._clamp(a.axis_touch_share / max(axis.min_axis_touch_share, 1e-12))
         recent_axis_part = self._clamp(a.recent_axis_touch_count / max(axis.min_recent_axis_touches, 1e-12))
         rotation_part = self._clamp(a.rotation_count / max(axis.min_rotation_count, 1e-12))
         return_part = self._clamp(a.return_to_axis_count / max(activity.min_return_to_axis_count, 1e-12))
 
+        # Secondary: wall
         wall_touch_part = self._clamp(ws.recent_best_touch_share / max(wall.min_recent_wall_touch_share, 1e-12))
         wall_cluster_part = self._clamp(1.0 - (ws.best_cluster_spread_pct / max(wall.max_cluster_spread_pct, 1e-12)))
         path_part = self._clamp(r.path_to_corridor_ratio / max(activity.min_path_to_corridor_ratio, 1e-12))
 
+        # Weights: primary features carry more; sum = 1.17 → score in [0, 100]
         raw_score = (
             0.10 * corridor_part
             + 0.08 * chop_part
             + 0.07 * efficiency_part
             + 0.05 * slope_part
-            + 0.10 * avg_wick_part
-            + 0.10 * long_wick_part
-            + 0.08 * two_sided_part
-            + 0.08 * reclaim_part
+            + 0.14 * avg_wick_part       # PRIMARY (was 0.10)
+            + 0.14 * wick_count_part     # PRIMARY (new)
+            + 0.05 * reclaim_part        # secondary (was 0.08)
+            + 0.10 * donchain_part       # PRIMARY (new)
             + 0.10 * axis_touch_part
             + 0.06 * recent_axis_part
             + 0.07 * rotation_part
@@ -69,7 +92,7 @@ class CalculatingEngine:
             + 0.03 * wall_cluster_part
             + 0.05 * path_part
         )
-        score = raw_score / 1.10
+        score = raw_score / 1.17
         return round(score * 100.0, 6)
 
     def summarize(self, candles: List[Kline]) -> FilterSummary:
@@ -88,10 +111,11 @@ class CalculatingEngine:
                 rotation_count=0,
                 return_to_axis_count=0,
                 avg_axis_distance_pct=0.0,
-                long_wick_share=0.0,
-                two_sided_wick_share=0.0,
                 avg_wick_ratio=0.0,
+                wick_count=0,
+                wick_share=0.0,
                 false_break_reclaim_share=0.0,
+                donchain_range=0.0,
                 chop=0.0,
                 efficiency_ratio=1.0,
                 slope_to_corridor_ratio=999.0,
@@ -113,14 +137,13 @@ class CalculatingEngine:
             )
 
         corridor = build_corridor(candles, self.filter_cfg.regime.quantile_low, self.filter_cfg.regime.quantile_high)
-
-        # inject reclaim lookback into wick cfg without mutating original dataclass instance behavior-wise
-        setattr(self.filter_cfg.wicks, "reclaim_lookback", self.filter_cfg.reclaim.lookback)
         w = wick_stats(candles, self.filter_cfg.wicks)
+        false_reclaim = reclaim_share(candles, self.filter_cfg.reclaim.lookback)
+        dc = donchain_stats(candles, self.filter_cfg.donchain.window)
         a = axis_stats(candles, corridor, self.filter_cfg.axis, self.filter_cfg.activity)
         ws = wall_stats(candles, self.filter_cfg.wall)
         r = regime_stats(candles, corridor)
-        score = self._score(corridor, w, a, ws, r)
+        score = self._score(corridor, w, a, ws, r, dc, false_reclaim)
 
         return FilterSummary(
             candles_count=len(candles),
@@ -136,10 +159,11 @@ class CalculatingEngine:
             rotation_count=int(a.rotation_count),
             return_to_axis_count=int(a.return_to_axis_count),
             avg_axis_distance_pct=float(a.avg_axis_distance_pct),
-            long_wick_share=float(w.long_wick_share),
-            two_sided_wick_share=float(w.two_sided_wick_share),
             avg_wick_ratio=float(w.avg_wick_ratio),
-            false_break_reclaim_share=float(w.false_break_reclaim_share),
+            wick_count=int(w.wick_count),
+            wick_share=float(w.wick_share),
+            false_break_reclaim_share=float(false_reclaim),
+            donchain_range=float(dc.donchain_range),
             chop=float(r.chop),
             efficiency_ratio=float(r.efficiency_ratio),
             slope_to_corridor_ratio=float(r.slope_to_corridor_ratio),
