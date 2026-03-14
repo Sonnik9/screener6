@@ -26,7 +26,7 @@ class CandidateScanner:
             rate_limit_backoff_sec=2.0,
         )
         self.calc = CalculatingEngine(self.cfg.filter)
-        logger.info(f"Сканнер инициализирован: tf={self.timeframe}, lookback={self.lookback}, алгоритм=Barcode (Штрих-код)")
+        logger.info(f"Сканнер инициализирован: tf={self.timeframe}, lookback={self.lookback}, алгоритм=Barcode_V2 (Дневной объем + Wicks)")
 
     async def aclose(self) -> None:
         await self.symbols_api.aclose()
@@ -39,17 +39,44 @@ class CandidateScanner:
 
     async def _analyze_symbol(self, symbol: str) -> Dict[str, Any]:
         try:
+            # --- ШАГ 1: ПРЕДФИЛЬТР ДНЕВНОГО ОБЪЕМА (отдельный запрос) ---
+            daily_candles = await self.klines_api.get_klines(
+                symbol=symbol,
+                granularity_min=1440, # Дневные свечи
+                limit=self.cfg.filter.daily_volume_days,
+            )
+            
+            if not daily_candles:
+                return {"symbol": symbol, "passed": False, "score": -100.0, "fail_reasons": ["no_daily_data"]}
+
+            # Считаем средний объем в USDT: Объем(монеты) * Close. В KuCoin k[2]=close, k[5]=volume
+            turnovers = []
+            for k in daily_candles:
+                close = float(k[2] if isinstance(k, (list, tuple)) else getattr(k, 'close', 0))
+                vol = float(k[5] if isinstance(k, (list, tuple)) else getattr(k, 'volume', 0))
+                turnovers.append(close * vol)
+            
+            avg_daily_vol = sum(turnovers) / len(turnovers) if turnovers else 0
+            
+            if not (self.cfg.filter.daily_volume_min_usdt <= avg_daily_vol <= self.cfg.filter.daily_volume_max_usdt):
+                return {
+                    "symbol": symbol, "passed": False, "score": -10.0, 
+                    "fail_reasons": [f"daily_vol_skip ({avg_daily_vol/1e6:.1f}M)"]
+                }
+
+            # --- ШАГ 2: ОСНОВНОЙ ТАЙМФРЕЙМ (если прошел дневной префильтр) ---
             candles = await self.klines_api.get_klines(
                 symbol=symbol,
                 granularity_min=self._tf_to_minutes(self.timeframe),
                 limit=self.lookback,
             )
+            
             analysis = self.calc.analyze(candles)
             return {
                 "symbol": symbol,
                 "passed": analysis["passed"],
                 "score": analysis["score"],
-                "metrics": analysis,
+                "metrics": analysis.get("metrics", {}),
                 "fail_reasons": [analysis["reason"]] if not analysis["passed"] else []
             }
         except Exception as e:
@@ -67,26 +94,27 @@ class CandidateScanner:
             logger.info(f"Запуск сканирования... Всего монет: {len(symbols)}")
             rows = await asyncio.gather(*(worker(s) for s in symbols))
 
-            # БЕРЕМ ТОЛЬКО ТЕ, ГДЕ SCORE > 0 (отфильтрованные идеальные штрихкоды)
-            valid_rows = [r for r in rows if r.get("score", -999) > 0]
+            # Оставляем только те, что прошли фильтры
+            valid_rows = [r for r in rows if r.get("passed", False)]
             
-            # Сортируем: на 1 месте самый плотный и широкий штрих-код
+            # Сортируем: на 1 месте те, у которых больше всего "хороших" свечей (score = %)
             valid_rows.sort(key=lambda x: x["score"], reverse=True)
-            
-            # Отрезаем Топ-N
             candidates = valid_rows[:self.top_n]
-            perfect_matches = len(valid_rows)
 
-            logger.info(f"Найдено монет Штрих-код: {len(valid_rows)}. Отбираем ТОП-{len(candidates)}.")
+            logger.info(f"Найдено подходящих монет: {len(valid_rows)}. Отбираем ТОП-{len(candidates)}.")
             if candidates:
-                top_3 = ", ".join([f"{c['symbol']} (Sc:{c['score']:.1f}, Touch:{c['metrics'].get('touches')})" for c in candidates[:3]])
-                logger.info(f"🔥 Лидеры боковика: {top_3}")
+                top_str = ", ".join([
+                    f"{c['symbol']} (Prog:{c['metrics'].get('valid_wicks_pct', 0):.0f}%, "
+                    f"Don:{c['metrics'].get('donchian_pct', 0):.1f}%)" 
+                    for c in candidates[:5]
+                ])
+                logger.info(f"🔥 Лидеры: {top_str}")
 
             return {
                 "generated_at_ms": int(time.time() * 1000),
                 "scan_elapsed_ms": int(time.time() * 1000) - started_at_ms,
                 "symbols_total": len(symbols),
-                "symbols_passed_strict": perfect_matches,
+                "symbols_passed_strict": len(valid_rows),
                 "candidate_symbols": [x["symbol"] for x in candidates], 
                 "candidates": candidates,
             }

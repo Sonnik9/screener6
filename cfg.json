@@ -1,13 +1,13 @@
 {
   "_workflow": {
-    "mode": "Поиск паттерна 'Штрих-код' (боковик с большими тенями и возвратом к средней)."
+    "mode": "Штрих-код V2: Предфильтр дневного объема + Donchian + Wicks Proportion"
   },
   "app": {
     "quote": "USDT",
     "max_symbols": 0,
     "concurrent_symbols": 5,
     "top_n": 15,
-    "request_interval_ms": 250,
+    "request_interval_ms": 150,
     "scan_interval_sec": 30
   },
   "exchange": {
@@ -17,18 +17,16 @@
   },
   "filter": {
     "timeframe": "1m",
-    "lookback_candles": 120,
-    "min_turnover_usdt": 4000,
-    "max_body_ratio": 0.45,
-    "min_range_pct": 0.30,
-    "min_crossings": 20,
-    "max_trend_pct": 3.0,
-    "_explanation": {
-      "min_turnover_usdt": "Минимальный средний оборот в USDT за 1 свечу (отсев неликвида).",
-      "max_body_ratio": "0.45 означает, что тело свечи в среднем занимает не больше 45% от ее размера (остальное - тени).",
-      "min_range_pct": "Минимальный средний размах свечи в процентах от High до Low (чтобы было пространство для заработка).",
-      "min_crossings": "Сколько раз свечи должны пересечь центральную ось (цену) за lookback_candles. Чем больше, тем плотнее штрих-код.",
-      "max_trend_pct": "Максимальное отклонение цены от начала до конца окна. 3.0 означает, что цена не ушла вверх/вниз более чем на 3% (жесткий боковик)."
-    }
+    "lookback_candles": 60,
+    
+    "daily_volume_days": 3,
+    "daily_volume_min_usdt": 500000,
+    "daily_volume_max_usdt": 15000000,
+    
+    "donchian_min_pct": 1.0,
+    "donchian_max_pct": 7.0,    
+    "wick_ratio_threshold": 3.0,
+    "candle_range_min_pct": 0.15,
+    "min_valid_candles_pct": 50.0
   }
 }

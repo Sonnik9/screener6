@@ -16,7 +16,7 @@ async def run_scanner_cycle(cfg_path: Path):
     cfg = load_config(cfg_path)
     scanner = CandidateScanner(cfg)
     
-    logger.info("Запуск алгоритма Z-Score...")
+    logger.info("Запуск алгоритма Shtrih-Score...")
     try:
         results = await scanner.scan()
     finally:

@@ -19,13 +19,21 @@ class AppSection:
 @dataclass
 class FilterSection:
     timeframe: str = "1m"
-    lookback_candles: int = 120
-    min_turnover_usdt: float = 5000.0
-    # Настройки Barcode
-    max_body_ratio: float = 0.45   # Макс. доля тела свечи (0.45 = 45% тело, 55% тени)
-    min_range_pct: float = 0.30    # Мин. волатильность в свече (%)
-    min_crossings: int = 20        # Мин. количество пересечений центральной оси
-    max_trend_pct: float = 3.0     # Макс. отклонение цены за период (защита от тренда)
+    lookback_candles: int = 60
+    
+    # 1. Предфильтр
+    daily_volume_days: int = 3
+    daily_volume_min_usdt: float = 500000.0
+    daily_volume_max_usdt: float = 7000000.0
+    
+    # 2. Donchian Channel
+    donchian_min_pct: float = 1.0
+    donchian_max_pct: float = 7.0
+    
+    # 3. Wicks 
+    wick_ratio_threshold: float = 3.0
+    candle_range_min_pct: float = 0.15
+    min_valid_candles_pct: float = 50.0
 
 @dataclass
 class AppConfig:
@@ -49,12 +57,15 @@ class ConfigLoader:
 
         filter_cfg = FilterSection(
             timeframe=str(filt_d.get("timeframe", "1m")).lower().strip(),
-            lookback_candles=max(30, int(filt_d.get("lookback_candles", 120))),
-            min_turnover_usdt=float(filt_d.get("min_turnover_usdt", 5000.0)),
-            max_body_ratio=float(filt_d.get("max_body_ratio", 0.45)),
-            min_range_pct=float(filt_d.get("min_range_pct", 0.30)),
-            min_crossings=int(filt_d.get("min_crossings", 20)),
-            max_trend_pct=float(filt_d.get("max_trend_pct", 3.0))
+            lookback_candles=max(10, int(filt_d.get("lookback_candles", 60))),
+            daily_volume_days=max(1, int(filt_d.get("daily_volume_days", 3))),
+            daily_volume_min_usdt=float(filt_d.get("daily_volume_min_usdt", 500000.0)),
+            daily_volume_max_usdt=float(filt_d.get("daily_volume_max_usdt", 7000000.0)),
+            donchian_min_pct=float(filt_d.get("donchian_min_pct", 1.0)),
+            donchian_max_pct=float(filt_d.get("donchian_max_pct", 7.0)),
+            wick_ratio_threshold=float(filt_d.get("wick_ratio_threshold", 3.0)),
+            candle_range_min_pct=float(filt_d.get("candle_range_min_pct", 0.15)),
+            min_valid_candles_pct=float(filt_d.get("min_valid_candles_pct", 50.0))
         )
 
         return AppConfig(app=app_cfg, filter=filter_cfg)
