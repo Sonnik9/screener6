@@ -1,5 +1,7 @@
 from __future__ import annotations
 import asyncio
+import json
+from dataclasses import asdict
 from pathlib import Path
 from c_log import UnifiedLogger
 from config import load_config, CFG_PATH
@@ -14,6 +16,12 @@ RESULTS_FILE = ROOT_DIR / "target_links.txt"
 
 async def run_scanner_cycle(cfg_path: Path):
     cfg = load_config(cfg_path)
+    # Превращаем датакласс в словарь и форматируем в красивую JSON-строку
+    cfg_pretty = json.dumps(asdict(cfg), indent=4, ensure_ascii=False)
+
+    # Запись в логи (инфо)
+    logger.info(f"Загружены настройки:\n{cfg_pretty}")
+    # --------------------------
     scanner = CandidateScanner(cfg)
     
     logger.info("Запуск алгоритма Shtrih-Score...")
@@ -53,12 +61,12 @@ async def main():
             cfg = load_config(CFG_PATH) 
             await run_scanner_cycle(CFG_PATH)
 
+            if cfg.app.is_click:
+                clicker_main()
+
             if cfg.app.screen_once:
                 logger.info("Режим однократного сканирования. Выход.")
                 break
-
-            if not cfg.app.is_click:
-                clicker_main()
 
             logger.info(f"Ожидание {cfg.app.scan_interval_sec} сек. до следующего скана...\n{'-'*40}")
             await asyncio.sleep(cfg.app.scan_interval_sec)

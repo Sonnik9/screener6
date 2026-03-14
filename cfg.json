@@ -8,7 +8,7 @@
     "concurrent_symbols": 5,
     "top_n": 10,
     "request_interval_ms": 150,
-    "scan_interval_sec": 30,
+    "scan_interval_sec": 600,
     "screen_once": true,
     "is_click": true
   },
@@ -18,17 +18,17 @@
     "api_secret": ""
   },
   "filter": {
-    "timeframe": "1m",
-    "lookback_candles": 30,
-    
-    "daily_volume_min_usdt": 500000,
-    "daily_volume_max_usdt": 10000000,
-    
-    "donchian_min_pct": 0.5,
-    "donchian_max_pct": 10.0,
-    
-    "max_body_ratio": 0.25,
-    "candle_range_min_pct": 0.35,
-    "min_valid_candles_pct": 35.0
-  }
+      "timeframe": "1m",
+      "lookback_candles": 30,
+      
+      "daily_volume_min_usdt": 500000,
+      "daily_volume_max_usdt": 10000000,
+      
+      "donchian_min_pct": 0.5,
+      "donchian_max_pct": 5.0, 
+      
+      "max_body_ratio": 0.25,
+      "candle_range_min_pct": 0.25,
+      "min_valid_candles_pct": 35.0
+    }
 }

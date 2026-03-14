@@ -1,7 +1,6 @@
 from __future__ import annotations
 import json
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import Any, Dict
 
 class ConfigError(RuntimeError):
@@ -9,32 +8,31 @@ class ConfigError(RuntimeError):
 
 @dataclass
 class AppSection:
-    quote: str = "USDT"
-    max_symbols: int = 0
-    concurrent_symbols: int = 3
-    top_n: int = 20
-    request_interval_ms: int = 250
-    scan_interval_sec: int = 30
+    quote: str
+    max_symbols: int
+    concurrent_symbols: int
+    top_n: int
+    request_interval_ms: int
+    scan_interval_sec: int
+    screen_once: bool      # <--- ДОБАВЛЕНО
+    is_click: bool         # <--- ДОБАВЛЕНО
 
 @dataclass
 class FilterSection:
-    timeframe: str = "1m"
-    lookback_candles: int = 60
-    
-    daily_volume_min_usdt: float = 2000000.0
-    daily_volume_max_usdt: float = 10000000000.0
-    
-    donchian_min_pct: float = 0.5
-    donchian_max_pct: float = 10.0
-    
-    max_body_ratio: float = 0.35
-    candle_range_min_pct: float = 0.15
-    min_valid_candles_pct: float = 20.0
+    timeframe: str
+    lookback_candles: int
+    daily_volume_min_usdt: float
+    daily_volume_max_usdt: float
+    donchian_min_pct: float
+    donchian_max_pct: float
+    max_body_ratio: float
+    candle_range_min_pct: float
+    min_valid_candles_pct: float
 
 @dataclass
 class AppConfig:
-    app: AppSection = field(default_factory=AppSection)
-    filter: FilterSection = field(default_factory=FilterSection)
+    app: AppSection
+    filter: FilterSection
 
 class ConfigLoader:
     @staticmethod
@@ -44,35 +42,41 @@ class ConfigLoader:
 
         app_cfg = AppSection(
             quote=str(app_d.get("quote", "USDT")).upper().strip(),
-            max_symbols=max(0, int(app_d.get("max_symbols", 0))),
-            concurrent_symbols=max(1, int(app_d.get("concurrent_symbols", 3))),
-            top_n=max(1, int(app_d.get("top_n", 20))),
-            request_interval_ms=max(0, int(app_d.get("request_interval_ms", 250))),
-            scan_interval_sec=max(5, int(app_d.get("scan_interval_sec", 30))),
+            max_symbols=int(app_d.get("max_symbols", 0)),
+            concurrent_symbols=int(app_d.get("concurrent_symbols", 5)),
+            top_n=int(app_d.get("top_n", 10)),
+            request_interval_ms=int(app_d.get("request_interval_ms", 150)),
+            scan_interval_sec=int(app_d.get("scan_interval_sec", 30)),
+            screen_once=bool(app_d.get("screen_once", True)),  # <--- ДОБАВЛЕНО ЧТЕНИЕ
+            is_click=bool(app_d.get("is_click", False)),       # <--- ДОБАВЛЕНО ЧТЕНИЕ
         )
 
         filter_cfg = FilterSection(
             timeframe=str(filt_d.get("timeframe", "1m")).lower().strip(),
-            lookback_candles=max(10, int(filt_d.get("lookback_candles", 60))),
-            daily_volume_min_usdt=float(filt_d.get("daily_volume_min_usdt", 2000000.0)),
-            daily_volume_max_usdt=float(filt_d.get("daily_volume_max_usdt", 10000000000.0)),
+            lookback_candles=int(filt_d.get("lookback_candles", 30)),
+            daily_volume_min_usdt=float(filt_d.get("daily_volume_min_usdt", 500000.0)),
+            daily_volume_max_usdt=float(filt_d.get("daily_volume_max_usdt", 10000000.0)),
             donchian_min_pct=float(filt_d.get("donchian_min_pct", 0.5)),
-            donchian_max_pct=float(filt_d.get("donchian_max_pct", 10.0)),
-            max_body_ratio=float(filt_d.get("max_body_ratio", 0.35)),
-            candle_range_min_pct=float(filt_d.get("candle_range_min_pct", 0.15)),
-            min_valid_candles_pct=float(filt_d.get("min_valid_candles_pct", 20.0))
+            donchian_max_pct=float(filt_d.get("donchian_max_pct", 3.0)),
+            max_body_ratio=float(filt_d.get("max_body_ratio", 0.25)),
+            candle_range_min_pct=float(filt_d.get("candle_range_min_pct", 0.25)),
+            min_valid_candles_pct=float(filt_d.get("min_valid_candles_pct", 35.0))
         )
 
         return AppConfig(app=app_cfg, filter=filter_cfg)
 
-ROOT = Path(__file__).resolve().parent
-CFG_PATH = ROOT / "cfg.json"
+# Тупой и прямой путь к файлу
+CFG_PATH = "cfg.json"
 
-def load_config(path: Path = CFG_PATH) -> AppConfig:
-    if not path.exists():
-        raise ConfigError(f"cfg not found: {path}")
+def load_config(path: str = CFG_PATH) -> AppConfig:
     try:
-        user_raw = json.loads(path.read_text(encoding="utf-8"))
+        with open(path, "r", encoding="utf-8") as f:
+            user_raw = json.load(f)
+    except FileNotFoundError:
+        raise ConfigError(f"КРИТИЧЕСКАЯ ОШИБКА: Файл конфига не найден по пути '{path}'. Убедись, что запускаешь скрипт из нужной папки.")
+    except json.JSONDecodeError as e:
+        raise ConfigError(f"КРИТИЧЕСКАЯ ОШИБКА: Файл '{path}' сломан (ошибка синтаксиса JSON): {e}")
     except Exception as e:
-        raise ConfigError(f"failed to read cfg: {e}")
+        raise ConfigError(f"Ошибка при чтении конфига: {e}")
+        
     return ConfigLoader.from_dict(user_raw)

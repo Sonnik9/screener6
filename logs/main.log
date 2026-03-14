@@ -11,3 +11,83 @@
 2026-03-14 21:42:00 | INFO | main | 🔥 НАЙДЕНО 10 МОНЕТ: ['PROMUSDTM', 'CUSDTM', 'MYXUSDTM', 'NUMIUSDTM', 'COLLECTUSDTM', 'GFUSDTM', 'HAEDALUSDTM', 'ARCUSDTM', 'PIXELUSDTM', 'FHEUSDTM']
 2026-03-14 21:42:00 | INFO | main | Ссылки сохранены в файл: C:\Users\User\Desktop\PROGECTS\SLAV\Kucoin\BRITVA_SOFTs\scriners\britva_screeners\britva9\screener6\target_links.txt. Запустите clicker.py вручную.
 2026-03-14 21:42:00 | INFO | main | Режим однократного сканирования. Выход.
+2026-03-14 22:24:41 | INFO | main | Запуск скринера... Конфиг: C:\Users\User\Desktop\PROGECTS\SLAV\Kucoin\BRITVA_SOFTs\scriners\britva_screeners\britva9\screener6\cfg.json
+2026-03-14 22:24:41 | INFO | main | Запуск алгоритма Shtrih-Score...
+2026-03-14 22:25:17 | INFO | main | 🔥 НАЙДЕНО 10 МОНЕТ: ['MIRAUSDTM', 'IRYSUSDTM', 'AERGOUSDTM', 'WETUSDTM', 'RAYUSDTM', 'TRUTHUSDTM', 'COAIUSDTM', 'UBUSDTM', 'PENDLEUSDTM', 'COPPERUSDTM']
+2026-03-14 22:25:17 | INFO | main | Ссылки сохранены в файл: C:\Users\User\Desktop\PROGECTS\SLAV\Kucoin\BRITVA_SOFTs\scriners\britva_screeners\britva9\screener6\target_links.txt. Запустите clicker.py вручную.
+2026-03-14 22:25:17 | ERROR | main | Глобальная ошибка в цикле: 'AppSection' object has no attribute 'screen_once'
+2026-03-14 22:25:27 | INFO | main | Запуск алгоритма Shtrih-Score...
+2026-03-14 22:26:04 | INFO | main | 🔥 НАЙДЕНО 10 МОНЕТ: ['MIRAUSDTM', 'IRYSUSDTM', 'AERGOUSDTM', 'USDGUSDTM', 'RAYUSDTM', 'WETUSDTM', 'FHEUSDTM', 'TRUTHUSDTM', 'UBUSDTM', 'COPPERUSDTM']
+2026-03-14 22:26:04 | INFO | main | Ссылки сохранены в файл: C:\Users\User\Desktop\PROGECTS\SLAV\Kucoin\BRITVA_SOFTs\scriners\britva_screeners\britva9\screener6\target_links.txt. Запустите clicker.py вручную.
+2026-03-14 22:26:04 | ERROR | main | Глобальная ошибка в цикле: 'AppSection' object has no attribute 'screen_once'
+2026-03-14 22:26:14 | INFO | main | Запуск алгоритма Shtrih-Score...
+2026-03-14 22:26:51 | INFO | main | 🔥 НАЙДЕНО 10 МОНЕТ: ['MIRAUSDTM', 'IRYSUSDTM', 'USDGUSDTM', 'AERGOUSDTM', 'WETUSDTM', 'RAYUSDTM', 'TRUTHUSDTM', 'UBUSDTM', 'FHEUSDTM', 'PENDLEUSDTM']
+2026-03-14 22:26:51 | INFO | main | Ссылки сохранены в файл: C:\Users\User\Desktop\PROGECTS\SLAV\Kucoin\BRITVA_SOFTs\scriners\britva_screeners\britva9\screener6\target_links.txt. Запустите clicker.py вручную.
+2026-03-14 22:26:51 | ERROR | main | Глобальная ошибка в цикле: 'AppSection' object has no attribute 'screen_once'
+2026-03-14 22:27:01 | INFO | main | Запуск алгоритма Shtrih-Score...
+2026-03-14 22:27:39 | INFO | main | 🔥 НАЙДЕНО 10 МОНЕТ: ['MIRAUSDTM', 'IRYSUSDTM', 'USDGUSDTM', 'WETUSDTM', 'AERGOUSDTM', 'RAYUSDTM', 'TRUTHUSDTM', 'UBUSDTM', 'PENDLEUSDTM', 'COPPERUSDTM']
+2026-03-14 22:27:39 | INFO | main | Ссылки сохранены в файл: C:\Users\User\Desktop\PROGECTS\SLAV\Kucoin\BRITVA_SOFTs\scriners\britva_screeners\britva9\screener6\target_links.txt. Запустите clicker.py вручную.
+2026-03-14 22:27:39 | ERROR | main | Глобальная ошибка в цикле: 'AppSection' object has no attribute 'screen_once'
+2026-03-14 22:27:49 | INFO | main | Запуск алгоритма Shtrih-Score...
+2026-03-14 22:28:25 | INFO | main | 🔥 НАЙДЕНО 10 МОНЕТ: ['IRYSUSDTM', 'MIRAUSDTM', 'WETUSDTM', 'TRUTHUSDTM', 'USDGUSDTM', 'AERGOUSDTM', 'RAYUSDTM', 'UBUSDTM', 'FHEUSDTM', 'COPPERUSDTM']
+2026-03-14 22:28:25 | INFO | main | Ссылки сохранены в файл: C:\Users\User\Desktop\PROGECTS\SLAV\Kucoin\BRITVA_SOFTs\scriners\britva_screeners\britva9\screener6\target_links.txt. Запустите clicker.py вручную.
+2026-03-14 22:28:25 | ERROR | main | Глобальная ошибка в цикле: 'AppSection' object has no attribute 'screen_once'
+2026-03-14 22:28:35 | INFO | main | Запуск алгоритма Shtrih-Score...
+2026-03-14 22:29:12 | INFO | main | 🔥 НАЙДЕНО 10 МОНЕТ: ['MIRAUSDTM', 'IRYSUSDTM', 'WETUSDTM', 'TRUTHUSDTM', 'USDGUSDTM', 'AERGOUSDTM', 'RAYUSDTM', 'PENDLEUSDTM', 'UBUSDTM', 'FHEUSDTM']
+2026-03-14 22:29:12 | INFO | main | Ссылки сохранены в файл: C:\Users\User\Desktop\PROGECTS\SLAV\Kucoin\BRITVA_SOFTs\scriners\britva_screeners\britva9\screener6\target_links.txt. Запустите clicker.py вручную.
+2026-03-14 22:29:12 | ERROR | main | Глобальная ошибка в цикле: 'AppSection' object has no attribute 'screen_once'
+2026-03-14 22:29:22 | INFO | main | Запуск алгоритма Shtrih-Score...
+2026-03-14 22:35:37 | INFO | main | Запуск скринера... Конфиг: cfg.json
+2026-03-14 22:35:37 | ERROR | main | Глобальная ошибка в цикле: 'str' object has no attribute 'exists'
+2026-03-14 22:36:26 | INFO | main | Запуск скринера... Конфиг: cfg.json
+2026-03-14 22:36:26 | ERROR | main | Глобальная ошибка в цикле: failed to read cfg: 'str' object has no attribute 'read_text'
+2026-03-14 22:40:46 | INFO | main | Запуск скринера... Конфиг: cfg.json
+2026-03-14 22:40:46 | INFO | main | Загружены настройки:
+{
+    "app": {
+        "quote": "USDT",
+        "max_symbols": 0,
+        "concurrent_symbols": 5,
+        "top_n": 10,
+        "request_interval_ms": 150,
+        "scan_interval_sec": 600
+    },
+    "filter": {
+        "timeframe": "1m",
+        "lookback_candles": 30,
+        "daily_volume_min_usdt": 500000.0,
+        "daily_volume_max_usdt": 10000000.0,
+        "donchian_min_pct": 0.5,
+        "donchian_max_pct": 5.0,
+        "max_body_ratio": 0.25,
+        "candle_range_min_pct": 0.25,
+        "min_valid_candles_pct": 35.0
+    }
+}
+2026-03-14 22:40:46 | INFO | main | Запуск алгоритма Shtrih-Score...
+2026-03-14 22:41:23 | INFO | main | 🔥 НАЙДЕНО 10 МОНЕТ: ['0GUSDTM', 'TRUTHUSDTM', 'WETUSDTM', 'AERGOUSDTM', 'IRYSUSDTM', 'LIGHTUSDTM', 'TRUSTUSDTM', 'FHEUSDTM', 'FLOCKUSDTM', 'ZKPUSDTM']
+2026-03-14 22:41:23 | INFO | main | Ссылки сохранены в файл: C:\Users\User\Desktop\PROGECTS\SLAV\Kucoin\BRITVA_SOFTs\scriners\britva_screeners\britva9\screener6\target_links.txt. Запустите clicker.py вручную.
+2026-03-14 22:41:23 | ERROR | main | Глобальная ошибка в цикле: 'AppSection' object has no attribute 'is_click'
+2026-03-14 22:41:33 | INFO | main | Загружены настройки:
+{
+    "app": {
+        "quote": "USDT",
+        "max_symbols": 0,
+        "concurrent_symbols": 5,
+        "top_n": 10,
+        "request_interval_ms": 150,
+        "scan_interval_sec": 600
+    },
+    "filter": {
+        "timeframe": "1m",
+        "lookback_candles": 30,
+        "daily_volume_min_usdt": 500000.0,
+        "daily_volume_max_usdt": 10000000.0,
+        "donchian_min_pct": 0.5,
+        "donchian_max_pct": 5.0,
+        "max_body_ratio": 0.25,
+        "candle_range_min_pct": 0.25,
+        "min_valid_candles_pct": 35.0
+    }
+}
+2026-03-14 22:41:33 | INFO | main | Запуск алгоритма Shtrih-Score...
