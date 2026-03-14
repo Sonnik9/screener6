@@ -56,27 +56,39 @@ class CandidateScanner:
             return {"symbol": symbol, "passed": False, "score": 0.0, "metrics": {}, "fail_reasons": [str(e)]}
 
     async def scan(self) -> Dict[str, Any]:
-        started_at_ms = int(time.time() * 1000)
-        symbols = sorted(await self.symbols_api.get_perp_symbols(quote=self.quote, limit=self.max_symbols or None))
-        sem = asyncio.Semaphore(self.concurrent_symbols)
+            started_at_ms = int(time.time() * 1000)
+            symbols = sorted(await self.symbols_api.get_perp_symbols(quote=self.quote, limit=self.max_symbols or None))
+            sem = asyncio.Semaphore(self.concurrent_symbols)
 
-        async def worker(sym: str) -> Dict[str, Any]:
-            async with sem:
-                return await self._analyze_symbol(sym)
+            async def worker(sym: str) -> Dict[str, Any]:
+                async with sem:
+                    return await self._analyze_symbol(sym)
 
-        logger.info(f"Запуск сканирования... Всего монет: {len(symbols)}, Потоков: {self.concurrent_symbols}")
-        rows = await asyncio.gather(*(worker(s) for s in symbols))
+            logger.info(f"Запуск сканирования... Всего монет: {len(symbols)}")
+            rows = await asyncio.gather(*(worker(s) for s in symbols))
 
-        passed_rows = [r for r in rows if r.get("passed")]
-        # Сортируем от самых сильных аномалий к слабым
-        passed_rows.sort(key=lambda x: x["score"], reverse=True)
-        candidates = passed_rows[:self.top_n]
+            # БЕРЕМ ВСЕ МОНЕТЫ СО СКОРОМ > 0 (все нормальные зеленые свечи)
+            valid_rows = [r for r in rows if r.get("score", -999) > 0]
+            
+            # Сортируем: на 1 месте самая аномальная ракета
+            valid_rows.sort(key=lambda x: x["score"], reverse=True)
+            
+            # Отрезаем Топ-N (например, топ 10 или 15 из конфига)
+            candidates = valid_rows[:self.top_n]
 
-        return {
-            "generated_at_ms": int(time.time() * 1000),
-            "scan_elapsed_ms": int(time.time() * 1000) - started_at_ms,
-            "symbols_total": len(symbols),
-            "symbols_passed": len(passed_rows),
-            "candidate_symbols": [x["symbol"] for x in candidates],
-            "candidates": candidates,
-        }
+            # Для логов: смотрим, сколько из них пробили "идеальный" порог
+            perfect_matches = sum(1 for c in candidates if c["passed"])
+
+            logger.info(f"Найдено растущих монет: {len(valid_rows)}. Отбираем ТОП-{len(candidates)}.")
+            if candidates:
+                top_3 = ", ".join([f"{c['symbol']} (Sc:{c['score']:.1f})" for c in candidates[:3]])
+                logger.info(f"🔥 Лидеры сейчас: {top_3}")
+
+            return {
+                "generated_at_ms": int(time.time() * 1000),
+                "scan_elapsed_ms": int(time.time() * 1000) - started_at_ms,
+                "symbols_total": len(symbols),
+                "symbols_passed_strict": perfect_matches,
+                "candidate_symbols": [x["symbol"] for x in candidates], # Отдаем в main.py только тикеры топа
+                "candidates": candidates,
+            }

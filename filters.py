@@ -4,64 +4,72 @@ from typing import List, Dict, Any
 
 class CalculatingEngine:
     def __init__(self, filter_cfg):
-        # Пороги аномалий: насколько сильно текущий объем/цена должны превышать историческую норму
-        self.vol_z_threshold = getattr(filter_cfg, 'vol_z_threshold', 2.5)
-        self.price_z_threshold = getattr(filter_cfg, 'price_z_threshold', 2.0)
+        self.vol_z_threshold = getattr(filter_cfg, 'vol_z_threshold', 2.0)
+        self.price_z_threshold = getattr(filter_cfg, 'price_z_threshold', 1.5)
 
     def analyze(self, candles: List[Any]) -> Dict[str, Any]:
-        """
-        Анализ свечей с помощью Z-Score (поиск аномалий).
-        """
         if not candles or len(candles) < 20:
-            return {"passed": False, "score": 0.0, "reason": "not_enough_candles"}
+            return {"passed": False, "score": -999.0, "reason": "not_enough_candles"}
 
         try:
-            # Безопасное извлечение цены закрытия и объема (поддержка объектов и кортежей)
-            def get_val(k, attr, idx):
-                return float(getattr(k, attr, k[idx] if isinstance(k, (list, tuple)) else 0))
-
+            # Безопасное извлечение OCHLV
+            def get_val(k, attr, idx): return float(getattr(k, attr, k[idx] if isinstance(k, (list, tuple)) else 0))
+            
+            opens = np.array([get_val(k, 'open', 1) for k in candles])
             closes = np.array([get_val(k, 'close', 2) for k in candles])
+            highs = np.array([get_val(k, 'high', 3) for k in candles])
+            lows = np.array([get_val(k, 'low', 4) for k in candles])
             volumes = np.array([get_val(k, 'volume', 5) for k in candles])
 
-            # Историческая выборка (все свечи, кроме последней)
-            hist_volumes = volumes[:-1]
+            # История (без последней свечи) и текущие значения
+            hist_vol = volumes[:-1]
             hist_closes = closes[:-1]
             
-            # Текущие значения (последняя свеча)
-            current_vol = volumes[-1]
+            curr_open = opens[-1]
+            curr_close = closes[-1]
+            curr_high = highs[-1]
+            curr_low = lows[-1]
+            curr_vol = volumes[-1]
 
-            # 1. Z-Score объема
-            vol_mean = np.mean(hist_volumes)
-            vol_std = np.std(hist_volumes)
-            if vol_std == 0:
-                return {"passed": False, "score": 0.0, "reason": "zero_vol_std"}
-            
-            vol_z = (current_vol - vol_mean) / vol_std
+            # 1. Отбрасываем красные свечи сразу (нам нужны прострелы вверх)
+            if curr_close <= curr_open:
+                return {"passed": False, "score": -100.0, "reason": "red_candle"}
 
-            # 2. Z-Score ценового импульса (доходности)
-            returns = np.diff(hist_closes) / hist_closes[:-1]
-            current_return = (closes[-1] - closes[-2]) / closes[-2]
-            
-            ret_mean = np.mean(returns)
-            ret_std = np.std(returns)
-            if ret_std == 0:
-                return {"passed": False, "score": 0.0, "reason": "zero_ret_std"}
-                
-            price_z = (current_return - ret_mean) / ret_std
+            # 2. Плотность тела свечи (0.0 - тень сверху, 1.0 - закрылась на самом хае)
+            # Защита от деления на ноль, если high == low
+            candle_range = curr_high - curr_low
+            body_density = (curr_close - curr_low) / candle_range if candle_range > 0 else 1.0
 
-            # Условие прохождения: всплеск объема + всплеск цены + свеча зеленая
-            passed = (vol_z > self.vol_z_threshold) and (price_z > self.price_z_threshold) and (current_return > 0)
-            
-            # Итоговый скор для сортировки лучших (чем выше аномалия, тем лучше)
-            score = float(vol_z + price_z) if passed else 0.0
+            # Если закрылась ниже середины (огромная тень сверху) - это бритва, нам такое не нужно
+            if body_density < 0.5:
+                return {"passed": False, "score": -50.0, "reason": "huge_upper_wick"}
+
+            # 3. RVOL (Relative Volume) - отношение текущего объема к среднему
+            vol_mean = np.mean(hist_vol)
+            rvol = curr_vol / vol_mean if vol_mean > 0 else 0
+
+            # 4. Price Momentum (текущий рост в процентах)
+            current_return_pct = ((curr_close - curr_open) / curr_open) * 100
+
+            # 5. Бонус за микро-тренд (если предыдущая тоже зеленая)
+            prev_return = closes[-2] - opens[-2]
+            trend_multiplier = 1.2 if prev_return > 0 else 1.0
+
+            # Итоговый Score: комбинация объемов, роста и качества свечи
+            # Чем выше RVOL и % роста, тем выше Score
+            score = (rvol * current_return_pct * body_density) * trend_multiplier
+
+            # Опциональный флаг "Passed" для логов (если монета действительно аномальная)
+            passed_strict = (rvol > self.vol_z_threshold) and (current_return_pct > self.price_z_threshold)
 
             return {
-                "passed": bool(passed),
-                "score": score,
-                "vol_z": float(vol_z),
-                "price_z": float(price_z),
-                "reason": "" if passed else f"low_z_score (V:{vol_z:.2f}, P:{price_z:.2f})"
+                "passed": passed_strict, # Теперь это просто метка "Идеальный сетап", а не жесткий фильтр
+                "score": float(score),
+                "rvol": float(rvol),
+                "return_pct": float(current_return_pct),
+                "body_density": float(body_density),
+                "reason": "OK"
             }
 
         except Exception as e:
-            return {"passed": False, "score": 0.0, "reason": f"error: {str(e)}"}
+            return {"passed": False, "score": -999.0, "reason": f"error: {str(e)}"}

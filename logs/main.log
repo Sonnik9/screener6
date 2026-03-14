@@ -23,3 +23,14 @@
 2026-03-13 15:34:33 | INFO | main | main finished
 2026-03-13 15:34:53 | INFO | main | main finished
 2026-03-13 15:36:23 | INFO | main | main finished
+2026-03-14 18:15:26 | INFO | main | main start cfg=C:\Users\User\Desktop\PROGECTS\SLAV\Kucoin\BRITVA_SOFTs\scriners\britva_screeners\britva9\screener6\cfg.json
+2026-03-14 18:15:26 | INFO | main | Запуск алгоритма Z-Score...
+2026-03-14 18:17:47 | INFO | main | Сканирование завершено. Найдено подходящих монет: 0
+2026-03-14 18:17:47 | INFO | main | Цели не найдены. Ожидание следующего цикла.
+2026-03-14 18:17:47 | INFO | main | main finished
+2026-03-14 18:23:51 | INFO | main | main start cfg=C:\Users\User\Desktop\PROGECTS\SLAV\Kucoin\BRITVA_SOFTs\scriners\britva_screeners\britva9\screener6\cfg.json
+2026-03-14 18:23:51 | INFO | main | Запуск алгоритма Z-Score...
+2026-03-14 18:26:13 | INFO | main | Сканирование завершено. Найдено подходящих монет: 15
+2026-03-14 18:26:13 | INFO | main | Ссылки сохранены в файл: target_links.txt
+2026-03-14 18:26:13 | INFO | main | Запуск автоматизации: clicker.py
+2026-03-14 18:26:13 | INFO | main | main finished

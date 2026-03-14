@@ -26,3 +26,9 @@
 2026-03-13 15:33:28 | INFO | scanner_engine | scan symbols total=545 concurrent=3
 2026-03-13 15:34:03 | INFO | scanner_engine | scanner init timeframe=1m lookback=60 quote=USDT
 2026-03-13 15:34:03 | INFO | scanner_engine | scan symbols total=545 concurrent=3
+2026-03-14 18:15:26 | INFO | scanner_engine | Сканнер инициализирован: tf=1m, lookback=120, алгоритм=Z-Score
+2026-03-14 18:15:26 | INFO | scanner_engine | Запуск сканирования... Всего монет: 545, Потоков: 5
+2026-03-14 18:23:51 | INFO | scanner_engine | Сканнер инициализирован: tf=1m, lookback=120, алгоритм=Z-Score
+2026-03-14 18:23:52 | INFO | scanner_engine | Запуск сканирования... Всего монет: 545
+2026-03-14 18:26:13 | INFO | scanner_engine | Найдено растущих монет: 101. Отбираем ТОП-15.
+2026-03-14 18:26:13 | INFO | scanner_engine | 🔥 Лидеры сейчас: INXUSDTM (Sc:2.6), LQTYUSDTM (Sc:2.3), INUSDTM (Sc:0.9)
