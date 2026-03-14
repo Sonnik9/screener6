@@ -43,14 +43,17 @@ async def run_scanner_cycle(cfg_path: Path):
         for sym in candidates:
             # Адаптируем тикер под правильную ссылку KuCoin (BTCUSDTM -> BTC-USDT)
             formatted_sym = sym
-            if sym.endswith("USDTM"):
-                formatted_sym = sym.replace("USDTM", "-USDT")
-            elif sym.endswith("USDT") and "-" not in sym:
-                formatted_sym = sym.replace("USDT", "-USDT")
+            if sym.endswith("USDT"):
+                formatted_sym = sym.replace("USDT", "USDTM")
+            # if sym.endswith("USDTM"):
+            #     formatted_sym = sym.replace("USDTM", "-USDT")
+            # elif sym.endswith("USDT") and "-" not in sym:
+            #     formatted_sym = sym.replace("USDT", "-USDT")
                 
             # Записываем правильную русскую ссылку!
-            f.write(f"https://www.kucoin.com/ru/trade/{formatted_sym}\n")
-            
+            # f.write(f"https://www.kucoin.com/ru/trade/{formatted_sym}\n")
+            f.write(f"https://www.kucoin.com/ru/trade/futures/{formatted_sym}\n")
+
     logger.info(f"Ссылки сохранены в файл: {RESULTS_FILE}. Запустите clicker.py вручную.")
 
 async def main():

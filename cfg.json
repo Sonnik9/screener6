@@ -1,6 +1,6 @@
 {
   "_workflow": {
-    "mode": "Штрих-код V3: 24h Ticker Volume + Доджи-математика"
+    "mode": "Штрих-код База: Предфильтр объема + Average Donchian + Wicks Proportion"
   },
   "app": {
     "quote": "USDT",
@@ -18,17 +18,17 @@
     "api_secret": ""
   },
   "filter": {
-      "timeframe": "1m",
-      "lookback_candles": 30,
-      
-      "daily_volume_min_usdt": 500000,
-      "daily_volume_max_usdt": 10000000,
-      
-      "donchian_min_pct": 0.5,
-      "donchian_max_pct": 5.0, 
-      
-      "max_body_ratio": 0.25,
-      "candle_range_min_pct": 0.25,
-      "min_valid_candles_pct": 35.0
-    }
+    "timeframe": "1m",
+    "lookback_candles": 30,
+    
+    "daily_volume_min_usdt": 500000.0,
+    "daily_volume_max_usdt": 7000000.0,
+    
+    "donchian_min_pct": 1.0,
+    "donchian_max_pct": 7.0,
+    
+    "wick_ratio_threshold": 3.0,
+    "candle_range_min_pct": 0.15,
+    "min_valid_candles_pct": 50.0
+  }
 }
