@@ -34,3 +34,14 @@
 2026-03-14 18:26:13 | INFO | main | Ссылки сохранены в файл: target_links.txt
 2026-03-14 18:26:13 | INFO | main | Запуск автоматизации: clicker.py
 2026-03-14 18:26:13 | INFO | main | main finished
+2026-03-14 18:59:49 | INFO | main | Запуск скринера... Конфиг: C:\Users\User\Desktop\PROGECTS\SLAV\Kucoin\BRITVA_SOFTs\scriners\britva_screeners\britva9\screener6\cfg.json
+2026-03-14 18:59:49 | INFO | main | Запуск алгоритма Z-Score...
+2026-03-14 19:02:10 | INFO | main | 🔥 НАЙДЕНО 15 МОНЕТ: ['LAUSDTM', 'ESPUSDTM', 'BCHUSDTM', 'SPACEUSDTM', 'ACEUSDTM', 'SIGNUSDTM', 'CTSIUSDTM', 'GRTUSDTM', 'BARDUSDTM', 'JELLYJELLYUSDTM', 'ARCUSDTM', 'DENTUSDTM', 'GAIBUSDTM', 'FLOWUSDTM', 'RENDERUSDTM']
+2026-03-14 19:02:10 | INFO | main | Ссылки сохранены в файл: C:\Users\User\Desktop\PROGECTS\SLAV\Kucoin\BRITVA_SOFTs\scriners\britva_screeners\britva9\screener6\target_links.txt. Запустите clicker.py вручную.
+2026-03-14 19:02:10 | ERROR | main | Глобальная ошибка в цикле: 'AppSection' object has no attribute 'scan_interval_sec'
+2026-03-14 19:02:20 | INFO | main | Запуск алгоритма Z-Score...
+2026-03-14 19:13:54 | INFO | main | Запуск скринера... Конфиг: C:\Users\User\Desktop\PROGECTS\SLAV\Kucoin\BRITVA_SOFTs\scriners\britva_screeners\britva9\screener6\cfg.json
+2026-03-14 19:13:54 | INFO | main | Запуск алгоритма Z-Score...
+2026-03-14 19:16:15 | INFO | main | 🔥 НАЙДЕНО 15 МОНЕТ: ['FLOWUSDTM', 'HYPEUSDTM', 'TRADOORUSDTM', 'TWTUSDTM', 'RIVERUSDTM', 'SUIUSDTM', 'SNXUSDTM', 'EVAAUSDTM', 'EDENUSDTM', 'XPTUSDTM', 'TRUMPUSDTM', 'TAOUSDTM', 'ICPUSDTM', 'BCHUSDTM', 'BNBUSDTM']
+2026-03-14 19:16:15 | INFO | main | Ссылки сохранены в файл: C:\Users\User\Desktop\PROGECTS\SLAV\Kucoin\BRITVA_SOFTs\scriners\britva_screeners\britva9\screener6\target_links.txt. Запустите clicker.py вручную.
+2026-03-14 19:16:15 | INFO | main | Режим однократного сканирования. Выход.

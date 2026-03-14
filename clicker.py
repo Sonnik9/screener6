@@ -1,7 +1,8 @@
 import time
 import webbrowser
-import os
 import logging
+import random
+from pathlib import Path
 
 # Настройка логирования
 logging.basicConfig(
@@ -10,39 +11,21 @@ logging.basicConfig(
 )
 logger = logging.getLogger("Clicker")
 
-RESULTS_FILE = "target_links.txt"
+ROOT_DIR = Path(__file__).resolve().parent
+RESULTS_FILE = ROOT_DIR / "target_links.txt"
 
 def open_links_in_browser(links):
-    """Открывает список ссылок в браузере по умолчанию."""
+    """Открывает список ссылок в браузере."""
     for link in links:
-        logger.info(f"Открываю вкладку: {link}")
+        logger.info(f"🌐 Открываю вкладку: {link}")
         webbrowser.open_new_tab(link)
-        # Небольшая пауза, чтобы браузер не завис от пачки вкладок
-        time.sleep(0.5)
-
-def simulate_mouse_clicks():
-    """
-    Пример функции для физического управления мышью.
-    Для работы нужно установить библиотеку: pip install pyautogui
-    """
-    # Раскомментируйте код ниже, если хотите настроить автоклик по координатам экрана
-    """
-    import pyautogui
-    
-    logger.info("Ждем 3 секунды перед началом кликов (переключитесь на окно биржи)...")
-    time.sleep(3)
-    
-    # Пример: переместить мышь на координаты X=1000, Y=500 и кликнуть (например, в поле цены или на кнопку 'Buy')
-    # Узнать свои координаты можно скриптом: print(pyautogui.position())
-    
-    pyautogui.moveTo(1000, 500, duration=0.2)
-    pyautogui.click()
-    logger.info("Клик выполнен!")
-    """
-    pass
+        sleep_time = random.uniform(2.30, 5.70)  # Случайная задержка между открытием вкладок
+        time.sleep(sleep_time)
 
 def main():
-    if not os.path.exists(RESULTS_FILE):
+    logger.info("Запуск ручного кликера...")
+    
+    if not RESULTS_FILE.exists():
         logger.warning(f"Файл {RESULTS_FILE} не найден. Нечего открывать.")
         return
 
@@ -51,20 +34,16 @@ def main():
         links = [line.strip() for line in f.readlines() if line.strip()]
 
     if not links:
-        logger.info("Файл со ссылками пуст.")
+        logger.info("Файл со ссылками пуст. Новых монет пока нет.")
         return
 
-    logger.info(f"Найдено {len(links)} ссылок для обработки.")
+    logger.info(f"Найдено {len(links)} ссылок. Начинаю открывать...")
     
-    # Шаг 1: Открываем в браузере
     open_links_in_browser(links)
     
-    # Шаг 2 (Опционально): Запуск физических кликов мышкой
-    # simulate_mouse_clicks()
-
-    # Очищаем файл после успешного открытия, чтобы не открывать их повторно в следующем цикле
+    # Очищаем файл, чтобы не открыть эти же вкладки во время следующего ручного запуска
     open(RESULTS_FILE, "w").close()
-    logger.info("Очистка файла ссылок завершена. Жду новых сигналов...")
+    logger.info("Все вкладки открыты! Файл со ссылками очищен. Скрипт завершил работу.")
 
 if __name__ == "__main__":
     main()

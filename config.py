@@ -14,6 +14,7 @@ class AppSection:
     concurrent_symbols: int = 3
     top_n: int = 20
     request_interval_ms: int = 250
+    scan_interval_sec: int = 30
 
 @dataclass
 class FilterSection:
@@ -21,6 +22,7 @@ class FilterSection:
     lookback_candles: int = 120
     vol_z_threshold: float = 2.5
     price_z_threshold: float = 2.0
+    min_turnover_usdt: float = 5000.0  # <-- Новый параметр ликвидности
 
 @dataclass
 class AppConfig:
@@ -39,13 +41,15 @@ class ConfigLoader:
             concurrent_symbols=max(1, int(app_d.get("concurrent_symbols", 3))),
             top_n=max(1, int(app_d.get("top_n", 20))),
             request_interval_ms=max(0, int(app_d.get("request_interval_ms", 250))),
+            scan_interval_sec=max(5, int(app_d.get("scan_interval_sec", 30))),
         )
 
         filter_cfg = FilterSection(
             timeframe=str(filt_d.get("timeframe", "1m")).lower().strip(),
             lookback_candles=max(20, int(filt_d.get("lookback_candles", 120))),
             vol_z_threshold=float(filt_d.get("vol_z_threshold", 2.5)),
-            price_z_threshold=float(filt_d.get("price_z_threshold", 2.0))
+            price_z_threshold=float(filt_d.get("price_z_threshold", 2.0)),
+            min_turnover_usdt=float(filt_d.get("min_turnover_usdt", 5000.0)) # <-- Читаем из конфига
         )
 
         return AppConfig(app=app_cfg, filter=filter_cfg)
@@ -60,6 +64,4 @@ def load_config(path: Path = CFG_PATH) -> AppConfig:
         user_raw = json.loads(path.read_text(encoding="utf-8"))
     except Exception as e:
         raise ConfigError(f"failed to read cfg: {e}")
-    if not isinstance(user_raw, dict):
-        raise ConfigError("cfg root must be object")
     return ConfigLoader.from_dict(user_raw)

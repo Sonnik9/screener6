@@ -1,18 +1,18 @@
 from __future__ import annotations
 import asyncio
-import os
-import subprocess
 from pathlib import Path
-from c_log import UnifiedLogger 
+from c_log import UnifiedLogger
 from config import load_config, CFG_PATH
 from scanner_engine import CandidateScanner
 
 logger = UnifiedLogger("main")
 
-RESULTS_FILE = "target_links.txt"
-CLICKER_SCRIPT = "clicker.py"  # <-- УБЕДИТЕСЬ, ЧТО ИМЯ ФАЙЛА ВЕРНОЕ
+# Надежный абсолютный путь к файлу (создастся в папке со скриптом)
+ROOT_DIR = Path(__file__).resolve().parent
+RESULTS_FILE = ROOT_DIR / "target_links.txt"
+SCREEN_ONCE = True  # Если True, сканирует один раз и выходит. Если False, работает в бесконечном цикле.
 
-async def run_scanner_and_clicker(cfg_path: Path):
+async def run_scanner_cycle(cfg_path: Path):
     cfg = load_config(cfg_path)
     scanner = CandidateScanner(cfg)
     
@@ -23,36 +23,52 @@ async def run_scanner_and_clicker(cfg_path: Path):
         await scanner.aclose()
     
     candidates = results.get("candidate_symbols", [])
-    logger.info(f"Сканирование завершено. Найдено подходящих монет: {len(candidates)}")
     
     if not candidates:
-        logger.info("Цели не найдены. Ожидание следующего цикла.")
+        logger.info("Цели не найдены. Сплю...")
         return
 
-    # Сохраняем ссылки для KuCoin
+    logger.info(f"🔥 НАЙДЕНО {len(candidates)} МОНЕТ: {candidates}")
+
+    # Сохраняем ссылки в файл
     with open(RESULTS_FILE, "w", encoding="utf-8") as f:
         for sym in candidates:
-            # Для фьючерсов ссылка может быть https://www.kucoin.com/futures/trade/...
-            # По умолчанию генерируем стандартную торговую ссылку
-            f.write(f"https://www.kucoin.com/trade/{sym}\n")
-    
-    logger.info(f"Ссылки сохранены в файл: {RESULTS_FILE}")
-
-    # Запускаем кликер
-    if os.path.exists(CLICKER_SCRIPT):
-        logger.info(f"Запуск автоматизации: {CLICKER_SCRIPT}")
-        try:
-            # Запуск скрипта в фоне, чтобы не блокировать основной поток
-            subprocess.Popen(["python", CLICKER_SCRIPT])
-        except Exception as e:
-            logger.error(f"Ошибка вызова кликера: {e}")
-    else:
-        logger.warning(f"Скрипт {CLICKER_SCRIPT} не найден! Кликер не запущен.")
+            # Адаптируем тикер под правильную ссылку KuCoin (BTCUSDTM -> BTC-USDT)
+            formatted_sym = sym
+            if sym.endswith("USDTM"):
+                formatted_sym = sym.replace("USDTM", "-USDT")
+            elif sym.endswith("USDT") and "-" not in sym:
+                formatted_sym = sym.replace("USDT", "-USDT")
+                
+            # Записываем правильную русскую ссылку!
+            f.write(f"https://www.kucoin.com/ru/trade/{formatted_sym}\n")
+            
+    logger.info(f"Ссылки сохранены в файл: {RESULTS_FILE}. Запустите clicker.py вручную.")
 
 async def main():
-    logger.info(f"main start cfg={CFG_PATH}")
-    await run_scanner_and_clicker(CFG_PATH)
-    logger.info("main finished")
+    logger.info(f"Запуск скринера... Конфиг: {CFG_PATH}")    
+    
+    while True:
+        try:
+            cfg = load_config(CFG_PATH) 
+            await run_scanner_cycle(CFG_PATH)
+
+            if SCREEN_ONCE:
+                logger.info("Режим однократного сканирования. Выход.")
+                break
+            
+            logger.info(f"Ожидание {cfg.app.scan_interval_sec} сек. до следующего скана...\n{'-'*40}")
+            await asyncio.sleep(cfg.app.scan_interval_sec)
+            
+        except asyncio.CancelledError:
+            break
+        except Exception as e:
+            logger.error(f"Глобальная ошибка в цикле: {e}")
+            await asyncio.sleep(10)
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        # Теперь Ctrl+C будет срабатывать моментально
+        print("\n[!] Скринер успешно остановлен пользователем (Ctrl+C).")

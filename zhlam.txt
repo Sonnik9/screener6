@@ -1,0 +1,15 @@
+2026-03-14 18:26:13,517 - Clicker - INFO - Открываю вкладку: https://www.kucoin.com/ru/trade/INXUSDTM
+2026-03-14 18:26:14,192 - Clicker - INFO - Открываю вкладку: https://www.kucoin.com/trade/LQTYUSDTM
+2026-03-14 18:26:14,798 - Clicker - INFO - Открываю вкладку: https://www.kucoin.com/trade/INUSDTM
+2026-03-14 18:26:15,673 - Clicker - INFO - Открываю вкладку: https://www.kucoin.com/trade/BABYUSDTM
+2026-03-14 18:26:17,564 - Clicker - INFO - Открываю вкладку: https://www.kucoin.com/trade/ICNTUSDTM
+2026-03-14 18:26:18,747 - Clicker - INFO - Открываю вкладку: https://www.kucoin.com/trade/C98USDTM
+2026-03-14 18:26:20,089 - Clicker - INFO - Открываю вкладку: https://www.kucoin.com/trade/ARCUSDTM
+2026-03-14 18:26:21,250 - Clicker - INFO - Открываю вкладку: https://www.kucoin.com/trade/BDXUSDTM
+2026-03-14 18:26:22,557 - Clicker - INFO - Открываю вкладку: https://www.kucoin.com/trade/RDNTUSDTM
+2026-03-14 18:26:25,573 - Clicker - INFO - Открываю вкладку: https://www.kucoin.com/trade/CELRUSDTM
+2026-03-14 18:26:28,171 - Clicker - INFO - Открываю вкладку: https://www.kucoin.com/trade/ORBSUSDTM
+2026-03-14 18:26:29,813 - Clicker - INFO - Открываю вкладку: https://www.kucoin.com/trade/FOGOUSDTM
+2026-03-14 18:26:30,940 - Clicker - INFO - Открываю вкладку: https://www.kucoin.com/trade/KNCUSDTM
+2026-03-14 18:26:32,455 - Clicker - INFO - Открываю вкладку: https://www.kucoin.com/trade/TSTBSCUSDTM       
+2026-03-14 18:26:34,460 - Clicker - INFO - Открываю вкладку: https://www.kucoin.com/trade/VOOIUSDTM
