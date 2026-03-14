@@ -1,121 +1,33 @@
 {
   "_workflow": {
-    "mode_switch": "benchmark.enabled=false -> обычный скан по filter из этого файла; benchmark.enabled=true -> сначала benchmark-калибровка по эталонным окнам, потом скан.",
-    "doc_keys": "Любые ключи, начинающиеся с _, используются как документация и игнорируются загрузчиком.",
-    "primary_features": "wicks (simplified v9) и donchain — основные фичи. axis/wall/regime/activity/reclaim/liquidity — второстепенные, опциональные."
+    "mode": "Обычный скан рынка на основе статистических аномалий (Z-Score). Бенчмарки отключены и удалены.",
+    "doc_keys": "Любые ключи, начинающиеся с _, используются как документация и игнорируются загрузчиком."
   },
   "app": {
     "_doc": "Базовые настройки прохода по рынку.",
     "quote": "USDT",
     "max_symbols": 0,
-    "concurrent_symbols": 3,
-    "top_n": 20,
+    "concurrent_symbols": 5,
+    "top_n": 15,
     "request_interval_ms": 250
   },
   "exchange": {
-    "_doc": "Сетевые и приватные параметры. Для скринера в публичном режиме ключи могут быть пустыми.",
+    "_doc": "Сетевые и приватные параметры. (Пока не используются напрямую в базовом поиске, но оставлены для совместимости)",
     "proxy": "",
     "api_key": "",
     "api_secret": ""
   },
-  "benchmark": {
-    "_doc": "Управление benchmark-калибровкой. Это отдельный шаг, который строит filter по эталонным окнам. Включается только явным флагом.",
-    "_fields": {
-      "enabled": "false = main.py не трогает benchmarks и использует обычный filter ниже. true = сначала calibration по эталонам, потом scan.",
-      "step_min": "Шаг семплирования внутри reverse.py. Меньше шаг = подробнее, но дольше.",
-      "slot": "Какой слот брать из reverse-отчёта по умолчанию: soft | base | strict.",
-      "benchmarks": "Список эталонных окон."
-    },
-    "enabled": true,
-    "step_min": 1,
-    "slot": "soft",
-    "benchmarks": [
-      {
-        "_doc": "Эталонный участок. Это паттерн с фото (target_pattern_1m.png). Указывай start/end в ISO UTC или start_ms/end_ms в UTC milliseconds.",
-        "symbol": "WILDUSDT",
-        "start": "2026-02-24T18:04:00+00:00",
-        "end": "2026-02-24T19:04:00+00:00",
-        "slot": "soft"
-      }
-    ]
-  },
   "filter": {
-    "_doc": "Основной фильтр паттерна. Применяется напрямую если benchmark.enabled=false.",
+    "_doc": "Настройки алгоритма обнаружения аномалий (Z-Score).",
     "timeframe": "1m",
-    "lookback_candles": 60,
-    "min_score_pct": 78.0,
-    "approximation": {
-      "_doc": "Опционально. enabled=true -> порог score берётся из min_match_pct вместо min_score_pct.",
-      "enabled": false,
-      "min_match_pct": 76.0
-    },
-    "wicks": {
-      "_doc": "ОСНОВНАЯ ФИЧА (v9 simplified). Для каждой свечи: если (high/low-1)*100 >= min_pct_range И body>0 И range>0 — свеча квалифицируется. Считаем ratio=(high-low)/abs(open-close). Фильтр: avg_ratio >= min_avg_wick_ratio И wick_count >= min_wick_count.",
-      "enabled": true,
-      "min_pct_range": 0.3,
-      "min_avg_wick_ratio": 1.4,
-      "min_wick_count": 15
-    },
-    "donchain": {
-      "_doc": "ОСНОВНАЯ ФИЧА. Donchain range = (mean(highs[-window:]) / mean(lows[-window:]) - 1) * 100. Фильтр: min_donchain_range <= range <= max_donchain_range.",
-      "enabled": true,
-      "window": 20,
-      "min_donchain_range": 0.3,
-      "max_donchain_range": 5.0
-    },
-    "regime": {
-      "_doc": "Второстепенное/опциональное. Геометрия боковика: ширина коридора, чоповость, нетрендовость.",
-      "enabled": false,
-      "min_corridor_pct": 3.0,
-      "max_corridor_pct": 9.4,
-      "quantile_low": 0.10,
-      "quantile_high": 0.90,
-      "min_chop": 58.0,
-      "max_efficiency_ratio": 0.22,
-      "max_slope_to_corridor_ratio": 1.10
-    },
-    "axis": {
-      "_doc": "Второстепенное/опциональное. Возвраты к оси/центру диапазона.",
-      "enabled": false,
-      "tolerance_pct": 0.36,
-      "recent_window": 24,
-      "min_axis_touch_share": 0.42,
-      "min_recent_axis_touches": 2,
-      "min_rotation_count": 16,
-      "mode_bins": 27,
-      "use_hlc3": true,
-      "close_weight": 0.40,
-      "hlc3_weight": 0.60
-    },
-    "wall": {
-      "_doc": "Второстепенное/опциональное. Прижатие к верхней или нижней стенке диапазона.",
-      "enabled": false,
-      "touch_tolerance_pct": 0.35,
-      "recent_window": 18,
-      "min_recent_wall_touch_share": 0.0,
-      "min_full_wall_touch_share": 0.05,
-      "top_k_highs": 8,
-      "bottom_k_lows": 8,
-      "max_cluster_spread_pct": 1.2
-    },
-    "activity": {
-      "_doc": "Второстепенное/опциональное. Активность цены внутри диапазона и возвраты к оси.",
-      "enabled": false,
-      "min_path_to_corridor_ratio": 9.6,
-      "ema_period": 16,
-      "axis_band_pct": 0.28,
-      "min_return_to_axis_count": 6
-    },
-    "reclaim": {
-      "_doc": "Второстепенное/опциональное. Ложные проколы диапазона с возвратом обратно.",
-      "enabled": false,
-      "lookback": 6,
-      "min_false_break_reclaim_share": 0.12
-    },
-    "liquidity": {
-      "_doc": "Второстепенное/опциональное. Грубый фильтр ликвидности.",
-      "enabled": false,
-      "min_avg_quote_turnover": 0.0
+    "lookback_candles": 120,
+    "vol_z_threshold": 2.5,
+    "price_z_threshold": 2.0,
+    "_explanation": {
+      "timeframe": "Таймфрейм свечей (1m, 3m, 5m).",
+      "lookback_candles": "Сколько свечей брать в историю для расчета 'нормы' рынка. Рекомендуется 60-120.",
+      "vol_z_threshold": "Порог аномалии объема (например, 2.5 означает, что объем текущей свечи на 2.5 стандартных отклонения выше нормы).",
+      "price_z_threshold": "Порог ценового импульса (насколько сильно выросла цена по сравнению с обычным шумом)."
     }
   }
 }
