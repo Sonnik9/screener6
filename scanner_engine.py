@@ -26,7 +26,7 @@ class CandidateScanner:
             rate_limit_backoff_sec=2.0,
         )
         self.calc = CalculatingEngine(self.cfg.filter)
-        logger.info(f"Сканнер инициализирован: tf={self.timeframe}, lookback={self.lookback}, алгоритм=Z-Score")
+        logger.info(f"Сканнер инициализирован: tf={self.timeframe}, lookback={self.lookback}, алгоритм=Barcode (Штрих-код)")
 
     async def aclose(self) -> None:
         await self.symbols_api.aclose()
@@ -53,7 +53,7 @@ class CandidateScanner:
                 "fail_reasons": [analysis["reason"]] if not analysis["passed"] else []
             }
         except Exception as e:
-            return {"symbol": symbol, "passed": False, "score": 0.0, "metrics": {}, "fail_reasons": [str(e)]}
+            return {"symbol": symbol, "passed": False, "score": -999.0, "metrics": {}, "fail_reasons": [str(e)]}
 
     async def scan(self) -> Dict[str, Any]:
             started_at_ms = int(time.time() * 1000)
@@ -67,28 +67,26 @@ class CandidateScanner:
             logger.info(f"Запуск сканирования... Всего монет: {len(symbols)}")
             rows = await asyncio.gather(*(worker(s) for s in symbols))
 
-            # БЕРЕМ ВСЕ МОНЕТЫ СО СКОРОМ > 0 (все нормальные зеленые свечи)
+            # БЕРЕМ ТОЛЬКО ТЕ, ГДЕ SCORE > 0 (отфильтрованные идеальные штрихкоды)
             valid_rows = [r for r in rows if r.get("score", -999) > 0]
             
-            # Сортируем: на 1 месте самая аномальная ракета
+            # Сортируем: на 1 месте самый плотный и широкий штрих-код
             valid_rows.sort(key=lambda x: x["score"], reverse=True)
             
-            # Отрезаем Топ-N (например, топ 10 или 15 из конфига)
+            # Отрезаем Топ-N
             candidates = valid_rows[:self.top_n]
+            perfect_matches = len(valid_rows)
 
-            # Для логов: смотрим, сколько из них пробили "идеальный" порог
-            perfect_matches = sum(1 for c in candidates if c["passed"])
-
-            logger.info(f"Найдено растущих монет: {len(valid_rows)}. Отбираем ТОП-{len(candidates)}.")
+            logger.info(f"Найдено монет Штрих-код: {len(valid_rows)}. Отбираем ТОП-{len(candidates)}.")
             if candidates:
-                top_3 = ", ".join([f"{c['symbol']} (Sc:{c['score']:.1f})" for c in candidates[:3]])
-                logger.info(f"🔥 Лидеры сейчас: {top_3}")
+                top_3 = ", ".join([f"{c['symbol']} (Sc:{c['score']:.1f}, Touch:{c['metrics'].get('touches')})" for c in candidates[:3]])
+                logger.info(f"🔥 Лидеры боковика: {top_3}")
 
             return {
                 "generated_at_ms": int(time.time() * 1000),
                 "scan_elapsed_ms": int(time.time() * 1000) - started_at_ms,
                 "symbols_total": len(symbols),
                 "symbols_passed_strict": perfect_matches,
-                "candidate_symbols": [x["symbol"] for x in candidates], # Отдаем в main.py только тикеры топа
+                "candidate_symbols": [x["symbol"] for x in candidates], 
                 "candidates": candidates,
             }

@@ -19,7 +19,7 @@ def open_links_in_browser(links):
     for link in links:
         logger.info(f"🌐 Открываю вкладку: {link}")
         webbrowser.open_new_tab(link)
-        sleep_time = random.uniform(2.30, 5.70)  # Случайная задержка между открытием вкладок
+        sleep_time = random.uniform(40.30, 50.70)  # Случайная задержка между открытием вкладок
         time.sleep(sleep_time)
 
 def main():

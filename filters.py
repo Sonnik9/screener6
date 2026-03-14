@@ -4,12 +4,15 @@ from typing import List, Dict, Any
 
 class CalculatingEngine:
     def __init__(self, filter_cfg):
-        self.vol_z_threshold = getattr(filter_cfg, 'vol_z_threshold', 2.0)
-        self.price_z_threshold = getattr(filter_cfg, 'price_z_threshold', 1.5)
         self.min_turnover_usdt = getattr(filter_cfg, 'min_turnover_usdt', 5000.0)
+        # Настройки паттерна "Штрих-код"
+        self.max_body_ratio = getattr(filter_cfg, 'max_body_ratio', 0.45) # Тело в среднем не больше 45% от длины свечи
+        self.min_range_pct = getattr(filter_cfg, 'min_range_pct', 0.3)    # Средний размер свечи от 0.3% (чтобы было что торговать)
+        self.min_crossings = getattr(filter_cfg, 'min_crossings', 15)     # Минимум 15 касаний средней оси за период
+        self.max_trend_pct = getattr(filter_cfg, 'max_trend_pct', 3.0)    # Цена не должна измениться более чем на 3% от начала до конца (боковик)
 
     def analyze(self, candles: List[Any]) -> Dict[str, Any]:
-        if not candles or len(candles) < 20:
+        if not candles or len(candles) < 30:
             return {"passed": False, "score": -999.0, "reason": "not_enough_candles"}
 
         try:
@@ -21,59 +24,72 @@ class CalculatingEngine:
             lows = np.array([get_val(k, 'low', 4) for k in candles])
             volumes = np.array([get_val(k, 'volume', 5) for k in candles])
 
-            # --- ФИЛЬТР ЛИКВИДНОСТИ ---
-            # Приблизительный оборот в USDT (Объем монеты * Цена закрытия)
+            # --- 1. ФИЛЬТР ЛИКВИДНОСТИ ---
             turnovers_usdt = volumes * closes
             avg_turnover = np.mean(turnovers_usdt)
-            
-            # Если средний оборот за свечу меньше порога - это неликвидный щиток
             if avg_turnover < self.min_turnover_usdt:
                 return {"passed": False, "score": -500.0, "reason": f"low_liquidity: {avg_turnover:.0f} USDT"}
 
-            # История (без последней свечи) и текущие значения
-            hist_vol = volumes[:-1]
-            hist_closes = closes[:-1]
+            # --- 2. ХАРАКТЕРИСТИКИ СВЕЧЕЙ (ШТРИХ-КОД) ---
+            ranges = highs - lows
+            ranges = np.where(ranges == 0, 1e-8, ranges) # Защита от деления на ноль
+            bodies = np.abs(closes - opens)
+
+            # Доля тела от всей свечи (меньше = длиннее тени)
+            body_ratios = bodies / ranges
+            avg_body_ratio = np.mean(body_ratios)
+
+            # Средний размер свечи в % (волатильность внутри свечи)
+            range_pcts = (ranges / lows) * 100
+            avg_range_pct = np.mean(range_pcts)
+
+            # --- 3. БОКОВИК И ВОЗВРАТ К СРЕДНЕМУ ---
+            # Изменение цены за весь период (смотрим, нет ли сильного тренда)
+            total_trend_pct = abs(closes[-1] - closes[0]) / closes[0] * 100
+
+            # Ось "Штрих-кода" (средняя цена за окно)
+            axis = np.mean(closes)
             
-            curr_open = opens[-1]
-            curr_close = closes[-1]
-            curr_high = highs[-1]
-            curr_low = lows[-1]
-            curr_vol = volumes[-1]
+            # Считаем, сколько раз свечи пересекали или касались центральной оси
+            # Условие: минимум свечи ниже оси, а максимум - выше оси
+            touches = np.sum((lows <= axis) & (highs >= axis))
 
-            # 1. Отбрасываем красные свечи
-            if curr_close <= curr_open:
-                return {"passed": False, "score": -100.0, "reason": "red_candle"}
+            # --- 4. ПРОВЕРКА УСЛОВИЙ ---
+            passed = True
+            fail_reasons = []
 
-            # 2. Плотность тела свечи (отсеиваем длинные тени сверху)
-            candle_range = curr_high - curr_low
-            body_density = (curr_close - curr_low) / candle_range if candle_range > 0 else 1.0
+            if avg_body_ratio > self.max_body_ratio:
+                passed = False
+                fail_reasons.append(f"fat_bodies ({avg_body_ratio:.2f})")
+                
+            if avg_range_pct < self.min_range_pct:
+                passed = False
+                fail_reasons.append(f"narrow_range ({avg_range_pct:.2f}%)")
+                
+            if touches < self.min_crossings:
+                passed = False
+                fail_reasons.append(f"few_crossings ({touches})")
+                
+            if total_trend_pct > self.max_trend_pct:
+                passed = False
+                fail_reasons.append(f"trending ({total_trend_pct:.2f}%)")
 
-            if body_density < 0.5:
-                return {"passed": False, "score": -50.0, "reason": "huge_upper_wick"}
+            # --- 5. ОЦЕНКА (СКОРИНГ) ---
+            # Идеальный штрихкод: много касаний оси, тонкие тела (большие тени), хороший размах
+            # Чем больше score, тем лучше паттерн "штрихкод"
+            score = (1.0 - avg_body_ratio) * avg_range_pct * touches
 
-            # 3. RVOL (Relative Volume)
-            vol_mean = np.mean(hist_vol)
-            rvol = curr_vol / vol_mean if vol_mean > 0 else 0
-
-            # 4. Price Momentum (текущий рост в процентах)
-            current_return_pct = ((curr_close - curr_open) / curr_open) * 100
-
-            # 5. Бонус за микро-тренд
-            prev_return = closes[-2] - opens[-2]
-            trend_multiplier = 1.2 if prev_return > 0 else 1.0
-
-            # Итоговый Score
-            score = (rvol * current_return_pct * body_density) * trend_multiplier
-
-            passed_strict = (rvol > self.vol_z_threshold) and (current_return_pct > self.price_z_threshold)
+            if not passed:
+                score = -abs(score) - 100.0 # Отрицательный скор для мусора
 
             return {
-                "passed": passed_strict,
+                "passed": passed,
                 "score": float(score),
-                "rvol": float(rvol),
-                "return_pct": float(current_return_pct),
-                "body_density": float(body_density),
-                "reason": "OK"
+                "avg_body_ratio": float(avg_body_ratio),
+                "avg_range_pct": float(avg_range_pct),
+                "touches": int(touches),
+                "trend_pct": float(total_trend_pct),
+                "reason": "barcode_detected" if passed else ", ".join(fail_reasons)
             }
 
         except Exception as e:

@@ -20,9 +20,12 @@ class AppSection:
 class FilterSection:
     timeframe: str = "1m"
     lookback_candles: int = 120
-    vol_z_threshold: float = 2.5
-    price_z_threshold: float = 2.0
-    min_turnover_usdt: float = 5000.0  # <-- Новый параметр ликвидности
+    min_turnover_usdt: float = 5000.0
+    # Настройки Barcode
+    max_body_ratio: float = 0.45   # Макс. доля тела свечи (0.45 = 45% тело, 55% тени)
+    min_range_pct: float = 0.30    # Мин. волатильность в свече (%)
+    min_crossings: int = 20        # Мин. количество пересечений центральной оси
+    max_trend_pct: float = 3.0     # Макс. отклонение цены за период (защита от тренда)
 
 @dataclass
 class AppConfig:
@@ -46,10 +49,12 @@ class ConfigLoader:
 
         filter_cfg = FilterSection(
             timeframe=str(filt_d.get("timeframe", "1m")).lower().strip(),
-            lookback_candles=max(20, int(filt_d.get("lookback_candles", 120))),
-            vol_z_threshold=float(filt_d.get("vol_z_threshold", 2.5)),
-            price_z_threshold=float(filt_d.get("price_z_threshold", 2.0)),
-            min_turnover_usdt=float(filt_d.get("min_turnover_usdt", 5000.0)) # <-- Читаем из конфига
+            lookback_candles=max(30, int(filt_d.get("lookback_candles", 120))),
+            min_turnover_usdt=float(filt_d.get("min_turnover_usdt", 5000.0)),
+            max_body_ratio=float(filt_d.get("max_body_ratio", 0.45)),
+            min_range_pct=float(filt_d.get("min_range_pct", 0.30)),
+            min_crossings=int(filt_d.get("min_crossings", 20)),
+            max_trend_pct=float(filt_d.get("max_trend_pct", 3.0))
         )
 
         return AppConfig(app=app_cfg, filter=filter_cfg)
