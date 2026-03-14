@@ -4,13 +4,13 @@ from pathlib import Path
 from c_log import UnifiedLogger
 from config import load_config, CFG_PATH
 from scanner_engine import CandidateScanner
+from clicker import main as clicker_main
 
 logger = UnifiedLogger("main")
 
 # Надежный абсолютный путь к файлу (создастся в папке со скриптом)
 ROOT_DIR = Path(__file__).resolve().parent
 RESULTS_FILE = ROOT_DIR / "target_links.txt"
-SCREEN_ONCE = True  # Если True, сканирует один раз и выходит. Если False, работает в бесконечном цикле.
 
 async def run_scanner_cycle(cfg_path: Path):
     cfg = load_config(cfg_path)
@@ -53,10 +53,13 @@ async def main():
             cfg = load_config(CFG_PATH) 
             await run_scanner_cycle(CFG_PATH)
 
-            if SCREEN_ONCE:
+            if cfg.app.screen_once:
                 logger.info("Режим однократного сканирования. Выход.")
                 break
-            
+
+            if not cfg.app.is_click:
+                clicker_main()
+
             logger.info(f"Ожидание {cfg.app.scan_interval_sec} сек. до следующего скана...\n{'-'*40}")
             await asyncio.sleep(cfg.app.scan_interval_sec)
             

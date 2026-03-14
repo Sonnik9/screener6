@@ -67,50 +67,47 @@ class CandidateScanner:
             }
         except Exception as e:
             return {"symbol": symbol, "passed": False, "score": -999.0, "metrics": {}, "fail_reasons": [str(e)]}
-
+            
     async def scan(self) -> Dict[str, Any]:
-            started_at_ms = int(time.time() * 1000)
-            
-            # 1. Получаем список символов и их реальные 24h объемы в USDT
-            all_symbols = sorted(await self.symbols_api.get_perp_symbols(quote=self.quote, limit=self.max_symbols or None))
-            turnovers_24h = await self._get_24h_turnovers()
-            
-            # 2. МГНОВЕННЫЙ ПРЕДФИЛЬТР (отсекаем мусор до запроса свечей)
-            valid_symbols = []
-            for sym in all_symbols:
-                vol = turnovers_24h.get(sym, 0)
-                if self.cfg.filter.daily_volume_min_usdt <= vol <= self.cfg.filter.daily_volume_max_usdt:
-                    valid_symbols.append((sym, vol))
+                started_at_ms = int(time.time() * 1000)
+                
+                all_symbols = sorted(await self.symbols_api.get_perp_symbols(quote=self.quote, limit=self.max_symbols or None))
+                turnovers_24h = await self._get_24h_turnovers()
+                
+                valid_symbols = []
+                for sym in all_symbols:
+                    vol = turnovers_24h.get(sym, 0)
+                    if self.cfg.filter.daily_volume_min_usdt <= vol <= self.cfg.filter.daily_volume_max_usdt:
+                        valid_symbols.append((sym, vol))
 
-            logger.info(f"Символов: {len(all_symbols)} -> После фильтра объема: {len(valid_symbols)}. Сканируем...")
+                logger.info(f"Символов: {len(all_symbols)} -> После фильтра объема: {len(valid_symbols)}. Сканируем...")
 
-            sem = asyncio.Semaphore(self.concurrent_symbols)
-            async def worker(sym_data) -> Dict[str, Any]:
-                sym, vol = sym_data
-                async with sem:
-                    return await self._analyze_symbol(sym, vol)
+                sem = asyncio.Semaphore(self.concurrent_symbols)
+                async def worker(sym_data) -> Dict[str, Any]:
+                    sym, vol = sym_data
+                    async with sem:
+                        return await self._analyze_symbol(sym, vol)
 
-            rows = await asyncio.gather(*(worker(s) for s in valid_symbols))
+                rows = await asyncio.gather(*(worker(s) for s in valid_symbols))
 
-            # Оставляем только те, что набрали больше 0 баллов
-            valid_rows = [r for r in rows if r.get("score", -999) > 0]
-            valid_rows.sort(key=lambda x: x["score"], reverse=True)
-            candidates = valid_rows[:self.top_n]
-            perfect_matches = len([r for r in valid_rows if r.get("passed", False)])
+                valid_rows = [r for r in rows if r.get("score", -999) > 0]
+                valid_rows.sort(key=lambda x: x["score"], reverse=True)
+                candidates = valid_rows[:self.top_n]
+                perfect_matches = len([r for r in valid_rows if r.get("passed", False)])
 
-            if candidates:
-                top_str = ", ".join([
-                    f"{c['symbol']} (Sc:{c['score']:.0f}, Vol:{c['metrics'].get('vol_24h_m', 0):.1f}M, "
-                    f"Don:{c['metrics'].get('donchian_pct', 0):.1f}%)" 
-                    for c in candidates[:5]
-                ])
-                logger.info(f"🔥 Лидеры: {top_str}")
+                if candidates:
+                    top_str = ", ".join([
+                        f"{c['symbol']} (Sc:{c['score']:.0f}, Vol:{c['metrics'].get('vol_24h_m', 0):.1f}M, "
+                        f"Don:{c['metrics'].get('donchian_pct', 0):.1f}%, Trend:{c['metrics'].get('trend_pct', 0):.1f}%)" 
+                        for c in candidates[:5]
+                    ])
+                    logger.info(f"🔥 Лидеры: {top_str}")
 
-            return {
-                "generated_at_ms": int(time.time() * 1000),
-                "scan_elapsed_ms": int(time.time() * 1000) - started_at_ms,
-                "symbols_total": len(all_symbols),
-                "symbols_passed_strict": perfect_matches,
-                "candidate_symbols": [x["symbol"] for x in candidates], 
-                "candidates": candidates,
-            }
+                return {
+                    "generated_at_ms": int(time.time() * 1000),
+                    "scan_elapsed_ms": int(time.time() * 1000) - started_at_ms,
+                    "symbols_total": len(all_symbols),
+                    "symbols_passed_strict": perfect_matches,
+                    "candidate_symbols": [x["symbol"] for x in candidates], 
+                    "candidates": candidates,
+                }

@@ -11,3 +11,9 @@
 2026-03-14 21:05:51 | INFO | scanner_engine | Запуск сканирования... Всего монет: 545
 2026-03-14 21:07:57 | INFO | scanner_engine | Найдено приближенных монет: 148 (идеальных: 5). Отбираем ТОП-10.
 2026-03-14 21:07:57 | INFO | scanner_engine | 🔥 Лидеры: BLESSUSDTM (Скор:71.7, Wicks:72%, Don:0.8%), NIGHTUSDTM (Скор:62.2, Wicks:63%, Don:0.3%), JELLYJELLYUSDTM (Скор:61.8, Wicks:63%, Don:0.2%), BANANAS31USDTM (Скор:56.7, Wicks:57%, Don:0.6%), TRUTHUSDTM (Скор:53.4, Wicks:55%, Don:0.2%)
+2026-03-14 21:36:26 | INFO | scanner_engine | Сканнер: tf=1m, lookback=40, алгоритм=Barcode_V3 (Fast Ticker)
+2026-03-14 21:36:27 | INFO | scanner_engine | Символов: 545 -> После фильтра объема: 228. Сканируем...
+2026-03-14 21:37:04 | INFO | scanner_engine | 🔥 Лидеры: CUSDTM (Sc:50, Vol:3.6M, Don:3.1%), PROMUSDTM (Sc:42, Vol:3.4M, Don:0.4%), MYXUSDTM (Sc:40, Vol:4.2M, Don:0.5%), MIRAUSDTM (Sc:39, Vol:1.8M, Don:0.3%), LIGHTUSDTM (Sc:39, Vol:8.8M, Don:0.2%)
+2026-03-14 21:41:22 | INFO | scanner_engine | Сканнер: tf=1m, lookback=30, алгоритм=Barcode_V3 (Fast Ticker)
+2026-03-14 21:41:23 | INFO | scanner_engine | Символов: 545 -> После фильтра объема: 228. Сканируем...
+2026-03-14 21:42:00 | INFO | scanner_engine | 🔥 Лидеры: PROMUSDTM (Sc:33, Vol:3.4M, Don:0.4%), CUSDTM (Sc:30, Vol:3.7M, Don:2.5%), MYXUSDTM (Sc:23, Vol:4.3M, Don:0.5%), NUMIUSDTM (Sc:20, Vol:1.3M, Don:0.6%), COLLECTUSDTM (Sc:17, Vol:2.2M, Don:0.6%)
