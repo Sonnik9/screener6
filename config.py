@@ -21,19 +21,15 @@ class FilterSection:
     timeframe: str = "1m"
     lookback_candles: int = 60
     
-    # 1. Предфильтр
-    daily_volume_days: int = 3
-    daily_volume_min_usdt: float = 500000.0
-    daily_volume_max_usdt: float = 7000000.0
+    daily_volume_min_usdt: float = 2000000.0
+    daily_volume_max_usdt: float = 10000000000.0
     
-    # 2. Donchian Channel
-    donchian_min_pct: float = 1.0
-    donchian_max_pct: float = 7.0
+    donchian_min_pct: float = 0.5
+    donchian_max_pct: float = 10.0
     
-    # 3. Wicks 
-    wick_ratio_threshold: float = 3.0
+    max_body_ratio: float = 0.35
     candle_range_min_pct: float = 0.15
-    min_valid_candles_pct: float = 50.0
+    min_valid_candles_pct: float = 20.0
 
 @dataclass
 class AppConfig:
@@ -58,14 +54,13 @@ class ConfigLoader:
         filter_cfg = FilterSection(
             timeframe=str(filt_d.get("timeframe", "1m")).lower().strip(),
             lookback_candles=max(10, int(filt_d.get("lookback_candles", 60))),
-            daily_volume_days=max(1, int(filt_d.get("daily_volume_days", 3))),
-            daily_volume_min_usdt=float(filt_d.get("daily_volume_min_usdt", 500000.0)),
-            daily_volume_max_usdt=float(filt_d.get("daily_volume_max_usdt", 7000000.0)),
-            donchian_min_pct=float(filt_d.get("donchian_min_pct", 1.0)),
-            donchian_max_pct=float(filt_d.get("donchian_max_pct", 7.0)),
-            wick_ratio_threshold=float(filt_d.get("wick_ratio_threshold", 3.0)),
+            daily_volume_min_usdt=float(filt_d.get("daily_volume_min_usdt", 2000000.0)),
+            daily_volume_max_usdt=float(filt_d.get("daily_volume_max_usdt", 10000000000.0)),
+            donchian_min_pct=float(filt_d.get("donchian_min_pct", 0.5)),
+            donchian_max_pct=float(filt_d.get("donchian_max_pct", 10.0)),
+            max_body_ratio=float(filt_d.get("max_body_ratio", 0.35)),
             candle_range_min_pct=float(filt_d.get("candle_range_min_pct", 0.15)),
-            min_valid_candles_pct=float(filt_d.get("min_valid_candles_pct", 50.0))
+            min_valid_candles_pct=float(filt_d.get("min_valid_candles_pct", 20.0))
         )
 
         return AppConfig(app=app_cfg, filter=filter_cfg)

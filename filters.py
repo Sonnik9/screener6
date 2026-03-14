@@ -7,7 +7,7 @@ class CalculatingEngine:
         self.donchian_min = float(filter_cfg.donchian_min_pct)
         self.donchian_max = float(filter_cfg.donchian_max_pct)
         
-        self.wick_ratio_threshold = float(filter_cfg.wick_ratio_threshold)
+        self.max_body_ratio = float(filter_cfg.max_body_ratio)
         self.candle_range_min_pct = float(filter_cfg.candle_range_min_pct)
         self.min_valid_candles_pct = float(filter_cfg.min_valid_candles_pct)
 
@@ -23,9 +23,15 @@ class CalculatingEngine:
             highs = np.array([get_val(k, 'high', 3) for k in candles])
             lows = np.array([get_val(k, 'low', 4) for k in candles])
 
-            # ==========================================
-            # ПУНКТ 2. DONCHIAN (Отношение средних Хаев и Лоев)
-            # ==========================================
+            # --- ЗАЩИТА ОТ ДЫРЯВЫХ ГРАФИКОВ (неликвида) ---
+            ranges = highs - lows
+            bodies = np.abs(opens - closes)
+            
+            zero_candles_count = np.sum(ranges == 0)
+            if (zero_candles_count / len(candles)) > 0.1:  # Если больше 10% свечей - мертвые точки
+                return {"passed": False, "score": -50.0, "reason": "dead_chart_gaps"}
+
+            # --- 1. DONCHIAN ---
             avg_high = np.mean(highs)
             avg_low = np.mean(lows)
             
@@ -34,57 +40,44 @@ class CalculatingEngine:
                 
             donchian_pct = ((avg_high - avg_low) / avg_low) * 100.0
             
-            if not (self.donchian_min <= donchian_pct <= self.donchian_max):
-                return {"passed": False, "score": -50.0, "reason": f"donchian_out_of_range ({donchian_pct:.2f}%)"}
+            donchian_penalty = 0.0
+            if donchian_pct < self.donchian_min:
+                donchian_penalty = (self.donchian_min - donchian_pct) * 5.0
+            elif donchian_pct > self.donchian_max:
+                donchian_penalty = (donchian_pct - self.donchian_max) * 5.0
 
-            # ==========================================
-            # ПУНКТ 3. WICKS ИНДИКАТОР И ПРОГРЕСС
-            # ==========================================
-            ranges = highs - lows
-            bodies = np.abs(opens - closes)
+            # --- 2. ДОДЖИ-МАТЕМАТИКА (WICKS) ---
+            # Избегаем деления на ноль. Если range=0, ставим мизерное число
+            safe_ranges = np.where(ranges == 0, 1e-8, ranges)
             
-            # Маска для защиты от деления на ноль: хай-лой > 0 и опен-клоз > 0
-            valid_math_mask = (ranges > 0) & (bodies > 0)
+            # Доля тела от всей свечи. (Меньше = длиннее тени. Если Доджи, то 0. Идеально!)
+            body_ratios = bodies / safe_ranges
             
-            # Расчет пропорции теней к телу. Изначально нули.
-            wick_ratios = np.zeros_like(ranges)
-            wick_ratios[valid_math_mask] = ranges[valid_math_mask] / bodies[valid_math_mask]
-            
-            # Расчет размера самой свечи (High-Low) относительно её цены (Low) в %
+            # Размах свечи в % от цены
             lows_safe = np.where(lows == 0, 1e-8, lows)
             candle_pcts = (ranges / lows_safe) * 100.0
             
-            # Условия успешной свечи:
-            # 1. Пропорция (Тень/Тело) > wick_ratio_threshold
-            # 2. Размер самой свечи (High-Low в %) > candle_range_min_pct
-            pass_mask = (wick_ratios > self.wick_ratio_threshold) & (candle_pcts > self.candle_range_min_pct)
+            # Условие: Тело маленькое (<= max_body_ratio) И размах самой свечи больше минимума
+            pass_mask = (body_ratios <= self.max_body_ratio) & (candle_pcts >= self.candle_range_min_pct)
             
             valid_candles_count = int(np.sum(pass_mask))
             total_candles = len(candles)
             
-            # Итоговый прогресс (сколько % свечей оказались штрихами)
             valid_pct = (valid_candles_count / total_candles) * 100.0
             
-            if valid_pct < self.min_valid_candles_pct:
-                return {
-                    "passed": False, 
-                    "score": float(valid_pct), 
-                    "reason": f"low_wicks_progress ({valid_pct:.1f}% < {self.min_valid_candles_pct}%)"
-                }
+            # --- 3. ИТОГОВЫЙ SCORE ---
+            score = float(valid_pct - donchian_penalty)
+            passed = (valid_pct >= self.min_valid_candles_pct) and (donchian_penalty == 0)
 
-            # ==========================================
-            # УСПЕХ: Скоринг = процент хороших свечей (чем больше штрихов, тем выше в топе)
-            # ==========================================
             return {
-                "passed": True,
-                "score": float(valid_pct),
+                "passed": passed,
+                "score": score,
                 "metrics": {
                     "donchian_pct": float(donchian_pct),
                     "valid_wicks_pct": float(valid_pct),
-                    "valid_candles_count": valid_candles_count,
-                    "total_candles": total_candles
+                    "donchian_penalty": float(donchian_penalty)
                 },
-                "reason": "barcode_v2_matched"
+                "reason": "perfect" if passed else "soft_match"
             }
 
         except Exception as e:

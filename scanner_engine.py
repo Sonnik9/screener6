@@ -1,6 +1,7 @@
 from __future__ import annotations
 import asyncio
 import time
+import aiohttp
 from typing import Any, Dict
 from config import AppConfig
 from filters import CalculatingEngine
@@ -26,7 +27,7 @@ class CandidateScanner:
             rate_limit_backoff_sec=2.0,
         )
         self.calc = CalculatingEngine(self.cfg.filter)
-        logger.info(f"Сканнер инициализирован: tf={self.timeframe}, lookback={self.lookback}, алгоритм=Barcode_V2 (Дневной объем + Wicks)")
+        logger.info(f"Сканнер: tf={self.timeframe}, lookback={self.lookback}, алгоритм=Barcode_V3 (Fast Ticker)")
 
     async def aclose(self) -> None:
         await self.symbols_api.aclose()
@@ -37,46 +38,31 @@ class CandidateScanner:
         mapping = {"1m": 1, "3m": 3, "5m": 5, "15m": 15, "30m": 30, "1h": 60, "2h": 120, "4h": 240, "8h": 480, "1d": 1440}
         return mapping.get(str(tf).lower().strip(), 1)
 
-    async def _analyze_symbol(self, symbol: str) -> Dict[str, Any]:
+    async def _get_24h_turnovers(self) -> Dict[str, float]:
+        """Получаем 24h Turnover (USDT) по всем фьючерсам за 1 быстрый запрос"""
         try:
-            # --- ШАГ 1: ПРЕДФИЛЬТР ДНЕВНОГО ОБЪЕМА (отдельный запрос) ---
-            daily_candles = await self.klines_api.get_klines(
-                symbol=symbol,
-                granularity_min=1440, # Дневные свечи
-                limit=self.cfg.filter.daily_volume_days,
-            )
-            
-            if not daily_candles:
-                return {"symbol": symbol, "passed": False, "score": -100.0, "fail_reasons": ["no_daily_data"]}
+            async with aiohttp.ClientSession() as session:
+                async with session.get("https://api-futures.kucoin.com/api/v1/contracts/active") as resp:
+                    data = await resp.json()
+                    turnovers = {}
+                    for item in data.get("data", []):
+                        turnovers[item["symbol"]] = float(item.get("turnoverOf24h", 0))
+                    return turnovers
+        except Exception as e:
+            logger.error(f"Ошибка получения 24h объемов: {e}")
+            return {}
 
-            # Считаем средний объем в USDT: Объем(монеты) * Close. В KuCoin k[2]=close, k[5]=volume
-            turnovers = []
-            for k in daily_candles:
-                close = float(k[2] if isinstance(k, (list, tuple)) else getattr(k, 'close', 0))
-                vol = float(k[5] if isinstance(k, (list, tuple)) else getattr(k, 'volume', 0))
-                turnovers.append(close * vol)
-            
-            avg_daily_vol = sum(turnovers) / len(turnovers) if turnovers else 0
-            
-            if not (self.cfg.filter.daily_volume_min_usdt <= avg_daily_vol <= self.cfg.filter.daily_volume_max_usdt):
-                return {
-                    "symbol": symbol, "passed": False, "score": -10.0, 
-                    "fail_reasons": [f"daily_vol_skip ({avg_daily_vol/1e6:.1f}M)"]
-                }
-
-            # --- ШАГ 2: ОСНОВНОЙ ТАЙМФРЕЙМ (если прошел дневной префильтр) ---
+    async def _analyze_symbol(self, symbol: str, vol_24h: float) -> Dict[str, Any]:
+        try:
             candles = await self.klines_api.get_klines(
-                symbol=symbol,
-                granularity_min=self._tf_to_minutes(self.timeframe),
-                limit=self.lookback,
+                symbol=symbol, granularity_min=self._tf_to_minutes(self.timeframe), limit=self.lookback
             )
-            
             analysis = self.calc.analyze(candles)
             return {
                 "symbol": symbol,
                 "passed": analysis["passed"],
                 "score": analysis["score"],
-                "metrics": analysis.get("metrics", {}),
+                "metrics": {**analysis.get("metrics", {}), "vol_24h_m": vol_24h / 1e6},
                 "fail_reasons": [analysis["reason"]] if not analysis["passed"] else []
             }
         except Exception as e:
@@ -84,27 +70,37 @@ class CandidateScanner:
 
     async def scan(self) -> Dict[str, Any]:
             started_at_ms = int(time.time() * 1000)
-            symbols = sorted(await self.symbols_api.get_perp_symbols(quote=self.quote, limit=self.max_symbols or None))
-            sem = asyncio.Semaphore(self.concurrent_symbols)
-
-            async def worker(sym: str) -> Dict[str, Any]:
-                async with sem:
-                    return await self._analyze_symbol(sym)
-
-            logger.info(f"Запуск сканирования... Всего монет: {len(symbols)}")
-            rows = await asyncio.gather(*(worker(s) for s in symbols))
-
-            # Оставляем только те, что прошли фильтры
-            valid_rows = [r for r in rows if r.get("passed", False)]
             
-            # Сортируем: на 1 месте те, у которых больше всего "хороших" свечей (score = %)
+            # 1. Получаем список символов и их реальные 24h объемы в USDT
+            all_symbols = sorted(await self.symbols_api.get_perp_symbols(quote=self.quote, limit=self.max_symbols or None))
+            turnovers_24h = await self._get_24h_turnovers()
+            
+            # 2. МГНОВЕННЫЙ ПРЕДФИЛЬТР (отсекаем мусор до запроса свечей)
+            valid_symbols = []
+            for sym in all_symbols:
+                vol = turnovers_24h.get(sym, 0)
+                if self.cfg.filter.daily_volume_min_usdt <= vol <= self.cfg.filter.daily_volume_max_usdt:
+                    valid_symbols.append((sym, vol))
+
+            logger.info(f"Символов: {len(all_symbols)} -> После фильтра объема: {len(valid_symbols)}. Сканируем...")
+
+            sem = asyncio.Semaphore(self.concurrent_symbols)
+            async def worker(sym_data) -> Dict[str, Any]:
+                sym, vol = sym_data
+                async with sem:
+                    return await self._analyze_symbol(sym, vol)
+
+            rows = await asyncio.gather(*(worker(s) for s in valid_symbols))
+
+            # Оставляем только те, что набрали больше 0 баллов
+            valid_rows = [r for r in rows if r.get("score", -999) > 0]
             valid_rows.sort(key=lambda x: x["score"], reverse=True)
             candidates = valid_rows[:self.top_n]
+            perfect_matches = len([r for r in valid_rows if r.get("passed", False)])
 
-            logger.info(f"Найдено подходящих монет: {len(valid_rows)}. Отбираем ТОП-{len(candidates)}.")
             if candidates:
                 top_str = ", ".join([
-                    f"{c['symbol']} (Prog:{c['metrics'].get('valid_wicks_pct', 0):.0f}%, "
+                    f"{c['symbol']} (Sc:{c['score']:.0f}, Vol:{c['metrics'].get('vol_24h_m', 0):.1f}M, "
                     f"Don:{c['metrics'].get('donchian_pct', 0):.1f}%)" 
                     for c in candidates[:5]
                 ])
@@ -113,8 +109,8 @@ class CandidateScanner:
             return {
                 "generated_at_ms": int(time.time() * 1000),
                 "scan_elapsed_ms": int(time.time() * 1000) - started_at_ms,
-                "symbols_total": len(symbols),
-                "symbols_passed_strict": len(valid_rows),
+                "symbols_total": len(all_symbols),
+                "symbols_passed_strict": perfect_matches,
                 "candidate_symbols": [x["symbol"] for x in candidates], 
                 "candidates": candidates,
             }

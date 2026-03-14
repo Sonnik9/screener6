@@ -7,3 +7,7 @@
 2026-03-14 20:51:19 | INFO | scanner_engine | Сканнер инициализирован: tf=1m, lookback=60, алгоритм=Barcode_V2 (Дневной объем + Wicks)
 2026-03-14 20:51:20 | INFO | scanner_engine | Запуск сканирования... Всего монет: 545
 2026-03-14 20:53:03 | INFO | scanner_engine | Найдено подходящих монет: 0. Отбираем ТОП-0.
+2026-03-14 21:05:50 | INFO | scanner_engine | Сканнер: tf=1m, lookback=60, алгоритм=Barcode_V2 (Soft + Score)
+2026-03-14 21:05:51 | INFO | scanner_engine | Запуск сканирования... Всего монет: 545
+2026-03-14 21:07:57 | INFO | scanner_engine | Найдено приближенных монет: 148 (идеальных: 5). Отбираем ТОП-10.
+2026-03-14 21:07:57 | INFO | scanner_engine | 🔥 Лидеры: BLESSUSDTM (Скор:71.7, Wicks:72%, Don:0.8%), NIGHTUSDTM (Скор:62.2, Wicks:63%, Don:0.3%), JELLYJELLYUSDTM (Скор:61.8, Wicks:63%, Don:0.2%), BANANAS31USDTM (Скор:56.7, Wicks:57%, Don:0.6%), TRUTHUSDTM (Скор:53.4, Wicks:55%, Don:0.2%)
