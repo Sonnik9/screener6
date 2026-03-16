@@ -77,3 +77,6 @@
 2026-03-16 19:45:45 | INFO | scanner_engine | Сканнер: tf=1m, lookback=60, алгоритм=Barcode_v12 (Safe API)
 2026-03-16 19:45:45 | INFO | scanner_engine | Символов: 547 -> После фильтра объема: 201.
 2026-03-16 19:46:17 | INFO | scanner_engine | 🔥 Лидеры (Строгих: 0): TRIAUSDTM (Sc:17, Wicks:17%, Don:1.0%, Pen:0%), BBUSDTM (Sc:10, Wicks:10%, Don:1.0%, Pen:0%)
+2026-03-16 20:24:58 | INFO | scanner_engine | Сканнер: tf=1m, lookback=50, алгоритм=Barcode_v12 (Safe API)
+2026-03-16 20:25:00 | INFO | scanner_engine | Символов: 547 -> После фильтра объема: 198.
+2026-03-16 20:25:31 | INFO | scanner_engine | 🔥 Лидеры (Строгих: 0): TRIAUSDTM (Sc:30, Wicks:30%, Don:1.4%, Pen:0%)
