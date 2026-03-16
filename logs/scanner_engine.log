@@ -54,3 +54,9 @@
 2026-03-16 17:19:45 | INFO | scanner_engine | Сканнер: tf=1m, lookback=30, алгоритм=Classic_Base (Vol Pre-filter + Average Donchian + Wicks)
 2026-03-16 17:19:56 | INFO | scanner_engine | Сканнер: tf=1m, lookback=30, алгоритм=Classic_Base (Vol Pre-filter + Average Donchian + Wicks)
 2026-03-16 17:25:10 | INFO | scanner_engine | Сканнер: tf=1m, lookback=30, алгоритм=Barcode_v12 (Модульный)
+2026-03-16 18:08:32 | INFO | scanner_engine | Сканнер: tf=1m, lookback=30, алгоритм=Barcode_v12 (Safe API)
+2026-03-16 18:08:33 | INFO | scanner_engine | Символов: 547 -> После фильтра объема: 202.
+2026-03-16 18:11:00 | INFO | scanner_engine | Сканнер: tf=1m, lookback=30, алгоритм=Barcode_v12 (Safe API)
+2026-03-16 18:11:01 | INFO | scanner_engine | Символов: 547 -> После фильтра объема: 202.
+2026-03-16 18:13:28 | INFO | scanner_engine | Сканнер: tf=1m, lookback=30, алгоритм=Barcode_v12 (Safe API)
+2026-03-16 18:13:29 | INFO | scanner_engine | Символов: 547 -> После фильтра объема: 202.

@@ -1,0 +1,7 @@
+2026-03-16 18:08:37 | ERROR | kucoin_client | API отвал после 4 попыток: /api/v1/kline | Ошибка: 404, message='Not Found', url='https://api-futures.kucoin.com/api/v1/kline?symbol=10000SATSUSDTM&granularity=1'
+2026-03-16 18:08:37 | ERROR | kucoin_client | API отвал после 4 попыток: /api/v1/kline | Ошибка: 404, message='Not Found', url='https://api-futures.kucoin.com/api/v1/kline?symbol=4USDTM&granularity=1'
+2026-03-16 18:08:38 | ERROR | kucoin_client | API отвал после 4 попыток: /api/v1/kline | Ошибка: 404, message='Not Found', url='https://api-futures.kucoin.com/api/v1/kline?symbol=A2ZUSDTM&granularity=1'
+2026-03-16 18:08:38 | ERROR | kucoin_client | API отвал после 4 попыток: /api/v1/kline | Ошибка: 404, message='Not Found', url='https://api-futures.kucoin.com/api/v1/kline?symbol=AERGOUSDTM&granularity=1'
+2026-03-16 18:08:38 | ERROR | kucoin_client | API отвал после 4 попыток: /api/v1/kline | Ошибка: 404, message='Not Found', url='https://api-futures.kucoin.com/api/v1/kline?symbol=AGTUSDTM&granularity=1'
+2026-03-16 18:08:41 | ERROR | kucoin_client | API отвал после 4 попыток: /api/v1/kline | Ошибка: 404, message='Not Found', url='https://api-futures.kucoin.com/api/v1/kline?symbol=AKEUSDTM&granularity=1'
+2026-03-16 18:08:42 | ERROR | kucoin_client | API отвал после 4 попыток: /api/v1/kline | Ошибка: 404, message='Not Found', url='https://api-futures.kucoin.com/api/v1/kline?symbol=ALCHUSDTM&granularity=1'

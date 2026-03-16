@@ -1,6 +1,5 @@
-from __future__ import annotations
 from typing import List, Any
-from .client import KucoinBaseClient
+from KUCOIN.client import KucoinBaseClient
 
 class KucoinKlines(KucoinBaseClient):
     async def get_klines(
@@ -16,16 +15,15 @@ class KucoinKlines(KucoinBaseClient):
             "granularity": granularity_min
         }
         
-        # Пробрасываем исторические периоды, если они заданы
         if from_ms is not None:
             params["from"] = from_ms
         if to_ms is not None:
             params["to"] = to_ms
             
-        res = await self._request("GET", "/api/v1/kline", params=params)
+        # ИСПРАВЛЕННЫЙ ЭНДПОИНТ: /api/v1/kline/query (для фьючерсов)
+        res = await self._request("GET", "/api/v1/kline/query", params=params)
         data = res.get("data", []) if isinstance(res, dict) else res
         
-        # Ограничиваем выдачу, если это обычный запрос (не исторический скрапинг)
         if limit and not from_ms and not to_ms:
             data = data[:limit]
             
