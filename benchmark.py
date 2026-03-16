@@ -1,16 +1,18 @@
 import json
 import asyncio
 import itertools
-import aiohttp
 from datetime import datetime
 from pathlib import Path
 from c_log import UnifiedLogger
 from config import load_config, CFG_PATH
 from filters import CalculatingEngine
+from KUCOIN.klines import KucoinKlines
 
 logger = UnifiedLogger("benchmark")
 
 async def fetch_historical_klines(symbol: str, start_str: str, end_str: str) -> list:
+    # ИСПОЛЬЗУЕМ НАШ ЗАКОННЫЙ КЛИЕНТ!
+    api = KucoinKlines()
     try:
         dt_start = datetime.strptime(start_str, "%Y-%m-%d %H:%M:%S")
         dt_end = datetime.strptime(end_str, "%Y-%m-%d %H:%M:%S")
@@ -18,15 +20,17 @@ async def fetch_historical_klines(symbol: str, start_str: str, end_str: str) -> 
         from_ms = int(dt_start.timestamp() * 1000)
         to_ms = int(dt_end.timestamp() * 1000)
         
-        url = f"https://api-futures.kucoin.com/api/v1/kline?symbol={symbol}&granularity=1&from={from_ms}&to={to_ms}"
-        
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url) as resp:
-                data = await resp.json()
-                return data.get("data", [])
+        return await api.get_klines(
+            symbol=symbol,
+            granularity_min=1, # 1m TF
+            from_ms=from_ms,
+            to_ms=to_ms
+        )
     except Exception as e:
-        logger.error(f"Ошибка загрузки истории: {e}")
+        logger.error(f"Ошибка загрузки истории через клиент: {e}")
         return []
+    finally:
+        await api.aclose()
 
 async def run_autotune(cfg_path: str = CFG_PATH):
     cfg = load_config(cfg_path)
@@ -45,7 +49,7 @@ async def run_autotune(cfg_path: str = CFG_PATH):
         except: pass
 
     if not candles:
-        logger.info("⚡ БЕНЧМАРК: Кэш пуст. Скачиваем исторические свечи...")
+        logger.info("⚡ БЕНЧМАРК: Кэш пуст. Скачиваем исторические свечи через API клиент...")
         candles = await fetch_historical_klines(
             cfg.benchmark.target_symbol, 
             cfg.benchmark.start_time, 

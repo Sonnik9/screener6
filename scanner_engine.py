@@ -1,7 +1,6 @@
 from __future__ import annotations
 import asyncio
 import time
-import aiohttp
 from typing import Any, Dict
 from config import AppConfig
 from filters import CalculatingEngine
@@ -27,7 +26,7 @@ class CandidateScanner:
             rate_limit_backoff_sec=2.0,
         )
         self.calc = CalculatingEngine(self.cfg.filter)
-        logger.info(f"Сканнер: tf={self.timeframe}, lookback={self.lookback}, алгоритм=Barcode_v12 (Модульный)")
+        logger.info(f"Сканнер: tf={self.timeframe}, lookback={self.lookback}, алгоритм=Barcode_v12 (Safe API)")
 
     async def aclose(self) -> None:
         await self.symbols_api.aclose()
@@ -37,23 +36,6 @@ class CandidateScanner:
     def _tf_to_minutes(tf: str) -> int:
         mapping = {"1m": 1, "3m": 3, "5m": 5, "15m": 15, "30m": 30, "1h": 60, "2h": 120, "4h": 240, "8h": 480, "1d": 1440}
         return mapping.get(str(tf).lower().strip(), 1)
-
-    async def _get_24h_turnovers(self) -> Dict[str, float]:
-        """ ПУНКТ 1: Запрашиваем официальный Turnover в USDT """
-        try:
-            url = "https://api-futures.kucoin.com/api/v1/contracts/active"
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url) as resp:
-                    data = await resp.json()
-                    turnovers = {}
-                    for item in data.get("data", []):
-                        sym = item.get("symbol", "")
-                        vol_usdt = float(item.get("turnoverOf24h", 0.0))
-                        turnovers[sym] = vol_usdt
-                    return turnovers
-        except Exception as e:
-            logger.error(f"Ошибка получения объемов: {e}")
-            return {}
 
     async def _analyze_symbol(self, symbol: str, vol_24h: float) -> Dict[str, Any]:
         try:
@@ -75,9 +57,14 @@ class CandidateScanner:
             started_at_ms = int(time.time() * 1000)
             
             all_symbols = sorted(await self.symbols_api.get_perp_symbols(quote=self.quote, limit=self.max_symbols or None))
-            turnovers_24h = await self._get_24h_turnovers()
             
-            # Предфильтр по дневному объему (теперь проверяет флаг enable)
+            # ЧИСТЫЙ ВЫЗОВ ЧЕРЕЗ КЛИЕНТ (с ретраями и защитой)
+            try:
+                turnovers_24h = await self.symbols_api.get_24h_turnovers(quote=self.quote)
+            except Exception as e:
+                logger.error(f"Не удалось получить объемы после всех попыток: {e}")
+                turnovers_24h = {}
+            
             valid_symbols = []
             if self.cfg.filter.daily_volume.enable:
                 min_v = self.cfg.filter.daily_volume.min_usdt
@@ -86,7 +73,7 @@ class CandidateScanner:
                     vol = turnovers_24h.get(sym, 0)
                     if min_v <= vol <= max_v:
                         valid_symbols.append((sym, vol))
-                logger.info(f"Всего символов: {len(all_symbols)} -> После предфильтра объема: {len(valid_symbols)}.")
+                logger.info(f"Символов: {len(all_symbols)} -> После фильтра объема: {len(valid_symbols)}.")
             else:
                 valid_symbols = [(sym, turnovers_24h.get(sym, 0)) for sym in all_symbols]
                 logger.info(f"Предфильтр объема отключен. Сканируем все {len(all_symbols)} символов.")
@@ -99,7 +86,6 @@ class CandidateScanner:
 
             rows = await asyncio.gather(*(worker(s) for s in valid_symbols))
 
-            # Берем ВСЕ результаты, где Score > 0 для аппроксимации топа
             valid_rows = [r for r in rows if r.get("score", -999) > 0]
             valid_rows.sort(key=lambda x: x["score"], reverse=True)
             
