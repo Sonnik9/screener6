@@ -11,7 +11,7 @@ class AppSection:
 
 @dataclass
 class BenchmarkSection:
-    enable: bool; target_symbol: str; lookback_candles: int; cache_file: str
+    enable: bool; target_symbol: str; start_time: str; end_time: str; cache_file: str
 
 @dataclass
 class DailyVolumeConfig:
@@ -23,7 +23,7 @@ class DonchianConfig:
 
 @dataclass
 class WicksConfig:
-    enable: bool; ratio_threshold: float; min_valid_pct: float
+    enable: bool; ratio_threshold: float; candle_range_min_pct: float; min_valid_pct: float
 
 @dataclass
 class PenaltyConfig:
@@ -32,10 +32,7 @@ class PenaltyConfig:
 @dataclass
 class FilterSection:
     timeframe: str; lookback_candles: int
-    daily_volume: DailyVolumeConfig
-    donchian: DonchianConfig
-    wicks: WicksConfig
-    narrow_penalty: PenaltyConfig
+    daily_volume: DailyVolumeConfig; donchian: DonchianConfig; wicks: WicksConfig; narrow_penalty: PenaltyConfig
 
 @dataclass
 class AppConfig:
@@ -62,18 +59,18 @@ class ConfigLoader:
         bench_cfg = BenchmarkSection(
             enable=bool(bench_d.get("enable", False)),
             target_symbol=str(bench_d.get("target_symbol", "ZIGUSDTM")),
-            lookback_candles=int(bench_d.get("lookback_candles", 60)),
+            start_time=str(bench_d.get("start_time", "")),
+            end_time=str(bench_d.get("end_time", "")),
             cache_file=str(bench_d.get("cache_file", "benchmark_cache.json")),
         )
 
-        # Парсинг вложенных блоков фильтра
         def get_block(name, defaults):
             block = filt_d.get(name, {})
             return {k: type(v)(block.get(k, v)) for k, v in defaults.items()}
 
         vol_cfg = DailyVolumeConfig(**get_block("daily_volume", {"enable": True, "min_usdt": 500000.0, "max_usdt": 7000000.0}))
         don_cfg = DonchianConfig(**get_block("donchian", {"enable": True, "min_pct": 1.0, "max_pct": 7.0}))
-        wicks_cfg = WicksConfig(**get_block("wicks", {"enable": True, "ratio_threshold": 3.0, "min_valid_pct": 50.0}))
+        wicks_cfg = WicksConfig(**get_block("wicks", {"enable": True, "ratio_threshold": 3.0, "candle_range_min_pct": 0.15, "min_valid_pct": 50.0}))
         pen_cfg = PenaltyConfig(**get_block("narrow_penalty", {"enable": True, "min_range_pct": 0.15, "max_penalty_pct": 33.0}))
 
         filter_cfg = FilterSection(

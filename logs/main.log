@@ -176,3 +176,145 @@
 2026-03-16 18:38:20 | INFO | main | Запуск алгоритма Shtrih-Score...
 2026-03-16 18:38:53 | INFO | main | 🔥 НАЙДЕНО 10 МОНЕТ: ['CYSUSDTM', 'MYXUSDTM', 'GFUSDTM', 'IRUSDTM', 'ARCUSDTM', 'IRYSUSDTM', 'FRAXUSDTM', 'GUSDTM', 'AZTECUSDTM', 'MIRAUSDTM']
 2026-03-16 18:38:53 | INFO | main | Ссылки сохранены в файл: C:\Users\User\Desktop\HP_EliteBook_735\PROGECTS\SLAV\Kucoin\BRITVA_SOFTs\scriners\britva_screeners\britva9\screener6\target_links.txt. Запустите clicker.py вручную.
+2026-03-16 17:19:34 | INFO | main | Запуск скринера... Конфиг: cfg.json
+2026-03-16 17:19:34 | INFO | main | Загружены настройки:
+{
+    "app": {
+        "quote": "USDT",
+        "max_symbols": 0,
+        "concurrent_symbols": 5,
+        "top_n": 10,
+        "request_interval_ms": 150,
+        "scan_interval_sec": 600,
+        "screen_once": true,
+        "is_click": true
+    },
+    "benchmark": {
+        "enable": false,
+        "target_symbol": "WILDUSDTM",
+        "start_time": "2024-02-24 21:04:00",
+        "end_time": "2024-02-24 22:04:00",
+        "cache_file": "benchmark_cache.json"
+    },
+    "filter": {
+        "timeframe": "1m",
+        "lookback_candles": 30,
+        "daily_volume": {
+            "enable": true,
+            "min_usdt": 500000.0,
+            "max_usdt": 7000000.0
+        },
+        "donchian": {
+            "enable": true,
+            "min_pct": 1.0,
+            "max_pct": 7.0
+        },
+        "wicks": {
+            "enable": true,
+            "ratio_threshold": 3.0,
+            "candle_range_min_pct": 2.0,
+            "min_valid_pct": 50.0
+        },
+        "narrow_penalty": {
+            "enable": true,
+            "min_range_pct": 0.15,
+            "max_penalty_pct": 33.0
+        }
+    }
+}
+2026-03-16 17:19:34 | INFO | main | Запуск алгоритма Shtrih-Score...
+2026-03-16 17:19:35 | ERROR | main | Глобальная ошибка в цикле: 'FilterSection' object has no attribute 'daily_volume_min_usdt'
+2026-03-16 17:19:45 | INFO | main | Загружены настройки:
+{
+    "app": {
+        "quote": "USDT",
+        "max_symbols": 0,
+        "concurrent_symbols": 5,
+        "top_n": 10,
+        "request_interval_ms": 150,
+        "scan_interval_sec": 600,
+        "screen_once": true,
+        "is_click": true
+    },
+    "benchmark": {
+        "enable": false,
+        "target_symbol": "WILDUSDTM",
+        "start_time": "2024-02-24 21:04:00",
+        "end_time": "2024-02-24 22:04:00",
+        "cache_file": "benchmark_cache.json"
+    },
+    "filter": {
+        "timeframe": "1m",
+        "lookback_candles": 30,
+        "daily_volume": {
+            "enable": true,
+            "min_usdt": 500000.0,
+            "max_usdt": 7000000.0
+        },
+        "donchian": {
+            "enable": true,
+            "min_pct": 1.0,
+            "max_pct": 7.0
+        },
+        "wicks": {
+            "enable": true,
+            "ratio_threshold": 3.0,
+            "candle_range_min_pct": 2.0,
+            "min_valid_pct": 50.0
+        },
+        "narrow_penalty": {
+            "enable": true,
+            "min_range_pct": 0.15,
+            "max_penalty_pct": 33.0
+        }
+    }
+}
+2026-03-16 17:19:45 | INFO | main | Запуск алгоритма Shtrih-Score...
+2026-03-16 17:19:46 | ERROR | main | Глобальная ошибка в цикле: 'FilterSection' object has no attribute 'daily_volume_min_usdt'
+2026-03-16 17:19:56 | INFO | main | Загружены настройки:
+{
+    "app": {
+        "quote": "USDT",
+        "max_symbols": 0,
+        "concurrent_symbols": 5,
+        "top_n": 10,
+        "request_interval_ms": 150,
+        "scan_interval_sec": 600,
+        "screen_once": true,
+        "is_click": true
+    },
+    "benchmark": {
+        "enable": false,
+        "target_symbol": "WILDUSDTM",
+        "start_time": "2024-02-24 21:04:00",
+        "end_time": "2024-02-24 22:04:00",
+        "cache_file": "benchmark_cache.json"
+    },
+    "filter": {
+        "timeframe": "1m",
+        "lookback_candles": 30,
+        "daily_volume": {
+            "enable": true,
+            "min_usdt": 500000.0,
+            "max_usdt": 7000000.0
+        },
+        "donchian": {
+            "enable": true,
+            "min_pct": 1.0,
+            "max_pct": 7.0
+        },
+        "wicks": {
+            "enable": true,
+            "ratio_threshold": 3.0,
+            "candle_range_min_pct": 2.0,
+            "min_valid_pct": 50.0
+        },
+        "narrow_penalty": {
+            "enable": true,
+            "min_range_pct": 0.15,
+            "max_penalty_pct": 33.0
+        }
+    }
+}
+2026-03-16 17:19:56 | INFO | main | Запуск алгоритма Shtrih-Score...
+2026-03-16 17:19:57 | ERROR | main | Глобальная ошибка в цикле: 'FilterSection' object has no attribute 'daily_volume_min_usdt'

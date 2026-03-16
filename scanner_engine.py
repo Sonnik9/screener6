@@ -27,7 +27,7 @@ class CandidateScanner:
             rate_limit_backoff_sec=2.0,
         )
         self.calc = CalculatingEngine(self.cfg.filter)
-        logger.info(f"Сканнер: tf={self.timeframe}, lookback={self.lookback}, алгоритм=Classic_Base (Vol Pre-filter + Average Donchian + Wicks)")
+        logger.info(f"Сканнер: tf={self.timeframe}, lookback={self.lookback}, алгоритм=Barcode_v12 (Модульный)")
 
     async def aclose(self) -> None:
         await self.symbols_api.aclose()
@@ -48,7 +48,6 @@ class CandidateScanner:
                     turnovers = {}
                     for item in data.get("data", []):
                         sym = item.get("symbol", "")
-                        # turnoverOf24h в USDTM контрактах - это объем в USDT
                         vol_usdt = float(item.get("turnoverOf24h", 0.0))
                         turnovers[sym] = vol_usdt
                     return turnovers
@@ -78,14 +77,19 @@ class CandidateScanner:
             all_symbols = sorted(await self.symbols_api.get_perp_symbols(quote=self.quote, limit=self.max_symbols or None))
             turnovers_24h = await self._get_24h_turnovers()
             
-            # Предфильтр по дневному объему (500k - 7M)
+            # Предфильтр по дневному объему (теперь проверяет флаг enable)
             valid_symbols = []
-            for sym in all_symbols:
-                vol = turnovers_24h.get(sym, 0)
-                if self.cfg.filter.daily_volume_min_usdt <= vol <= self.cfg.filter.daily_volume_max_usdt:
-                    valid_symbols.append((sym, vol))
-
-            logger.info(f"Всего символов: {len(all_symbols)} -> После предфильтра объема: {len(valid_symbols)}. Сканируем свечи...")
+            if self.cfg.filter.daily_volume.enable:
+                min_v = self.cfg.filter.daily_volume.min_usdt
+                max_v = self.cfg.filter.daily_volume.max_usdt
+                for sym in all_symbols:
+                    vol = turnovers_24h.get(sym, 0)
+                    if min_v <= vol <= max_v:
+                        valid_symbols.append((sym, vol))
+                logger.info(f"Всего символов: {len(all_symbols)} -> После предфильтра объема: {len(valid_symbols)}.")
+            else:
+                valid_symbols = [(sym, turnovers_24h.get(sym, 0)) for sym in all_symbols]
+                logger.info(f"Предфильтр объема отключен. Сканируем все {len(all_symbols)} символов.")
 
             sem = asyncio.Semaphore(self.concurrent_symbols)
             async def worker(sym_data) -> Dict[str, Any]:
@@ -95,7 +99,7 @@ class CandidateScanner:
 
             rows = await asyncio.gather(*(worker(s) for s in valid_symbols))
 
-            # Берем ВСЕ результаты, где Score > 0 (даже если passed=False) для вывода приближенных
+            # Берем ВСЕ результаты, где Score > 0 для аппроксимации топа
             valid_rows = [r for r in rows if r.get("score", -999) > 0]
             valid_rows.sort(key=lambda x: x["score"], reverse=True)
             
@@ -105,7 +109,7 @@ class CandidateScanner:
             if candidates:
                 top_str = ", ".join([
                     f"{c['symbol']} (Sc:{c['score']:.0f}, Wicks:{c['metrics'].get('wicks_progress_pct', 0):.0f}%, "
-                    f"Don:{c['metrics'].get('donchian_pct', 0):.1f}%, Vol:{c['metrics'].get('vol_24h', 0)/1e6:.1f}M)" 
+                    f"Don:{c['metrics'].get('donchian_pct', 0):.1f}%, Pen:{c['metrics'].get('penalty_pct', 0):.0f}%)" 
                     for c in candidates[:5]
                 ])
                 logger.info(f"🔥 Лидеры (Строгих: {perfect_matches}): {top_str}")
@@ -115,7 +119,6 @@ class CandidateScanner:
                 "scan_elapsed_ms": int(time.time() * 1000) - started_at_ms,
                 "symbols_total": len(all_symbols),
                 "symbols_passed_strict": perfect_matches,
-                # Выдаем в main.py весь наш ТОП-10 (даже если они approximate)
                 "candidate_symbols": [x["symbol"] for x in candidates], 
                 "candidates": candidates,
             }

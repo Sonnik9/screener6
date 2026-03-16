@@ -1,78 +1,95 @@
 import json
 import asyncio
 import itertools
+import aiohttp
+from datetime import datetime
 from pathlib import Path
 from c_log import UnifiedLogger
 from config import load_config, CFG_PATH
 from filters import CalculatingEngine
-from KUCOIN.klines import KucoinKlines
 
 logger = UnifiedLogger("benchmark")
+
+async def fetch_historical_klines(symbol: str, start_str: str, end_str: str) -> list:
+    try:
+        dt_start = datetime.strptime(start_str, "%Y-%m-%d %H:%M:%S")
+        dt_end = datetime.strptime(end_str, "%Y-%m-%d %H:%M:%S")
+        
+        from_ms = int(dt_start.timestamp() * 1000)
+        to_ms = int(dt_end.timestamp() * 1000)
+        
+        url = f"https://api-futures.kucoin.com/api/v1/kline?symbol={symbol}&granularity=1&from={from_ms}&to={to_ms}"
+        
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as resp:
+                data = await resp.json()
+                return data.get("data", [])
+    except Exception as e:
+        logger.error(f"Ошибка загрузки истории: {e}")
+        return []
 
 async def run_autotune(cfg_path: str = CFG_PATH):
     cfg = load_config(cfg_path)
     if not cfg.benchmark.enable:
         return
 
-    logger.info(f"⚡ БЕНЧМАРК: Автоподгон под {cfg.benchmark.target_symbol}...")
+    logger.info(f"⚡ БЕНЧМАРК: Автоподгон под {cfg.benchmark.target_symbol} ({cfg.benchmark.start_time} - {cfg.benchmark.end_time})")
     cache_file = Path(cfg.benchmark.cache_file)
     candles = []
 
-    # 1. Загрузка или парсинг кэша
     if cache_file.exists():
         try:
             with open(cache_file, "r") as f:
                 candles = json.load(f)
-            logger.info("⚡ БЕНЧМАРК: Свечи загружены из кэша.")
+            logger.info("⚡ БЕНЧМАРК: Свечи эталона загружены из кэша.")
         except: pass
 
     if not candles:
-        logger.info("⚡ БЕНЧМАРК: Кэш пуст. Скачиваем свечи...")
-        api = KucoinKlines()
-        try:
-            candles = await api.get_klines(
-                symbol=cfg.benchmark.target_symbol, 
-                granularity_min=1, # 1m
-                limit=cfg.benchmark.lookback_candles
-            )
+        logger.info("⚡ БЕНЧМАРК: Кэш пуст. Скачиваем исторические свечи...")
+        candles = await fetch_historical_klines(
+            cfg.benchmark.target_symbol, 
+            cfg.benchmark.start_time, 
+            cfg.benchmark.end_time
+        )
+        if candles:
             with open(cache_file, "w") as f:
                 json.dump(candles, f)
-        finally:
-            await api.aclose()
 
     if not candles:
-        logger.error("⚡ БЕНЧМАРК: Не удалось получить свечи.")
+        logger.error("⚡ БЕНЧМАРК: Провал. Свечи не получены.")
         return
 
-    # 2. Сетка параметров для подгона
-    wicks_thresholds = [1.5, 2.0, 2.5, 3.0, 3.5]
-    narrow_p_pcts = [20.0, 33.0, 45.0, 60.0]
+    # Сетка параметров: Wicks Threshold, Wicks Min Range, Penalty Max %
+    wicks_thresholds = [1.5, 2.0, 2.5, 3.0]
+    wicks_ranges = [0.10, 0.15, 0.20]
+    penalty_pcts = [20.0, 33.0, 50.0]
     
     best_score = -999
     best_params = None
 
-    # Итерация по сетке
-    for wt, npp in itertools.product(wicks_thresholds, narrow_p_pcts):
+    for wt, wr, pp in itertools.product(wicks_thresholds, wicks_ranges, penalty_pcts):
         cfg.filter.wicks.ratio_threshold = wt
-        cfg.filter.narrow_penalty.max_penalty_pct = npp
+        cfg.filter.wicks.candle_range_min_pct = wr
+        cfg.filter.narrow_penalty.max_penalty_pct = pp
         
         engine = CalculatingEngine(cfg.filter)
-        res = engine.analyze(candles[-cfg.filter.lookback_candles:]) # Берем нужное кол-во свечей с конца
+        res = engine.analyze(candles)
         
         if res["passed"] and res["score"] > best_score:
             best_score = res["score"]
-            best_params = (wt, npp)
+            best_params = (wt, wr, pp)
 
-    # 3. Сохранение лучших настроек
     if best_params:
-        logger.info(f"⚡ БЕНЧМАРК: Найдены идеальные параметры! Wicks: {best_params[0]}, Max Penalty: {best_params[1]}%")
+        logger.info(f"⚡ БЕНЧМАРК: Идеал найден! Wicks Ratio: {best_params[0]}, Wicks Range: {best_params[1]}%, Max Penalty: {best_params[2]}%")
+        
         with open(cfg_path, "r", encoding="utf-8") as f:
             raw_data = json.load(f)
             
         raw_data["filter"]["wicks"]["ratio_threshold"] = best_params[0]
-        raw_data["filter"]["narrow_penalty"]["max_penalty_pct"] = best_params[1]
+        raw_data["filter"]["wicks"]["candle_range_min_pct"] = best_params[1]
+        raw_data["filter"]["narrow_penalty"]["max_penalty_pct"] = best_params[2]
         
         with open(cfg_path, "w", encoding="utf-8") as f:
-            json.dumps(raw_data, f, indent=4)
+            json.dump(raw_data, f, indent=4)
     else:
-        logger.warning("⚡ БЕНЧМАРК: Эталон не прошел даже при мягких настройках. Попробуйте сменить цель.")
+        logger.warning("⚡ БЕНЧМАРК: Настройки не подобраны. Эталон не проходит даже мягкие фильтры.")

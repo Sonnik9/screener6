@@ -22,6 +22,12 @@ class CalculatingEngine:
             lows_safe = np.where(lows == 0, 1e-8, lows)
             candle_pcts = (ranges / lows_safe) * 100.0
 
+            # БАЗА: хай должен быть больше лоя
+            valid_math_mask = (ranges > 0)
+
+            # ==================================
+            # 1. DONCHIAN (Средние Хаи к Лоям)
+            # ==================================
             passed_donchian = True
             donchian_pct = 0.0
             if self.cfg.donchian.enable:
@@ -30,30 +36,39 @@ class CalculatingEngine:
                 donchian_pct = ((avg_high - avg_low) / avg_low) * 100.0
                 passed_donchian = self.cfg.donchian.min_pct <= donchian_pct <= self.cfg.donchian.max_pct
 
-            # СЧЕТЧИК ШТРАФОВ (Narrow Penalty)
+            # ==================================
+            # 2. НЕЗАВИСИМЫЙ СЧЕТЧИК ШТРАФОВ
+            # ==================================
             passed_penalty = True
             penalty_pct = 0.0
             if self.cfg.narrow_penalty.enable:
-                # Если размах меньше порога -> это штраф
-                penalties_count = np.sum(candle_pcts < self.cfg.narrow_penalty.min_range_pct)
-                penalty_pct = (penalties_count / len(candles)) * 100.0
+                # Штраф: свеча меньше min_range_pct ИЛИ вообще точка (ranges == 0)
+                narrow_mask = (candle_pcts < self.cfg.narrow_penalty.min_range_pct) | (~valid_math_mask)
+                penalty_pct = (int(np.sum(narrow_mask)) / len(candles)) * 100.0
                 passed_penalty = penalty_pct <= self.cfg.narrow_penalty.max_penalty_pct
 
-            # WICKS
+            # ==================================
+            # 3. WICKS ИНДИКАТОР (Прогресс)
+            # ==================================
             passed_wicks = True
             wicks_progress_pct = 0.0
             if self.cfg.wicks.enable:
-                valid_math_mask = (ranges > 0) & (bodies > 0)
-                wick_ratios = np.zeros_like(ranges)
-                wick_ratios[valid_math_mask] = ranges[valid_math_mask] / bodies[valid_math_mask]
+                # Обработка деления на ноль для Идеального Доджи (abs(open-close) == 0)
+                with np.errstate(divide='ignore', invalid='ignore'):
+                    wick_ratios = np.where(bodies == 0, np.inf, ranges / bodies)
                 
-                pass_mask = (wick_ratios > self.cfg.wicks.ratio_threshold)
+                # Условия валидной секции:
+                ratio_ok = wick_ratios > self.cfg.wicks.ratio_threshold
+                range_ok = candle_pcts >= self.cfg.wicks.candle_range_min_pct
+                
+                pass_mask = valid_math_mask & ratio_ok & range_ok
                 wicks_progress_pct = (int(np.sum(pass_mask)) / len(candles)) * 100.0
                 passed_wicks = wicks_progress_pct >= self.cfg.wicks.min_valid_pct
 
+            # ИТОГ
             is_strict_pass = passed_donchian and passed_penalty and passed_wicks
             
-            # Базовый скор. Снижаем за штрафы.
+            # Базовый скор. Штрафуем рейтинг, если пробиты лимиты (чтобы улетело вниз топа)
             score = float(wicks_progress_pct - penalty_pct)
             if not passed_donchian: score -= 20.0 
 
