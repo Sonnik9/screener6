@@ -7,6 +7,7 @@ from c_log import UnifiedLogger
 from config import load_config, CFG_PATH
 from scanner_engine import CandidateScanner
 from clicker import main as clicker_main
+from benchmark import run_autotune
 
 logger = UnifiedLogger("main")
 
@@ -21,6 +22,10 @@ async def run_scanner_cycle(cfg_path: Path):
 
     # Запись в логи (инфо)
     logger.info(f"Загружены настройки:\n{cfg_pretty}")
+
+# --- ВЫЗОВ БЕНЧМАРКА ---
+    await run_autotune(CFG_PATH)
+    # -----------------------
     # --------------------------
     scanner = CandidateScanner(cfg)
     

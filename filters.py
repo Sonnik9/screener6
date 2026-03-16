@@ -4,11 +4,7 @@ from typing import List, Dict, Any
 
 class CalculatingEngine:
     def __init__(self, filter_cfg):
-        self.donchian_min = float(filter_cfg.donchian_min_pct)
-        self.donchian_max = float(filter_cfg.donchian_max_pct)
-        self.wick_ratio_threshold = float(filter_cfg.wick_ratio_threshold)
-        self.candle_range_min_pct = float(filter_cfg.candle_range_min_pct)
-        self.min_valid_candles_pct = float(filter_cfg.min_valid_candles_pct)
+        self.cfg = filter_cfg
 
     def analyze(self, candles: List[Any]) -> Dict[str, Any]:
         if not candles or len(candles) < 10:
@@ -16,72 +12,60 @@ class CalculatingEngine:
 
         try:
             def get_val(k, attr, idx): return float(getattr(k, attr, k[idx] if isinstance(k, (list, tuple)) else 0))
-            
             opens = np.array([get_val(k, 'open', 1) for k in candles])
             closes = np.array([get_val(k, 'close', 2) for k in candles])
             highs = np.array([get_val(k, 'high', 3) for k in candles])
             lows = np.array([get_val(k, 'low', 4) for k in candles])
 
-            # ==================================================
-            # ШАГ 2: DONCHIAN (Среднее Хаев и Лоев)
-            # ==================================================
-            avg_high = np.mean(highs)
-            avg_low = np.mean(lows)
-            
-            if avg_low == 0:
-                return {"passed": False, "score": -100.0, "reason": "zero_price"}
-                
-            donchian_pct = ((avg_high - avg_low) / avg_low) * 100.0
-            
-            # Проверяем соответствие диапазону
-            passed_donchian = self.donchian_min <= donchian_pct <= self.donchian_max
-
-            # ==================================================
-            # ШАГ 3: WICKS ИНДИКАТОР И ПРОГРЕСС
-            # ==================================================
             ranges = highs - lows
             bodies = np.abs(opens - closes)
-            
-            # Условие: (high - low) > 0 and abs(open - close) > 0
-            valid_math_mask = (ranges > 0) & (bodies > 0)
-            
-            wick_ratios = np.zeros_like(ranges)
-            wick_ratios[valid_math_mask] = ranges[valid_math_mask] / bodies[valid_math_mask]
-            
             lows_safe = np.where(lows == 0, 1e-8, lows)
             candle_pcts = (ranges / lows_safe) * 100.0
-            
-            # Суммируем свечи, где выполнены оба условия
-            pass_mask = (wick_ratios > self.wick_ratio_threshold) & (candle_pcts > self.candle_range_min_pct)
-            valid_candles = int(np.sum(pass_mask))
-            
-            progress_pct = (valid_candles / len(candles)) * 100.0
-            passed_wicks = progress_pct >= self.min_valid_candles_pct
 
-            # ==================================================
-            # СКОРИНГ (Для вывода ближайших топов)
-            # ==================================================
-            is_strict_pass = passed_donchian and passed_wicks
+            passed_donchian = True
+            donchian_pct = 0.0
+            if self.cfg.donchian.enable:
+                avg_high, avg_low = np.mean(highs), np.mean(lows)
+                if avg_low == 0: return {"passed": False, "score": -100.0, "reason": "zero_price"}
+                donchian_pct = ((avg_high - avg_low) / avg_low) * 100.0
+                passed_donchian = self.cfg.donchian.min_pct <= donchian_pct <= self.cfg.donchian.max_pct
+
+            # СЧЕТЧИК ШТРАФОВ (Narrow Penalty)
+            passed_penalty = True
+            penalty_pct = 0.0
+            if self.cfg.narrow_penalty.enable:
+                # Если размах меньше порога -> это штраф
+                penalties_count = np.sum(candle_pcts < self.cfg.narrow_penalty.min_range_pct)
+                penalty_pct = (penalties_count / len(candles)) * 100.0
+                passed_penalty = penalty_pct <= self.cfg.narrow_penalty.max_penalty_pct
+
+            # WICKS
+            passed_wicks = True
+            wicks_progress_pct = 0.0
+            if self.cfg.wicks.enable:
+                valid_math_mask = (ranges > 0) & (bodies > 0)
+                wick_ratios = np.zeros_like(ranges)
+                wick_ratios[valid_math_mask] = ranges[valid_math_mask] / bodies[valid_math_mask]
+                
+                pass_mask = (wick_ratios > self.cfg.wicks.ratio_threshold)
+                wicks_progress_pct = (int(np.sum(pass_mask)) / len(candles)) * 100.0
+                passed_wicks = wicks_progress_pct >= self.cfg.wicks.min_valid_pct
+
+            is_strict_pass = passed_donchian and passed_penalty and passed_wicks
             
-            # Базовый скор - это прогресс штрих-кода
-            score = float(progress_pct)
-            
-            # Если Дончиан вылетел за пределы, мы не убиваем скор в -999, 
-            # а просто вычитаем штраф, чтобы она упала ниже идеальных монет.
-            if not passed_donchian:
-                dist = min(abs(donchian_pct - self.donchian_min), abs(donchian_pct - self.donchian_max))
-                score -= float(dist * 5.0)
+            # Базовый скор. Снижаем за штрафы.
+            score = float(wicks_progress_pct - penalty_pct)
+            if not passed_donchian: score -= 20.0 
 
             return {
                 "passed": is_strict_pass,
                 "score": score,
                 "metrics": {
                     "donchian_pct": float(donchian_pct),
-                    "wicks_progress_pct": float(progress_pct),
-                    "valid_candles": valid_candles
+                    "wicks_progress_pct": float(wicks_progress_pct),
+                    "penalty_pct": float(penalty_pct)
                 },
-                "reason": "strict_match" if is_strict_pass else "approximate"
+                "reason": "strict_match" if is_strict_pass else "rejected/approximate"
             }
-
         except Exception as e:
             return {"passed": False, "score": -999.0, "reason": f"calc_error: {str(e)}"}
