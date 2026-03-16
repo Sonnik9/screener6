@@ -19,7 +19,7 @@ class DailyVolumeConfig:
 
 @dataclass
 class DonchianConfig:
-    enable: bool; min_pct: float; max_pct: float
+    enable: bool; min_pct: float; max_pct: float; max_drift_pct: float
 
 @dataclass
 class WicksConfig:
@@ -34,9 +34,13 @@ class ATRConfig:
     enable: bool; period: int; min_pct: float; max_pct: float
 
 @dataclass
+class ApproximationConfig:
+    enable: bool; min_score_pct: float; top_n: int
+
+@dataclass
 class FilterSection:
     timeframe: str; lookback_candles: int
-    daily_volume: DailyVolumeConfig; donchian: DonchianConfig; wicks: WicksConfig; narrow_penalty: PenaltyConfig; atr: ATRConfig
+    daily_volume: DailyVolumeConfig; donchian: DonchianConfig; wicks: WicksConfig; narrow_penalty: PenaltyConfig; atr: ATRConfig; approximation: ApproximationConfig
 
 @dataclass
 class AppConfig:
@@ -72,16 +76,19 @@ class ConfigLoader:
             block = filt_d.get(name, {})
             return {k: type(v)(block.get(k, v)) for k, v in defaults.items()}
 
-        vol_cfg = DailyVolumeConfig(**get_block("daily_volume", {"enable": True, "min_usdt": 500000.0, "max_usdt": 7000000.0}))
-        don_cfg = DonchianConfig(**get_block("donchian", {"enable": True, "min_pct": 1.0, "max_pct": 7.0}))
-        wicks_cfg = WicksConfig(**get_block("wicks", {"enable": True, "ratio_threshold": 3.0, "candle_range_min_pct": 0.15, "min_valid_pct": 50.0}))
-        pen_cfg = PenaltyConfig(**get_block("narrow_penalty", {"enable": True, "min_range_pct": 0.15, "max_penalty_pct": 33.0}))
-        atr_cfg = ATRConfig(**get_block("atr", {"enable": True, "period": 14, "min_pct": 0.2, "max_pct": 5.0}))
+        vol_cfg = DailyVolumeConfig(**get_block("daily_volume", {"enable": True, "min_usdt": 500000.0, "max_usdt": 10000000.0}))
+        don_cfg = DonchianConfig(**get_block("donchian", {"enable": True, "min_pct": 2.0, "max_pct": 10.0, "max_drift_pct": 1.5}))
+        wicks_cfg = WicksConfig(**get_block("wicks", {"enable": True, "ratio_threshold": 2.5, "candle_range_min_pct": 1.0, "min_valid_pct": 50.0}))
+        pen_cfg = PenaltyConfig(**get_block("narrow_penalty", {"enable": True, "min_range_pct": 0.2, "max_penalty_pct": 20.0}))
+        atr_cfg = ATRConfig(**get_block("atr", {"enable": True, "period": 14, "min_pct": 1.5, "max_pct": 15.0}))
+        
+        # НОВАЯ РУЧКА
+        approx_cfg = ApproximationConfig(**get_block("approximation", {"enable": True, "min_score_pct": 75.0, "top_n": 10}))
 
         filter_cfg = FilterSection(
             timeframe=str(filt_d.get("timeframe", "1m")).lower().strip(),
             lookback_candles=int(filt_d.get("lookback_candles", 30)),
-            daily_volume=vol_cfg, donchian=don_cfg, wicks=wicks_cfg, narrow_penalty=pen_cfg, atr=atr_cfg
+            daily_volume=vol_cfg, donchian=don_cfg, wicks=wicks_cfg, narrow_penalty=pen_cfg, atr=atr_cfg, approximation=approx_cfg
         )
 
         return AppConfig(app=app_cfg, benchmark=bench_cfg, filter=filter_cfg)

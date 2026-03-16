@@ -19,9 +19,14 @@
     "end_time": "2026-02-24 22:04:00",
     "cache_file": "benchmark_cache.json"
   },
-"filter": {
+  "filter": {
     "timeframe": "1m",
     "lookback_candles": 30,
+    "approximation": {
+      "enable": true,
+      "min_score_pct": 75.0,
+      "top_n": 10           
+    },
     "daily_volume": {
       "enable": true,
       "min_usdt": 500000.0,

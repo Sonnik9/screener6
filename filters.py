@@ -121,24 +121,69 @@ class CalculatingEngine:
                 wicks_progress_pct = (int(np.sum(pass_mask)) / len(eval_ranges)) * 100.0
                 passed_wicks = wicks_progress_pct >= self.cfg.wicks.min_valid_pct
 
-            # ИТОГ
+            # # ИТОГ
+            # is_strict_pass = passed_donchian and passed_penalty and passed_wicks and passed_atr
+            
+            # # Скор формируем так: награждаем за высокий ATR (движение) и штрафуем за широкий Donchian (уход от оси)
+            # score = float(wicks_progress_pct + (atr_pct * 10) - donchian_pct - penalty_pct)
+            # if not passed_donchian: score -= 30.0 
+            # if not passed_atr: score -= 30.0
+
+            # return {
+            #     "passed": is_strict_pass,
+            #     "score": score,
+            #     "metrics": {
+            #         "donchian_pct": float(donchian_pct),
+            #         "wicks_progress_pct": float(wicks_progress_pct),
+            #         "penalty_pct": float(penalty_pct),
+            #         "atr_pct": float(atr_pct)
+            #     },
+            #     "reason": "strict_match" if is_strict_pass else "rejected/approximate"
+            # }
+            
             is_strict_pass = passed_donchian and passed_penalty and passed_wicks and passed_atr
             
-            # Скор формируем так: награждаем за высокий ATR (движение) и штрафуем за широкий Donchian (уход от оси)
-            score = float(wicks_progress_pct + (atr_pct * 10) - donchian_pct - penalty_pct)
-            if not passed_donchian: score -= 30.0 
-            if not passed_atr: score -= 30.0
+            # ==================================
+            # РАСЧЕТ ИНДЕКСА ЛОЯЛЬНОСТИ (Approximation Score)
+            # 100% = точное попадание в лимиты. >100% = превосходит. <100% = не дотягивает.
+            # ==================================
+            safe_div = lambda a, b: float(a) / float(b) if b > 0 else 0.0
+            safe_inv_div = lambda target, val: float(target) / float(val) if val > 0 else 2.0 
+
+            # Чем выше (до 200%), тем лучше:
+            w_score = safe_div(wicks_progress_pct, self.cfg.wicks.min_valid_pct) * 100
+            a_score = safe_div(atr_pct, self.cfg.atr.min_pct) * 100
+            
+            # Чем ниже (уже канал, меньше дрейф), тем лучше:
+            d_score = safe_inv_div(self.cfg.donchian.max_pct, donchian_pct) * 100
+            dr_score = safe_inv_div(getattr(self.cfg.donchian, 'max_drift_pct', 1.5), drift_pct) * 100
+            
+            # Эталонный коэффициент мясорубки <= 3.0
+            c_score = safe_inv_div(3.0, compression_ratio) * 100 
+
+            # Защита от выбросов (чтобы идеальный дрейф в 0.01% не дал +1000% к общему скору)
+            w_score = min(w_score, 200)
+            a_score = min(a_score, 200)
+            d_score = min(d_score, 200)
+            dr_score = min(dr_score, 200)
+            c_score = min(c_score, 200)
+
+            # Общий процент лояльности (среднее арифметическое всех показателей)
+            approx_score = (w_score + a_score + d_score + dr_score + c_score) / 5.0
 
             return {
                 "passed": is_strict_pass,
-                "score": score,
+                "score": float(approx_score),
                 "metrics": {
+                    "approx_score": float(approx_score),
                     "donchian_pct": float(donchian_pct),
+                    "compression": float(compression_ratio),
+                    "drift_pct": float(drift_pct),
                     "wicks_progress_pct": float(wicks_progress_pct),
                     "penalty_pct": float(penalty_pct),
                     "atr_pct": float(atr_pct)
                 },
-                "reason": "strict_match" if is_strict_pass else "rejected/approximate"
+                "reason": "strict_match" if is_strict_pass else "near_match"
             }
         except Exception as e:
             return {"passed": False, "score": -999.0, "reason": f"calc_error: {str(e)}"}

@@ -54,57 +54,65 @@ class CandidateScanner:
             return {"symbol": symbol, "passed": False, "score": -999.0, "metrics": {}, "fail_reasons": [str(e)]}
 
     async def scan(self) -> Dict[str, Any]:
-            started_at_ms = int(time.time() * 1000)
+        started_at_ms = int(time.time() * 1000)
+        
+        all_symbols = sorted(await self.symbols_api.get_perp_symbols(quote=self.quote, limit=self.max_symbols or None))
+        
+        try:
+            turnovers_24h = await self.symbols_api.get_24h_turnovers(quote=self.quote)
+        except Exception as e:
+            logger.error(f"Не удалось получить объемы после всех попыток: {e}")
+            turnovers_24h = {}
+        
+        valid_symbols = []
+        if self.cfg.filter.daily_volume.enable:
+            min_v = self.cfg.filter.daily_volume.min_usdt
+            max_v = self.cfg.filter.daily_volume.max_usdt
+            for sym in all_symbols:
+                vol = turnovers_24h.get(sym, 0)
+                if min_v <= vol <= max_v:
+                    valid_symbols.append((sym, vol))
+            logger.info(f"Символов: {len(all_symbols)} -> После фильтра объема: {len(valid_symbols)}.")
+        else:
+            valid_symbols = [(sym, turnovers_24h.get(sym, 0)) for sym in all_symbols]
+
+        sem = asyncio.Semaphore(self.concurrent_symbols)
+        async def worker(sym_data) -> Dict[str, Any]:
+            sym, vol = sym_data
+            async with sem:
+                return await self._analyze_symbol(sym, vol)
+
+        rows = await asyncio.gather(*(worker(s) for s in valid_symbols))
+
+        # Исключаем ошибки вычислений и сортируем по Индексу Лояльности
+        valid_rows = [r for r in rows if r.get("score", -999) != -999.0]
+        valid_rows.sort(key=lambda x: x["score"], reverse=True)
+        
+        # 1. Выделяем строгие (идеальные) совпадения
+        strict_matches = [r for r in valid_rows if r.get("passed") == True]
+        candidates = strict_matches[:self.top_n]
+        
+        # 2. Выделяем Топ "Приближенных", используя новые ручки из конфига
+        near_candidates = []
+        if self.cfg.filter.approximation.enable:
+            min_score = self.cfg.filter.approximation.min_score_pct
+            max_near_count = self.cfg.filter.approximation.top_n
             
-            all_symbols = sorted(await self.symbols_api.get_perp_symbols(quote=self.quote, limit=self.max_symbols or None))
-            
-            # ЧИСТЫЙ ВЫЗОВ ЧЕРЕЗ КЛИЕНТ (с ретраями и защитой)
-            try:
-                turnovers_24h = await self.symbols_api.get_24h_turnovers(quote=self.quote)
-            except Exception as e:
-                logger.error(f"Не удалось получить объемы после всех попыток: {e}")
-                turnovers_24h = {}
-            
-            valid_symbols = []
-            if self.cfg.filter.daily_volume.enable:
-                min_v = self.cfg.filter.daily_volume.min_usdt
-                max_v = self.cfg.filter.daily_volume.max_usdt
-                for sym in all_symbols:
-                    vol = turnovers_24h.get(sym, 0)
-                    if min_v <= vol <= max_v:
-                        valid_symbols.append((sym, vol))
-                logger.info(f"Символов: {len(all_symbols)} -> После фильтра объема: {len(valid_symbols)}.")
-            else:
-                valid_symbols = [(sym, turnovers_24h.get(sym, 0)) for sym in all_symbols]
-                logger.info(f"Предфильтр объема отключен. Сканируем все {len(all_symbols)} символов.")
+            # Берем только тех, чей скор выше минимального порога
+            near_candidates = [r for r in valid_rows if r["score"] >= min_score][:max_near_count]
 
-            sem = asyncio.Semaphore(self.concurrent_symbols)
-            async def worker(sym_data) -> Dict[str, Any]:
-                sym, vol = sym_data
-                async with sem:
-                    return await self._analyze_symbol(sym, vol)
+        if near_candidates:
+            top_str = ", ".join([
+                f"{c['symbol']} ({c['score']:.1f}%)" 
+                for c in near_candidates[:5]
+            ])
+            logger.info(f"🔥 Лидеры лояльности (Строгих: {len(strict_matches)}): {top_str}")
 
-            rows = await asyncio.gather(*(worker(s) for s in valid_symbols))
-
-            valid_rows = [r for r in rows if r.get("score", -999) > 0]
-            valid_rows.sort(key=lambda x: x["score"], reverse=True)
-            
-            candidates = valid_rows[:self.top_n]
-            perfect_matches = len([r for r in valid_rows if r.get("passed", True) == True])
-
-            if candidates:
-                top_str = ", ".join([
-                    f"{c['symbol']} (Sc:{c['score']:.0f}, Wicks:{c['metrics'].get('wicks_progress_pct', 0):.0f}%, "
-                    f"Don:{c['metrics'].get('donchian_pct', 0):.1f}%, Pen:{c['metrics'].get('penalty_pct', 0):.0f}%)" 
-                    for c in candidates[:5]
-                ])
-                logger.info(f"🔥 Лидеры (Строгих: {perfect_matches}): {top_str}")
-
-            return {
-                "generated_at_ms": int(time.time() * 1000),
-                "scan_elapsed_ms": int(time.time() * 1000) - started_at_ms,
-                "symbols_total": len(all_symbols),
-                "symbols_passed_strict": perfect_matches,
-                "candidate_symbols": [x["symbol"] for x in candidates], 
-                "candidates": candidates,
-            }
+        return {
+            "generated_at_ms": int(time.time() * 1000),
+            "scan_elapsed_ms": int(time.time() * 1000) - started_at_ms,
+            "symbols_total": len(all_symbols),
+            "symbols_passed_strict": len(strict_matches),
+            "candidates": candidates,              # Только идеальные
+            "near_candidates": near_candidates,    # Отфильтрованные "приближенные"
+        }

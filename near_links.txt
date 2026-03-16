@@ -1,0 +1,52 @@
+=== ТОП МОНЕТ ПО ИНДЕКСУ ЛОЯЛЬНОСТИ К КОНФИГУ ===
+
+#1 NUMIUSDTM | Индекс: 128.9%
+Ссылка: https://www.kucoin.com/ru/trade/futures/NUMIUSDTM
+ATR: 0.77% | Donchian: 1.40% | Drift: 0.56%
+Мясорубка: 1.73 | Wicks Progress: 10.0%
+--------------------------------------------------
+#2 PROMUSDTM | Индекс: 118.1%
+Ссылка: https://www.kucoin.com/ru/trade/futures/PROMUSDTM
+ATR: 0.45% | Donchian: 0.85% | Drift: 0.45%
+Мясорубка: 1.87 | Wicks Progress: 0.0%
+--------------------------------------------------
+#3 IRYSUSDTM | Индекс: 113.1%
+Ссылка: https://www.kucoin.com/ru/trade/futures/IRYSUSDTM
+ATR: 0.23% | Donchian: 0.49% | Drift: 0.35%
+Мясорубка: 2.00 | Wicks Progress: 0.0%
+--------------------------------------------------
+#4 MIRAUSDTM | Индекс: 113.0%
+Ссылка: https://www.kucoin.com/ru/trade/futures/MIRAUSDTM
+ATR: 0.32% | Donchian: 0.71% | Drift: 0.35%
+Мясорубка: 2.09 | Wicks Progress: 0.0%
+--------------------------------------------------
+#5 TACUSDTM | Индекс: 111.5%
+Ссылка: https://www.kucoin.com/ru/trade/futures/TACUSDTM
+ATR: 0.19% | Donchian: 0.40% | Drift: 0.29%
+Мясорубка: 2.07 | Wicks Progress: 0.0%
+--------------------------------------------------
+#6 2ZUSDTM | Индекс: 109.0%
+Ссылка: https://www.kucoin.com/ru/trade/futures/2ZUSDTM
+ATR: 0.26% | Donchian: 0.64% | Drift: 0.12%
+Мясорубка: 2.35 | Wicks Progress: 0.0%
+--------------------------------------------------
+#7 FRAXUSDTM | Индекс: 105.0%
+Ссылка: https://www.kucoin.com/ru/trade/futures/FRAXUSDTM
+ATR: 0.28% | Donchian: 0.88% | Drift: 0.12%
+Мясорубка: 2.82 | Wicks Progress: 0.0%
+--------------------------------------------------
+#8 MAGICUSDTM | Индекс: 102.9%
+Ссылка: https://www.kucoin.com/ru/trade/futures/MAGICUSDTM
+ATR: 0.18% | Donchian: 0.44% | Drift: 0.32%
+Мясорубка: 2.93 | Wicks Progress: 0.0%
+--------------------------------------------------
+#9 FLOCKUSDTM | Индекс: 102.6%
+Ссылка: https://www.kucoin.com/ru/trade/futures/FLOCKUSDTM
+ATR: 0.18% | Donchian: 0.48% | Drift: 0.07%
+Мясорубка: 2.97 | Wicks Progress: 0.0%
+--------------------------------------------------
+#10 ZIGUSDTM | Индекс: 101.5%
+Ссылка: https://www.kucoin.com/ru/trade/futures/ZIGUSDTM
+ATR: 0.71% | Donchian: 1.89% | Drift: 0.54%
+Мясорубка: 6.42 | Wicks Progress: 6.7%
+--------------------------------------------------

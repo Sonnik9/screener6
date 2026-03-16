@@ -15,33 +15,42 @@ RESULTS_FILE = ROOT_DIR / "target_links.txt"
 async def run_scanner_cycle(scanner: CandidateScanner):
     res = await scanner.scan()
     candidates = res.get("candidates", [])
+    near_candidates = res.get("near_candidates", [])
     
-    if not candidates:
-        logger.info("Цели не найдены. Сплю...")
-        return
+    logger.info(f"Найдено строгих целей: {len(candidates)}. Ближайших приближений: {len(near_candidates)}")
 
-    logger.info(f"Найдено целей: {len(candidates)}")
-    
-    # 1. Формируем ссылки и сохраняем их в файл для кликера
+    # 1. СТРОГИЕ ЦЕЛИ (Идеальный паттерн)
     with open(RESULTS_FILE, "w", encoding="utf-8") as f:
         for cand in candidates:
-            # Вытягиваем тикер, даже если вернулся словарь с метриками
             sym = cand.get("symbol", cand) if isinstance(cand, dict) else cand
-            
-            # Адаптируем тикер под правильную ссылку KuCoin Futures (BTCUSDTM -> BTC-USDT)
-            formatted_sym = sym
-            if sym.endswith("USDT"):
-                formatted_sym = sym.replace("USDT", "USDTM")
-                
+            formatted_sym = sym.replace("USDT", "USDTM") if sym.endswith("USDT") else sym
             f.write(f"https://www.kucoin.com/ru/trade/futures/{formatted_sym}\n")
             
-    logger.info(f"Ссылки сохранены в файл: {RESULTS_FILE}")
+    if candidates:
+        logger.info(f"✅ Строгие ссылки сохранены в файл: {RESULTS_FILE}")
 
-    # 2. Интеграция кликера, если он включен в настройках
-    if scanner.cfg.app.is_click:
-        logger.info("Авто-запуск кликера...")
-        # Запускаем синхронную функцию кликера в отдельном потоке, 
-        # чтобы time.sleep() в кликере не заморозил весь асинхронный цикл сканера
+    # 2. ПРИБЛИЖЕННЫЕ ЦЕЛИ (Аппроксимация)
+    NEAR_FILE = ROOT_DIR / "near_links.txt"
+    if near_candidates:
+        with open(NEAR_FILE, "w", encoding="utf-8") as f:
+            f.write("=== ТОП МОНЕТ ПО ИНДЕКСУ ЛОЯЛЬНОСТИ К КОНФИГУ ===\n\n")
+            for i, cand in enumerate(near_candidates, 1):
+                sym = cand.get("symbol", cand) if isinstance(cand, dict) else cand
+                formatted_sym = sym.replace("USDT", "USDTM") if sym.endswith("USDT") else sym
+                m = cand.get("metrics", {})
+                score = cand.get("score", 0)
+                
+                f.write(f"#{i} {sym} | Индекс: {score:.1f}%\n")
+                f.write(f"Ссылка: https://www.kucoin.com/ru/trade/futures/{formatted_sym}\n")
+                f.write(f"ATR: {m.get('atr_pct',0):.2f}% | Donchian: {m.get('donchian_pct',0):.2f}% | Drift: {m.get('drift_pct',0):.2f}%\n")
+                f.write(f"Мясорубка: {m.get('compression',0):.2f} | Wicks Progress: {m.get('wicks_progress_pct',0):.1f}%\n")
+                f.write("-" * 50 + "\n")
+                
+        logger.info(f"🔍 Ближайшие кандидаты с метриками выгружены в: {NEAR_FILE}")
+
+    # 3. Интеграция кликера (кликает ТОЛЬКО по строгим!)
+    if scanner.cfg.app.is_click and candidates:
+        logger.info("Авто-запуск кликера для строгих целей...")
         await asyncio.to_thread(clicker.main)
 
 async def main():
