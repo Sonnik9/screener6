@@ -15,8 +15,8 @@
   "benchmark": {
     "enable": true,
     "target_symbol": "WILDUSDTM",
-    "start_time": "2024-02-24 21:04:00",
-    "end_time": "2024-02-24 22:04:00",
+    "start_time": "2026-02-24 21:04:00",
+    "end_time": "2026-02-24 22:04:00",
     "cache_file": "benchmark_cache.json"
   },
   "filter": {

@@ -511,3 +511,146 @@
 2026-03-16 18:13:28 | INFO | main | Запуск алгоритма Shtrih-Score...
 2026-03-16 18:14:01 | INFO | main | Цели не найдены. Сплю...
 2026-03-16 18:14:01 | INFO | main | Режим однократного сканирования. Выход.
+2026-03-16 18:26:10 | INFO | main | Запуск скринера... Конфиг: cfg.json
+2026-03-16 18:26:10 | INFO | main | Загружены настройки:
+{
+    "app": {
+        "quote": "USDT",
+        "max_symbols": 0,
+        "concurrent_symbols": 5,
+        "top_n": 10,
+        "request_interval_ms": 150,
+        "scan_interval_sec": 600,
+        "screen_once": true,
+        "is_click": true
+    },
+    "benchmark": {
+        "enable": true,
+        "target_symbol": "WILDUSDTM",
+        "start_time": "2024-02-25 21:04:00",
+        "end_time": "2024-02-25 22:04:00",
+        "cache_file": "benchmark_cache.json"
+    },
+    "filter": {
+        "timeframe": "1m",
+        "lookback_candles": 30,
+        "daily_volume": {
+            "enable": true,
+            "min_usdt": 500000.0,
+            "max_usdt": 7000000.0
+        },
+        "donchian": {
+            "enable": true,
+            "min_pct": 1.0,
+            "max_pct": 10.0
+        },
+        "wicks": {
+            "enable": true,
+            "ratio_threshold": 3.0,
+            "candle_range_min_pct": 1.0,
+            "min_valid_pct": 50.0
+        },
+        "narrow_penalty": {
+            "enable": true,
+            "min_range_pct": 0.1,
+            "max_penalty_pct": 33.0
+        }
+    }
+}
+2026-03-16 18:26:10 | INFO | main | Запуск алгоритма Shtrih-Score...
+2026-03-16 18:27:12 | INFO | main | Запуск скринера... Конфиг: cfg.json
+2026-03-16 18:27:12 | INFO | main | Загружены настройки:
+{
+    "app": {
+        "quote": "USDT",
+        "max_symbols": 0,
+        "concurrent_symbols": 5,
+        "top_n": 10,
+        "request_interval_ms": 150,
+        "scan_interval_sec": 600,
+        "screen_once": true,
+        "is_click": true
+    },
+    "benchmark": {
+        "enable": true,
+        "target_symbol": "WILDUSDTM",
+        "start_time": "2024-02-25 21:04:00",
+        "end_time": "2024-02-25 22:04:00",
+        "cache_file": "benchmark_cache.json"
+    },
+    "filter": {
+        "timeframe": "1m",
+        "lookback_candles": 30,
+        "daily_volume": {
+            "enable": true,
+            "min_usdt": 500000.0,
+            "max_usdt": 7000000.0
+        },
+        "donchian": {
+            "enable": true,
+            "min_pct": 1.0,
+            "max_pct": 10.0
+        },
+        "wicks": {
+            "enable": true,
+            "ratio_threshold": 3.0,
+            "candle_range_min_pct": 1.0,
+            "min_valid_pct": 50.0
+        },
+        "narrow_penalty": {
+            "enable": true,
+            "min_range_pct": 0.1,
+            "max_penalty_pct": 33.0
+        }
+    }
+}
+2026-03-16 18:27:12 | INFO | main | Запуск алгоритма Shtrih-Score...
+2026-03-16 18:27:57 | INFO | main | Запуск скринера... Конфиг: cfg.json
+2026-03-16 18:27:57 | INFO | main | Загружены настройки:
+{
+    "app": {
+        "quote": "USDT",
+        "max_symbols": 0,
+        "concurrent_symbols": 5,
+        "top_n": 10,
+        "request_interval_ms": 150,
+        "scan_interval_sec": 600,
+        "screen_once": true,
+        "is_click": true
+    },
+    "benchmark": {
+        "enable": true,
+        "target_symbol": "WILDUSDTM",
+        "start_time": "2026-02-24 21:04:00",
+        "end_time": "2026-02-24 22:04:00",
+        "cache_file": "benchmark_cache.json"
+    },
+    "filter": {
+        "timeframe": "1m",
+        "lookback_candles": 30,
+        "daily_volume": {
+            "enable": true,
+            "min_usdt": 500000.0,
+            "max_usdt": 7000000.0
+        },
+        "donchian": {
+            "enable": true,
+            "min_pct": 1.0,
+            "max_pct": 10.0
+        },
+        "wicks": {
+            "enable": true,
+            "ratio_threshold": 3.0,
+            "candle_range_min_pct": 1.0,
+            "min_valid_pct": 50.0
+        },
+        "narrow_penalty": {
+            "enable": true,
+            "min_range_pct": 0.1,
+            "max_penalty_pct": 33.0
+        }
+    }
+}
+2026-03-16 18:27:58 | INFO | main | Запуск алгоритма Shtrih-Score...
+2026-03-16 18:28:31 | INFO | main | Цели не найдены. Сплю...
+2026-03-16 18:28:31 | INFO | main | Режим однократного сканирования. Выход.

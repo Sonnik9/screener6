@@ -15,16 +15,19 @@ class KucoinKlines(KucoinBaseClient):
             "granularity": granularity_min
         }
         
+        # KuCoin Futures требует 'from' и 'to'
         if from_ms is not None:
-            params["from"] = from_ms
+            params["from"] = int(from_ms)
         if to_ms is not None:
-            params["to"] = to_ms
+            params["to"] = int(to_ms)
             
-        # ИСПРАВЛЕННЫЙ ЭНДПОИНТ: /api/v1/kline/query (для фьючерсов)
+        # ТОЧНЫЙ ЭНДПОИНТ ИМЕННО ДЛЯ ФЬЮЧЕРСОВ
         res = await self._request("GET", "/api/v1/kline/query", params=params)
+        
         data = res.get("data", []) if isinstance(res, dict) else res
         
-        if limit and not from_ms and not to_ms:
+        # Для сканера (когда нет from/to) просто режем по лимиту
+        if limit and from_ms is None and to_ms is None:
             data = data[:limit]
             
         return data
