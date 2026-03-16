@@ -32,10 +32,6 @@ async def run_scanner_cycle(scanner: CandidateScanner):
             formatted_sym = sym
             if sym.endswith("USDT"):
                 formatted_sym = sym.replace("USDT", "USDTM")
-            # if sym.endswith("USDTM"):
-            #     formatted_sym = sym.replace("USDTM", "-USDT")
-            # elif sym.endswith("USDT") and "-" not in sym:
-            #     formatted_sym = sym.replace("USDT", "-USDT")
                 
             f.write(f"https://www.kucoin.com/ru/trade/futures/{formatted_sym}\n")
             

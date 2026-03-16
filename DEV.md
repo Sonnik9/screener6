@@ -13,3 +13,102 @@
 
 
 Это база. И ее надо внедрить в наш пейплайн. дашь ключевые модули для замены (кодом). также прикрепляю ссылку на текущее состояние проекта.
+
+
+"filter": {
+    "timeframe": "1m",
+    "lookback_candles": 45,
+    "daily_volume": {
+      "enable": true,
+      "min_usdt": 500000.0,
+      "max_usdt": 7000000.0
+    },
+    "donchian": {
+      "enable": true,
+      "min_pct": 0.5,
+      "max_pct": 2.0   // Очень узкий коридор, цена стоит на месте
+    },
+    "atr": {
+      "enable": true,
+      "period": 14,
+      "min_pct": 0.4,  // Высокая волатильность для 1m таймфрейма
+      "max_pct": 5.0
+    },
+    "wicks": {
+      "enable": true,
+      "ratio_threshold": 4.0, // Тени в 4 раза больше тела
+      "candle_range_min_pct": 0.3,
+      "min_valid_pct": 50.0   // Половина всех свечей должны быть доджи/штрихами
+    },
+    "narrow_penalty": {
+      "enable": true,
+      "min_range_pct": 0.15,
+      "max_penalty_pct": 25.0 // Жестко штрафуем за "мертвые" свечи-точки
+    }
+  }
+
+
+"filter": {
+    "timeframe": "1m",
+    "lookback_candles": 60,
+    "daily_volume": {
+      "enable": true,
+      "min_usdt": 500000.0,
+      "max_usdt": 7000000.0
+    },
+    "donchian": {
+      "enable": true,
+      "min_pct": 1.0,
+      "max_pct": 4.5   // Даем монете немного "подышать"
+    },
+    "atr": {
+      "enable": true,
+      "period": 14,
+      "min_pct": 0.25, // Умеренная волатильность
+      "max_pct": 5.0
+    },
+    "wicks": {
+      "enable": true,
+      "ratio_threshold": 2.5, // Тени в 2.5 раза больше тела (уже легче пройти)
+      "candle_range_min_pct": 0.2,
+      "min_valid_pct": 40.0   // Достаточно 40% свечей-штрихов
+    },
+    "narrow_penalty": {
+      "enable": true,
+      "min_range_pct": 0.1,
+      "max_penalty_pct": 35.0
+    }
+  }
+
+
+"filter": {
+    "timeframe": "1m",
+    "lookback_candles": 30,
+    "daily_volume": {
+      "enable": true,
+      "min_usdt": 500000.0,
+      "max_usdt": 10000000.0 // Можно захватить чуть больше объема
+    },
+    "donchian": {
+      "enable": true,
+      "min_pct": 1.5,
+      "max_pct": 8.0   // Широкий коридор, монета может колбаситься
+    },
+    "atr": {
+      "enable": true,
+      "period": 14,
+      "min_pct": 0.8,  // БЕШЕНАЯ волатильность (почти 1% движения каждую минуту)
+      "max_pct": 10.0
+    },
+    "wicks": {
+      "enable": true,
+      "ratio_threshold": 3.0,
+      "candle_range_min_pct": 0.6, // Каждая свеча должна быть ОГРОМНОЙ
+      "min_valid_pct": 45.0
+    },
+    "narrow_penalty": {
+      "enable": true,
+      "min_range_pct": 0.2, // Жесточайший штраф за мелкие свечи
+      "max_penalty_pct": 20.0
+    }
+  }

@@ -30,9 +30,13 @@ class PenaltyConfig:
     enable: bool; min_range_pct: float; max_penalty_pct: float
 
 @dataclass
+class ATRConfig:
+    enable: bool; period: int; min_pct: float; max_pct: float
+
+@dataclass
 class FilterSection:
     timeframe: str; lookback_candles: int
-    daily_volume: DailyVolumeConfig; donchian: DonchianConfig; wicks: WicksConfig; narrow_penalty: PenaltyConfig
+    daily_volume: DailyVolumeConfig; donchian: DonchianConfig; wicks: WicksConfig; narrow_penalty: PenaltyConfig; atr: ATRConfig
 
 @dataclass
 class AppConfig:
@@ -72,11 +76,12 @@ class ConfigLoader:
         don_cfg = DonchianConfig(**get_block("donchian", {"enable": True, "min_pct": 1.0, "max_pct": 7.0}))
         wicks_cfg = WicksConfig(**get_block("wicks", {"enable": True, "ratio_threshold": 3.0, "candle_range_min_pct": 0.15, "min_valid_pct": 50.0}))
         pen_cfg = PenaltyConfig(**get_block("narrow_penalty", {"enable": True, "min_range_pct": 0.15, "max_penalty_pct": 33.0}))
+        atr_cfg = ATRConfig(**get_block("atr", {"enable": True, "period": 14, "min_pct": 0.2, "max_pct": 5.0}))
 
         filter_cfg = FilterSection(
             timeframe=str(filt_d.get("timeframe", "1m")).lower().strip(),
             lookback_candles=int(filt_d.get("lookback_candles", 30)),
-            daily_volume=vol_cfg, donchian=don_cfg, wicks=wicks_cfg, narrow_penalty=pen_cfg
+            daily_volume=vol_cfg, donchian=don_cfg, wicks=wicks_cfg, narrow_penalty=pen_cfg, atr=atr_cfg
         )
 
         return AppConfig(app=app_cfg, benchmark=bench_cfg, filter=filter_cfg)

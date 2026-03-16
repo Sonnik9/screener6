@@ -80,3 +80,13 @@
 2026-03-16 20:24:58 | INFO | scanner_engine | Сканнер: tf=1m, lookback=50, алгоритм=Barcode_v12 (Safe API)
 2026-03-16 20:25:00 | INFO | scanner_engine | Символов: 547 -> После фильтра объема: 198.
 2026-03-16 20:25:31 | INFO | scanner_engine | 🔥 Лидеры (Строгих: 0): TRIAUSDTM (Sc:30, Wicks:30%, Don:1.4%, Pen:0%)
+2026-03-16 20:48:41 | INFO | scanner_engine | Сканнер: tf=1m, lookback=45, алгоритм=Barcode_v12 (Safe API)
+2026-03-16 20:48:42 | INFO | scanner_engine | Символов: 547 -> После фильтра объема: 197.
+2026-03-16 20:49:13 | INFO | scanner_engine | 🔥 Лидеры (Строгих: 0): NUMIUSDTM (Sc:44, Wicks:40%, Don:0.8%, Pen:4%), TRIAUSDTM (Sc:39, Wicks:31%, Don:1.0%, Pen:2%), IRUSDTM (Sc:20, Wicks:20%, Don:0.5%, Pen:7%), AGTUSDTM (Sc:13, Wicks:13%, Don:0.8%, Pen:16%), BABYUSDTM (Sc:9, Wicks:9%, Don:0.7%, Pen:4%)
+2026-03-16 20:55:47 | INFO | scanner_engine | Сканнер: tf=1m, lookback=60, алгоритм=Barcode_v12 (Safe API)
+2026-03-16 20:55:48 | INFO | scanner_engine | Символов: 547 -> После фильтра объема: 63.
+2026-03-16 20:56:36 | INFO | scanner_engine | Сканнер: tf=1m, lookback=60, алгоритм=Barcode_v12 (Safe API)
+2026-03-16 20:56:37 | INFO | scanner_engine | Символов: 547 -> После фильтра объема: 226.
+2026-03-16 20:57:13 | INFO | scanner_engine | 🔥 Лидеры (Строгих: 1): TRIAUSDTM (Sc:49, Wicks:42%, Don:1.0%, Pen:0%), MYXUSDTM (Sc:25, Wicks:50%, Don:0.5%, Pen:0%), IRYSUSDTM (Sc:21, Wicks:50%, Don:0.3%, Pen:2%), 2ZUSDTM (Sc:15, Wicks:42%, Don:0.3%, Pen:0%), NUMIUSDTM (Sc:10, Wicks:45%, Don:0.7%, Pen:10%)
+2026-03-16 21:25:35 | INFO | scanner_engine | Сканнер: tf=1m, lookback=30, алгоритм=Barcode_v12 (Safe API)
+2026-03-16 21:25:36 | INFO | scanner_engine | Символов: 547 -> После фильтра объема: 228.
