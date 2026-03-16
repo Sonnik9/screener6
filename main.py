@@ -1,24 +1,50 @@
 import asyncio
 import os
+from pathlib import Path
 from c_log import UnifiedLogger
 from config import load_config, CFG_PATH
 from scanner_engine import CandidateScanner
 from benchmark import run_autotune
-from clicker import Clicker
+import clicker  # Импортируем сам модуль, а не класс
 
 logger = UnifiedLogger("main")
 
+ROOT_DIR = Path(__file__).resolve().parent
+RESULTS_FILE = ROOT_DIR / "target_links.txt"
+
 async def run_scanner_cycle(scanner: CandidateScanner):
     res = await scanner.scan()
-    if not res.get("candidates"):
+    candidates = res.get("candidates", [])
+    
+    if not candidates:
         logger.info("Цели не найдены. Сплю...")
-    else:
-        logger.info(f"Найдено целей: {len(res['candidates'])}")
-        
-        # Интеграция кликера, если он включен
-        if scanner.cfg.app.is_click:
-            clicker = Clicker()
-            await clicker.process_candidates(res['candidates'])
+        return
+
+    logger.info(f"Найдено целей: {len(candidates)}")
+    
+    # 1. Формируем ссылки и сохраняем их в файл для кликера
+    with open(RESULTS_FILE, "w", encoding="utf-8") as f:
+        for cand in candidates:
+            # Вытягиваем тикер, даже если вернулся словарь с метриками
+            sym = cand.get("symbol", cand) if isinstance(cand, dict) else cand
+            
+            # Адаптируем тикер под правильную ссылку KuCoin Futures (BTCUSDTM -> BTC-USDT)
+            formatted_sym = sym
+            if sym.endswith("USDTM"):
+                formatted_sym = sym.replace("USDTM", "-USDT")
+            elif sym.endswith("USDT") and "-" not in sym:
+                formatted_sym = sym.replace("USDT", "-USDT")
+                
+            f.write(f"https://www.kucoin.com/ru/trade/{formatted_sym}\n")
+            
+    logger.info(f"Ссылки сохранены в файл: {RESULTS_FILE}")
+
+    # 2. Интеграция кликера, если он включен в настройках
+    if scanner.cfg.app.is_click:
+        logger.info("Авто-запуск кликера...")
+        # Запускаем синхронную функцию кликера в отдельном потоке, 
+        # чтобы time.sleep() в кликере не заморозил весь асинхронный цикл сканера
+        await asyncio.to_thread(clicker.main)
 
 async def main():
     logger.info(f"Запуск скринера... Базовый конфиг: {CFG_PATH}")
@@ -35,7 +61,7 @@ async def main():
     
     while True:
         try:
-            # Загружаем конфиг по приоритету
+            # Загружаем конфиг по приоритету (база или бенчмарк)
             cfg = load_config(active_cfg_path)
             scanner = CandidateScanner(cfg)
             
