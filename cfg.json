@@ -13,7 +13,7 @@
     "is_click": true
   },
   "benchmark": {
-    "enable": true,
+    "enable": false,
     "target_symbol": "WILDUSDTM",
     "start_time": "2026-02-24 21:04:00",
     "end_time": "2026-02-24 22:04:00",
@@ -35,7 +35,7 @@
     "wicks": {
       "enable": true,
       "ratio_threshold": 3.0,
-      "candle_range_min_pct": 1.00,
+      "candle_range_min_pct": 0.5,
       "min_valid_pct": 50.0
     },
     "narrow_penalty": {

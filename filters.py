@@ -9,15 +9,17 @@ class CalculatingEngine:
     def analyze(self, candles: List[Any]) -> Dict[str, Any]:
         if not candles or len(candles) < 10:
             return {"passed": False, "score": -999.0, "reason": "not_enough_candles"}
-
         try:
             def get_val(k, attr, idx): return float(getattr(k, attr, k[idx] if isinstance(k, (list, tuple)) else 0))
+            
+            # ИСПРАВЛЕНО: Правильные индексы для KuCoin Futures
             opens = np.array([get_val(k, 'open', 1) for k in candles])
-            closes = np.array([get_val(k, 'close', 2) for k in candles])
-            highs = np.array([get_val(k, 'high', 3) for k in candles])
-            lows = np.array([get_val(k, 'low', 4) for k in candles])
+            highs = np.array([get_val(k, 'high', 2) for k in candles])
+            lows = np.array([get_val(k, 'low', 3) for k in candles])
+            closes = np.array([get_val(k, 'close', 4) for k in candles])
 
-            ranges = highs - lows
+            # Защита через abs
+            ranges = np.abs(highs - lows)
             bodies = np.abs(opens - closes)
             lows_safe = np.where(lows == 0, 1e-8, lows)
             candle_pcts = (ranges / lows_safe) * 100.0

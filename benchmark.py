@@ -73,19 +73,23 @@ async def run_autotune(cfg_path: str = CFG_PATH):
     # ИЗВЛЕЧЕНИЕ ПАРАМЕТРОВ (СЧИТЫВАЕМ С ТЕКУЩЕГО ЭТАЛОНА)
     # =========================================================
     def get_val(k, idx): return float(k[idx])
+    
+    # ИСПРАВЛЕНО: Формат KuCoin Futures: [time, open, high, low, close, volume]
     opens = np.array([get_val(k, 1) for k in candles])
-    closes = np.array([get_val(k, 2) for k in candles])
-    highs = np.array([get_val(k, 3) for k in candles])
-    lows = np.array([get_val(k, 4) for k in candles])
+    highs = np.array([get_val(k, 2) for k in candles])
+    lows = np.array([get_val(k, 3) for k in candles])
+    closes = np.array([get_val(k, 4) for k in candles])
 
-    ranges = highs - lows
+    # Защита через abs()
+    ranges = np.abs(highs - lows)
     bodies = np.abs(opens - closes)
     lows_safe = np.where(lows == 0, 1e-8, lows)
     candle_pcts = (ranges / lows_safe) * 100.0
 
     # 1. Измеряем Donchian эталона
     avg_high, avg_low = np.mean(highs), np.mean(lows)
-    donchian_actual = ((avg_high - avg_low) / avg_low) * 100.0 if avg_low > 0 else 1.0
+    # И тут тоже abs на всякий случай
+    donchian_actual = (np.abs(avg_high - avg_low) / avg_low) * 100.0 if avg_low > 0 else 1.0
 
     # 2. Измеряем Wicks (Медиана отношения теней к телу)
     valid_math = (ranges > 0) & (bodies > 0)

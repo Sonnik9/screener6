@@ -68,3 +68,6 @@
 2026-03-16 18:27:59 | INFO | scanner_engine | Символов: 547 -> После фильтра объема: 201.
 2026-03-16 19:02:01 | INFO | scanner_engine | Сканнер: tf=1m, lookback=30, алгоритм=Barcode_v12 (Safe API)
 2026-03-16 19:02:02 | INFO | scanner_engine | Предфильтр объема отключен. Сканируем все 547 символов.
+2026-03-16 19:30:33 | INFO | scanner_engine | Сканнер: tf=1m, lookback=30, алгоритм=Barcode_v12 (Safe API)
+2026-03-16 19:30:34 | INFO | scanner_engine | Предфильтр объема отключен. Сканируем все 547 символов.
+2026-03-16 19:32:01 | INFO | scanner_engine | 🔥 Лидеры (Строгих: 0): SIRENUSDTM (Sc:47, Wicks:47%, Don:3.1%, Pen:0%), BEATUSDTM (Sc:20, Wicks:40%, Don:1.0%, Pen:20%), TAUSDTM (Sc:17, Wicks:33%, Don:1.6%, Pen:17%)
