@@ -1,17 +1,14 @@
 import json
-import asyncio
-import itertools
+import numpy as np
 from datetime import datetime, timezone
 from pathlib import Path
 from c_log import UnifiedLogger
 from config import load_config, CFG_PATH
-from filters import CalculatingEngine
 from KUCOIN.klines import KucoinKlines
 
 logger = UnifiedLogger("benchmark")
 
 def parse_to_ms_utc(date_str: str) -> int:
-    # ЖЕСТКАЯ ПРИВЯЗКА К UTC, чтобы не было смещений по часовым поясам!
     dt = datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc)
     return int(dt.timestamp() * 1000)
 
@@ -21,37 +18,18 @@ async def fetch_historical_klines(symbol: str, start_str: str, end_str: str) -> 
     try:
         from_ms = parse_to_ms_utc(start_str)
         to_ms = parse_to_ms_utc(end_str)
-
         current_from = from_ms
 
-        # Чанковый запрос (как в правильных пайплайнах), на случай длинных периодов
         while current_from < to_ms:
-            data = await api.get_klines(
-                symbol=symbol,
-                granularity_min=1,
-                from_ms=current_from,
-                to_ms=to_ms
-            )
-            
-            if not data:
-                break
-                
-            # Убеждаемся, что свечи идут от старых к новым (KuCoin иногда отдает задом наперед)
+            data = await api.get_klines(symbol=symbol, granularity_min=1, from_ms=current_from, to_ms=to_ms)
+            if not data: break
             data.sort(key=lambda x: x[0])
             all_candles.extend(data)
-            
             last_candle_time = data[-1][0]
-            if last_candle_time <= current_from:
-                break # Защита от вечного цикла
-                
-            current_from = last_candle_time + 60000 # Сдвигаемся на 1 минуту вперед
+            if last_candle_time <= current_from: break
+            current_from = last_candle_time + 60000 
             
-        # Жестко фильтруем ровно то, что просили
         final_candles = [c for c in all_candles if from_ms <= c[0] <= to_ms]
-        
-        if not final_candles:
-            logger.warning("KuCoin вернул пустой список. Возможно, запрошенный период (2024 год) слишком старый и биржа больше не хранит 1m свечи за это время!")
-            
         return final_candles
     except Exception as e:
         logger.error(f"Ошибка загрузки истории бенчмарка: {e}")
@@ -64,7 +42,7 @@ async def run_autotune(cfg_path: str = CFG_PATH):
     if not cfg.benchmark.enable:
         return
 
-    logger.info(f"⚡ БЕНЧМАРК: Автоподгон под {cfg.benchmark.target_symbol} ({cfg.benchmark.start_time} - {cfg.benchmark.end_time})")
+    logger.info(f"⚡ БЕНЧМАРК: Снятие мерок с эталона {cfg.benchmark.target_symbol}...")
     cache_file = Path(cfg.benchmark.cache_file)
     candles = []
 
@@ -73,11 +51,10 @@ async def run_autotune(cfg_path: str = CFG_PATH):
             with open(cache_file, "r") as f:
                 candles = json.load(f)
             logger.info(f"⚡ БЕНЧМАРК: Загружено {len(candles)} свечей из кэша.")
-        except Exception as e:
-            logger.error(f"Ошибка чтения кэша: {e}")
+        except: pass
 
     if not candles:
-        logger.info("⚡ БЕНЧМАРК: Кэш пуст. Тянем историю через API чанками...")
+        logger.info("⚡ БЕНЧМАРК: Кэш пуст. Скачиваем свечи эталона...")
         candles = await fetch_historical_klines(
             cfg.benchmark.target_symbol, 
             cfg.benchmark.start_time, 
@@ -89,40 +66,63 @@ async def run_autotune(cfg_path: str = CFG_PATH):
             logger.info(f"⚡ БЕНЧМАРК: Сохранено {len(candles)} свечей в кэш.")
 
     if not candles:
-        logger.error("⚡ БЕНЧМАРК: Провал. Свечи не получены. ВНИМАНИЕ: Попробуйте изменить дату в cfg.json на более свежую (например, 2 недели назад).")
+        logger.error("⚡ БЕНЧМАРК: Провал. Свечи не получены. Проверь даты в конфиге.")
         return
 
-    wicks_thresholds = [1.5, 2.0, 2.5, 3.0]
-    wicks_ranges = [0.10, 0.15, 0.20, 0.25]
-    penalty_pcts = [20.0, 33.0, 40.0, 50.0]
+    # =========================================================
+    # ИЗВЛЕЧЕНИЕ ПАРАМЕТРОВ (СЧИТЫВАЕМ С ТЕКУЩЕГО ЭТАЛОНА)
+    # =========================================================
+    def get_val(k, idx): return float(k[idx])
+    opens = np.array([get_val(k, 1) for k in candles])
+    closes = np.array([get_val(k, 2) for k in candles])
+    highs = np.array([get_val(k, 3) for k in candles])
+    lows = np.array([get_val(k, 4) for k in candles])
+
+    ranges = highs - lows
+    bodies = np.abs(opens - closes)
+    lows_safe = np.where(lows == 0, 1e-8, lows)
+    candle_pcts = (ranges / lows_safe) * 100.0
+
+    # 1. Измеряем Donchian эталона
+    avg_high, avg_low = np.mean(highs), np.mean(lows)
+    donchian_actual = ((avg_high - avg_low) / avg_low) * 100.0 if avg_low > 0 else 1.0
+
+    # 2. Измеряем Wicks (Медиана отношения теней к телу)
+    valid_math = (ranges > 0) & (bodies > 0)
+    wick_ratios = np.zeros_like(ranges)
+    wick_ratios[valid_math] = ranges[valid_math] / bodies[valid_math]
     
-    best_score = -999
-    best_params = None
+    valid_wicks = wick_ratios[wick_ratios > 0]
+    actual_ratio_median = np.median(valid_wicks) if len(valid_wicks) > 0 else 2.0
+    
+    # 3. Измеряем минимальный размер свечи
+    actual_range_median = np.median(candle_pcts)
 
-    for wt, wr, pp in itertools.product(wicks_thresholds, wicks_ranges, penalty_pcts):
-        cfg.filter.wicks.ratio_threshold = wt
-        cfg.filter.wicks.candle_range_min_pct = wr
-        cfg.filter.narrow_penalty.max_penalty_pct = pp
-        
-        engine = CalculatingEngine(cfg.filter)
-        res = engine.analyze(candles)
-        
-        if res["passed"] and res["score"] > best_score:
-            best_score = res["score"]
-            best_params = (wt, wr, pp)
+    # =========================================================
+    # ФОРМИРОВАНИЕ И СОХРАНЕНИЕ BM_CFG.JSON
+    # =========================================================
+    # Делаем коридоры вокруг эталона (с запасом, чтобы он проходил фильтр)
+    new_donchian_min = round(max(0.1, donchian_actual * 0.4), 2)
+    new_donchian_max = round(donchian_actual * 1.6, 2)
+    new_wick_ratio = round(actual_ratio_median * 0.6, 2) # Снижаем порог на 40% от медианы
+    new_min_range = round(actual_range_median * 0.3, 2)  # Снижаем минимальный размах на 70% от медианы
 
-    if best_params:
-        logger.info(f"⚡ БЕНЧМАРК: Идеал найден! Скор: {best_score:.1f} | Wicks Ratio: {best_params[0]}, Min Range: {best_params[1]}%, Max Penalty: {best_params[2]}%")
+    logger.info(f"⚡ БЕНЧМАРК: Метрики -> Donchian: {donchian_actual:.2f}%, Wicks Median: {actual_ratio_median:.2f}, Range Median: {actual_range_median:.2f}%")
+    
+    with open(cfg_path, "r", encoding="utf-8") as f:
+        raw_data = json.load(f)
         
-        with open(cfg_path, "r", encoding="utf-8") as f:
-            raw_data = json.load(f)
-            
-        raw_data["filter"]["wicks"]["ratio_threshold"] = best_params[0]
-        raw_data["filter"]["wicks"]["candle_range_min_pct"] = best_params[1]
-        raw_data["filter"]["narrow_penalty"]["max_penalty_pct"] = best_params[2]
+    raw_data["filter"]["donchian"]["min_pct"] = new_donchian_min
+    raw_data["filter"]["donchian"]["max_pct"] = new_donchian_max
+    raw_data["filter"]["wicks"]["ratio_threshold"] = new_wick_ratio
+    raw_data["filter"]["wicks"]["candle_range_min_pct"] = new_min_range
+    raw_data["filter"]["narrow_penalty"]["min_range_pct"] = new_min_range
+    
+    # Жестко отключаем предфильтр объема, чтобы эталон не отсеялся из-за дневного неликвида
+    raw_data["filter"]["daily_volume"]["enable"] = False
+    
+    bm_path = "bm_cfg.json"
+    with open(bm_path, "w", encoding="utf-8") as f:
+        json.dump(raw_data, f, indent=4)
         
-        with open(cfg_path, "w", encoding="utf-8") as f:
-            json.dump(raw_data, f, indent=4)
-        logger.info("⚡ БЕНЧМАРК: Конфиг успешно обновлен!")
-    else:
-        logger.warning("⚡ БЕНЧМАРК: Настройки не подобраны. Эталон не проходит даже мягкие фильтры.")
+    logger.info(f"⚡ БЕНЧМАРК: Идеальный конфиг сшит и сохранен в {bm_path}")
