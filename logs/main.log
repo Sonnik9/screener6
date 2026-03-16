@@ -148,3 +148,31 @@
 2026-03-14 23:28:52 | INFO | main | 🔥 НАЙДЕНО 10 МОНЕТ: ['MYXUSDTM', 'PROMUSDTM', 'ARCUSDTM', 'TRIAUSDTM', 'CUSDTM', 'GFUSDTM', 'HAEDALUSDTM', 'NUMIUSDTM', 'MBOXUSDTM', 'COLLECTUSDTM']
 2026-03-14 23:28:52 | INFO | main | Ссылки сохранены в файл: C:\Users\User\Desktop\PROGECTS\SLAV\Kucoin\BRITVA_SOFTs\scriners\britva_screeners\britva9\screener6\target_links.txt. Запустите clicker.py вручную.
 2026-03-14 23:36:20 | INFO | main | Режим однократного сканирования. Выход.
+2026-03-16 18:38:20 | INFO | main | Запуск скринера... Конфиг: cfg.json
+2026-03-16 18:38:20 | INFO | main | Загружены настройки:
+{
+    "app": {
+        "quote": "USDT",
+        "max_symbols": 0,
+        "concurrent_symbols": 5,
+        "top_n": 10,
+        "request_interval_ms": 150,
+        "scan_interval_sec": 600,
+        "screen_once": true,
+        "is_click": true
+    },
+    "filter": {
+        "timeframe": "1m",
+        "lookback_candles": 30,
+        "daily_volume_min_usdt": 500000.0,
+        "daily_volume_max_usdt": 7000000.0,
+        "donchian_min_pct": 1.0,
+        "donchian_max_pct": 7.0,
+        "wick_ratio_threshold": 3.0,
+        "candle_range_min_pct": 0.15,
+        "min_valid_candles_pct": 50.0
+    }
+}
+2026-03-16 18:38:20 | INFO | main | Запуск алгоритма Shtrih-Score...
+2026-03-16 18:38:53 | INFO | main | 🔥 НАЙДЕНО 10 МОНЕТ: ['CYSUSDTM', 'MYXUSDTM', 'GFUSDTM', 'IRUSDTM', 'ARCUSDTM', 'IRYSUSDTM', 'FRAXUSDTM', 'GUSDTM', 'AZTECUSDTM', 'MIRAUSDTM']
+2026-03-16 18:38:53 | INFO | main | Ссылки сохранены в файл: C:\Users\User\Desktop\HP_EliteBook_735\PROGECTS\SLAV\Kucoin\BRITVA_SOFTs\scriners\britva_screeners\britva9\screener6\target_links.txt. Запустите clicker.py вручную.
