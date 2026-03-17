@@ -29,11 +29,11 @@ async def run_scanner_cycle(scanner: CandidateScanner):
     if candidates:
         logger.info(f"✅ Строгие ссылки сохранены в файл: {RESULTS_FILE}")
 
-    # 2. ПРИБЛИЖЕННЫЕ ЦЕЛИ (Аппроксимация)
+    # 2. ПРИБЛИЖЕННЫЕ ЦЕЛИ (Аппроксимация v14)
     NEAR_FILE = ROOT_DIR / "near_links.txt"
     if near_candidates:
         with open(NEAR_FILE, "w", encoding="utf-8") as f:
-            f.write("=== ТОП МОНЕТ ПО ИНДЕКСУ ЛОЯЛЬНОСТИ К КОНФИГУ ===\n\n")
+            f.write("=== ТОП МОНЕТ ПО ИНДЕКСУ ЛОЯЛЬНОСТИ (v14) ===\n\n")
             for i, cand in enumerate(near_candidates, 1):
                 sym = cand.get("symbol", cand) if isinstance(cand, dict) else cand
                 formatted_sym = sym.replace("USDT", "USDTM") if sym.endswith("USDT") else sym
@@ -42,11 +42,11 @@ async def run_scanner_cycle(scanner: CandidateScanner):
                 
                 f.write(f"#{i} {sym} | Индекс: {score:.1f}%\n")
                 f.write(f"Ссылка: https://www.kucoin.com/ru/trade/futures/{formatted_sym}\n")
-                f.write(f"ATR: {m.get('atr_pct',0):.2f}% | Donchian: {m.get('donchian_pct',0):.2f}% | Drift: {m.get('drift_pct',0):.2f}%\n")
-                f.write(f"Мясорубка: {m.get('compression',0):.2f} | Wicks Progress: {m.get('wicks_progress_pct',0):.1f}%\n")
+                f.write(f"ATR: {m.get('atr_pct',0):.2f}% | Штрих-Дистанция: {m.get('barcode_dist_pct',0):.2f}%\n")
+                f.write(f"Ось: {m.get('low_horizont',0):.4f} - {m.get('high_horizont',0):.4f} | Пересечений оси: {m.get('crosses',0)}\n")
                 f.write("-" * 50 + "\n")
                 
-        logger.info(f"🔍 Ближайшие кандидаты с метриками выгружены в: {NEAR_FILE}")
+        logger.info(f"🔍 Ближайшие кандидаты v14 выгружены в: {NEAR_FILE}")
 
     # 3. Интеграция кликера (кликает ТОЛЬКО по строгим!)
     if scanner.cfg.app.is_click and candidates:

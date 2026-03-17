@@ -18,20 +18,12 @@ class DailyVolumeConfig:
     enable: bool; min_usdt: float; max_usdt: float
 
 @dataclass
-class DonchianConfig:
-    enable: bool; min_pct: float; max_pct: float; max_drift_pct: float
-
-@dataclass
-class WicksConfig:
-    enable: bool; ratio_threshold: float; candle_range_min_pct: float; min_valid_pct: float
-
-@dataclass
-class PenaltyConfig:
-    enable: bool; min_range_pct: float; max_penalty_pct: float
-
-@dataclass
 class ATRConfig:
     enable: bool; period: int; min_pct: float; max_pct: float
+
+@dataclass
+class BarcodePatternConfig:
+    enable: bool; window: int; strih_threshold_pct: float; high_matches_pctl: float; low_matches_pctl: float
 
 @dataclass
 class ApproximationConfig:
@@ -40,7 +32,7 @@ class ApproximationConfig:
 @dataclass
 class FilterSection:
     timeframe: str; lookback_candles: int
-    daily_volume: DailyVolumeConfig; donchian: DonchianConfig; wicks: WicksConfig; narrow_penalty: PenaltyConfig; atr: ATRConfig; approximation: ApproximationConfig
+    daily_volume: DailyVolumeConfig; atr: ATRConfig; barcode_pattern: BarcodePatternConfig; approximation: ApproximationConfig
 
 @dataclass
 class AppConfig:
@@ -77,18 +69,22 @@ class ConfigLoader:
             return {k: type(v)(block.get(k, v)) for k, v in defaults.items()}
 
         vol_cfg = DailyVolumeConfig(**get_block("daily_volume", {"enable": True, "min_usdt": 500000.0, "max_usdt": 10000000.0}))
-        don_cfg = DonchianConfig(**get_block("donchian", {"enable": True, "min_pct": 2.0, "max_pct": 10.0, "max_drift_pct": 1.5}))
-        wicks_cfg = WicksConfig(**get_block("wicks", {"enable": True, "ratio_threshold": 2.5, "candle_range_min_pct": 1.0, "min_valid_pct": 50.0}))
-        pen_cfg = PenaltyConfig(**get_block("narrow_penalty", {"enable": True, "min_range_pct": 0.2, "max_penalty_pct": 20.0}))
         atr_cfg = ATRConfig(**get_block("atr", {"enable": True, "period": 14, "min_pct": 1.5, "max_pct": 15.0}))
-        
-        # НОВАЯ РУЧКА
         approx_cfg = ApproximationConfig(**get_block("approximation", {"enable": True, "min_score_pct": 75.0, "top_n": 10}))
+        
+        # НОВАЯ ВЕРСИЯ ПАТТЕРНА
+        barcode_cfg = BarcodePatternConfig(**get_block("barcode_pattern", {
+            "enable": True, 
+            "window": 40, 
+            "strih_threshold_pct": 1.5, 
+            "high_matches_pctl": 90.0, 
+            "low_matches_pctl": 90.0
+        }))
 
         filter_cfg = FilterSection(
             timeframe=str(filt_d.get("timeframe", "1m")).lower().strip(),
-            lookback_candles=int(filt_d.get("lookback_candles", 30)),
-            daily_volume=vol_cfg, donchian=don_cfg, wicks=wicks_cfg, narrow_penalty=pen_cfg, atr=atr_cfg, approximation=approx_cfg
+            lookback_candles=int(filt_d.get("lookback_candles", 40)),
+            daily_volume=vol_cfg, atr=atr_cfg, barcode_pattern=barcode_cfg, approximation=approx_cfg
         )
 
         return AppConfig(app=app_cfg, benchmark=bench_cfg, filter=filter_cfg)

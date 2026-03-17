@@ -93,3 +93,6 @@
 2026-03-16 21:58:46 | INFO | scanner_engine | Сканнер: tf=1m, lookback=30, алгоритм=Barcode_v12 (Safe API)
 2026-03-16 21:58:47 | INFO | scanner_engine | Символов: 547 -> После фильтра объема: 227.
 2026-03-16 21:59:23 | INFO | scanner_engine | 🔥 Лидеры лояльности (Строгих: 0): NUMIUSDTM (128.9%), PROMUSDTM (118.1%), IRYSUSDTM (113.1%), MIRAUSDTM (113.0%), TACUSDTM (111.5%)
+2026-03-17 12:28:55 | INFO | scanner_engine | Сканнер: tf=1m, lookback=40, алгоритм=Barcode_v12 (Safe API)
+2026-03-17 12:28:56 | INFO | scanner_engine | Символов: 544 -> После фильтра объема: 220.
+2026-03-17 12:29:31 | INFO | scanner_engine | 🔥 Лидеры лояльности (Строгих: 1): POLYXUSDTM (142.4%), BPUSDTM (131.4%), NUMIUSDTM (126.8%), ONUSDTM (108.2%), IRUSDTM (107.7%)
