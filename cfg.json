@@ -8,10 +8,15 @@
     "concurrent_symbols": 5,
     "top_n": 10,
     "request_interval_ms": 150,
-    "scan_interval_sec": 600,
-    "screen_once": true,
-    "is_click": true
+    "scan_interval_sec": 3600,
+    "screen_once": false,
+    "is_click": false
   },
+  "telegram": {
+      "enable": true,
+      "bot_token": "8229315186:AAGHgBAjaSCU0wZdl2_pmdHGFtGir-OGpAE",
+      "chat_id": "-1003709938033"
+    },
   "benchmark": {
     "enable": false,
     "target_symbol": "WILDUSDTM",
@@ -21,16 +26,16 @@
   },
   "filter": {
       "timeframe": "1m",
-      "lookback_candles": 55,
+      "lookback_candles": 60,
       "daily_volume": {
         "enable": true,
         "min_usdt": 500000.0,
-        "max_usdt": 15000000.0
+        "max_usdt": 25000000.0
       },
       "atr": {
         "enable": true,
         "period": 14,
-        "min_pct": 1.1,
+        "min_pct": 1.0,
         "max_pct": 6.0
       },
       "barcode_pattern": {
@@ -40,16 +45,16 @@
           "max_dist_pct": 8.0,
           "high_matches_pctl": 90.0,
           "low_matches_pctl": 90.0,
-          "min_crosses_pct": 35.0
+          "min_crosses_pct": 40.0
       },
       "narrow_penalty": {
         "enable": true,
-        "min_range_pct": 0.2,
+        "min_range_pct": 0.20,
         "max_penalty_pct": 20.0
       },
       "approximation": {
         "enable": true,
-        "min_score_pct": 85.0,
+        "min_score_pct": 90.0,
         "top_n": 10
       }
     }

@@ -39,8 +39,13 @@ class FilterSection:
     daily_volume: DailyVolumeConfig; atr: ATRConfig; barcode_pattern: BarcodePatternConfig; approximation: ApproximationConfig; narrow_penalty: NarrowPenaltyConfig
 
 @dataclass
+class TelegramConfig:
+    enable: bool; bot_token: str; chat_id: str
+
+@dataclass
 class AppConfig:
-    app: AppSection; benchmark: BenchmarkSection; filter: FilterSection
+    app: AppSection; benchmark: BenchmarkSection; filter: FilterSection; telegram: TelegramConfig
+
 
 class ConfigLoader:
     @staticmethod
@@ -48,6 +53,7 @@ class ConfigLoader:
         app_d = user_raw.get("app", {})
         bench_d = user_raw.get("benchmark", {})
         filt_d = user_raw.get("filter", {})
+        tg_d = user_raw.get("telegram", {})
 
         app_cfg = AppSection(
             quote=str(app_d.get("quote", "USDT")).upper().strip(),
@@ -99,7 +105,14 @@ class ConfigLoader:
             daily_volume=vol_cfg, atr=atr_cfg, barcode_pattern=barcode_cfg, approximation=approx_cfg, narrow_penalty=penalty_cfg
         )
 
-        return AppConfig(app=app_cfg, benchmark=bench_cfg, filter=filter_cfg)
+        tg_cfg = TelegramConfig(
+            enable=bool(tg_d.get("enable", False)),
+            bot_token=str(tg_d.get("bot_token", "")),
+            chat_id=str(tg_d.get("chat_id", ""))
+        )
+
+        return AppConfig(app=app_cfg, benchmark=bench_cfg, filter=filter_cfg, telegram=tg_cfg)
+
 
 CFG_PATH = "cfg.json"
 

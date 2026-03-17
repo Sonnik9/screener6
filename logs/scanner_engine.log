@@ -113,3 +113,6 @@
 2026-03-17 13:59:16 | INFO | scanner_engine | Сканнер: tf=1m, lookback=55, алгоритм=Barcode_v12 (Safe API)
 2026-03-17 13:59:17 | INFO | scanner_engine | Символов: 544 -> После фильтра объема: 261.
 2026-03-17 13:59:58 | INFO | scanner_engine | 🔥 Лидеры лояльности (Строгих: 0): NUMIUSDTM (98.3%), ZIGUSDTM (94.8%)
+2026-03-17 15:22:08 | INFO | scanner_engine | Сканнер: tf=1m, lookback=60, алгоритм=Barcode_v12 (Safe API)
+2026-03-17 15:22:09 | INFO | scanner_engine | Символов: 544 -> После фильтра объема: 262.
+2026-03-17 15:22:51 | INFO | scanner_engine | 🔥 Лидеры лояльности (Строгих: 0): ONUSDTM (108.8%), NUMIUSDTM (94.1%), TRIAUSDTM (92.2%), MAGMAUSDTM (85.6%), VELVETUSDTM (84.3%)
