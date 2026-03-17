@@ -13,7 +13,7 @@
     "is_click": true
   },
   "benchmark": {
-    "enable": true,
+    "enable": false,
     "target_symbol": "WILDUSDTM",
     "start_time": "2026-02-24 21:04:00",
     "end_time": "2026-02-24 22:00:00",
@@ -25,23 +25,23 @@
       "daily_volume": {
         "enable": true,
         "min_usdt": 500000.0,
-        "max_usdt": 10000000.0
+        "max_usdt": 15000000.0
       },
       "atr": {
         "enable": true,
         "period": 14,
-        "min_pct": 1.5,
-        "max_pct": 15.0
+        "min_pct": 1.1,
+        "max_pct": 6.0
       },
       "barcode_pattern": {
-        "enable": true,
-        "window": 40,
-        "min_dist_pct": 1.0,
-        "max_dist_pct": 5.5,
-        "high_matches_pctl": 90.0,
-        "low_matches_pctl": 90.0,
-        "min_crosses_pct": 37.0
-    },
+          "enable": true,
+          "window": 40,
+          "min_dist_pct": 1.5,
+          "max_dist_pct": 8.0,
+          "high_matches_pctl": 90.0,
+          "low_matches_pctl": 90.0,
+          "min_crosses_pct": 35.0
+      },
       "approximation": {
         "enable": true,
         "min_score_pct": 85.0,

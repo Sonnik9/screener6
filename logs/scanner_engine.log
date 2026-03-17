@@ -102,3 +102,11 @@
 2026-03-17 13:00:52 | INFO | scanner_engine | Сканнер: tf=1m, lookback=40, алгоритм=Barcode_v12 (Safe API)
 2026-03-17 13:00:53 | INFO | scanner_engine | Символов: 544 -> После фильтра объема: 219.
 2026-03-17 13:01:28 | INFO | scanner_engine | 🔥 Лидеры лояльности (Строгих: 6): NUMIUSDTM (111.9%), BTRUSDTM (91.1%), AGTUSDTM (88.0%), ZIGUSDTM (87.0%)
+2026-03-17 13:27:49 | INFO | scanner_engine | Сканнер: tf=1m, lookback=55, алгоритм=Barcode_v12 (Safe API)
+2026-03-17 13:27:50 | INFO | scanner_engine | Символов: 544 -> После фильтра объема: 222.
+2026-03-17 13:28:25 | INFO | scanner_engine | 🔥 Лидеры лояльности (Строгих: 0): ZIGUSDTM (127.7%), FHEUSDTM (122.5%), MAGMAUSDTM (118.9%), VOOIUSDTM (118.1%), BOBBOBUSDTM (115.7%)
+2026-03-17 13:35:56 | INFO | scanner_engine | Сканнер: tf=1m, lookback=55, алгоритм=Barcode_v12 (Safe API)
+2026-03-17 13:35:57 | INFO | scanner_engine | Символов: 544 -> После фильтра объема: 223.
+2026-03-17 13:36:23 | INFO | scanner_engine | Сканнер: tf=1m, lookback=55, алгоритм=Barcode_v12 (Safe API)
+2026-03-17 13:36:23 | INFO | scanner_engine | Символов: 544 -> После фильтра объема: 261.
+2026-03-17 13:37:04 | INFO | scanner_engine | 🔥 Лидеры лояльности (Строгих: 0): ZIGUSDTM (107.6%), VOOIUSDTM (99.9%), NUMIUSDTM (99.8%), BSUUSDTM (98.7%), ONUSDTM (94.7%)

@@ -39,7 +39,7 @@ async def run_autotune(cfg_path: str = CFG_PATH):
     if not cfg.benchmark.enable:
         return
 
-    logger.info(f"⚡ БЕНЧМАРК: Снятие мерок с эталона {cfg.benchmark.target_symbol}...")
+    logger.info(f"⚡ БЕНЧМАРК (v14.1): Снятие мерок с эталона {cfg.benchmark.target_symbol}...")
     cache_file = Path(cfg.benchmark.cache_file)
     candles = []
 
@@ -52,7 +52,6 @@ async def run_autotune(cfg_path: str = CFG_PATH):
 
     if not candles:
         logger.info("⚡ БЕНЧМАРК: Кэш пуст. Скачиваем свечи эталона (с запасом для ATR)...")
-        # Делаем запас (буфер) для расчета ATR
         target_start_ms = parse_to_ms_utc(cfg.benchmark.start_time)
         target_end_ms = parse_to_ms_utc(cfg.benchmark.end_time)
         buffer_ms = cfg.filter.atr.period * 60 * 1000 if cfg.filter.atr.enable else 0
@@ -72,7 +71,6 @@ async def run_autotune(cfg_path: str = CFG_PATH):
         logger.error("⚡ БЕНЧМАРК: Провал. Свечи не получены. Проверь даты в конфиге.")
         return
 
-    # Выделяем только целевое окно (без буфера) для основной статистики
     target_start_ms = parse_to_ms_utc(cfg.benchmark.start_time)
     target_candles = [c for c in candles if float(c[0]) >= target_start_ms]
     
@@ -82,12 +80,12 @@ async def run_autotune(cfg_path: str = CFG_PATH):
 
     def get_val(k, idx): return float(k[idx])
     
-    # Считаем ATR по всему скачанному массиву (включая буфер)
     opens_all = np.array([get_val(k, 1) for k in candles])
     highs_all = np.array([get_val(k, 2) for k in candles])
     lows_all = np.array([get_val(k, 3) for k in candles])
     closes_all = np.array([get_val(k, 4) for k in candles])
     
+    # 1. Расчет ATR
     atr_actual_pct = 0.5
     if len(candles) > cfg.filter.atr.period:
         prev_closes = np.roll(closes_all, 1)
@@ -96,54 +94,64 @@ async def run_autotune(cfg_path: str = CFG_PATH):
         tr2 = np.abs(highs_all - prev_closes)
         tr3 = np.abs(lows_all - prev_closes)
         true_range = np.maximum(tr1, np.maximum(tr2, tr3))
-        # Средний ATR на целевом участке
         atr_actual = np.mean(true_range[-len(target_candles):])
         current_close = target_candles[-1][4]
         atr_actual_pct = (atr_actual / float(current_close if current_close > 0 else 1)) * 100.0
 
-    # Остальные метрики считаем ТОЛЬКО по целевому окну
-    opens = np.array([get_val(k, 1) for k in target_candles])
+    # 2. Метрики V14.1 (Ось, Штрих-Дистанция, Пересечения)
     highs = np.array([get_val(k, 2) for k in target_candles])
     lows = np.array([get_val(k, 3) for k in target_candles])
     closes = np.array([get_val(k, 4) for k in target_candles])
 
-    ranges = np.abs(highs - lows)
-    bodies = np.abs(opens - closes)
-    lows_safe = np.where(lows == 0, 1e-8, lows)
-    candle_pcts = (ranges / lows_safe) * 100.0
+    dist_actual_pct = 0.0
+    crosses_pct = 0.0
+    crosses_count = 0
 
-    avg_high, avg_low = np.mean(highs), np.mean(lows)
-    donchian_actual = (np.abs(avg_high - avg_low) / avg_low) * 100.0 if avg_low > 0 else 1.0
+    if len(lows) > 0 and lows[0] > 0:
+        high_pctl = cfg.filter.barcode_pattern.high_matches_pctl
+        low_pctl = 100.0 - cfg.filter.barcode_pattern.low_matches_pctl
+        low_pctl = max(0.0, min(100.0, low_pctl))
 
-    valid_math = (ranges > 0) & (bodies > 0)
-    wick_ratios = np.zeros_like(ranges)
-    wick_ratios[valid_math] = ranges[valid_math] / bodies[valid_math]
+        high_horizont = np.percentile(highs, high_pctl)
+        low_horizont = np.percentile(lows, low_pctl)
+
+        if low_horizont > 0:
+            dist_actual_pct = ((high_horizont - low_horizont) / low_horizont) * 100.0
+            
+            axis = (high_horizont + low_horizont) / 2.0
+            signs = np.sign(closes - axis)
+            signs = signs[signs != 0]
+            if len(signs) > 1:
+                crosses_count = int(np.sum(signs[:-1] != signs[1:]))
+        
+        crosses_pct = (crosses_count / len(target_candles)) * 100.0
+
+    logger.info(f"⚡ ЭТАЛОН: Дистанция {dist_actual_pct:.2f}%, Пересечений {crosses_pct:.1f}% ({crosses_count} шт.), ATR {atr_actual_pct:.2f}%")
     
-    valid_wicks = wick_ratios[wick_ratios > 0]
-    actual_ratio_median = np.median(valid_wicks) if len(valid_wicks) > 0 else 2.0
-    actual_range_median = np.median(candle_pcts)
-
-    # Генерация лимитов
-    new_donchian_min = round(max(0.1, donchian_actual * 0.4), 2)
-    new_donchian_max = round(donchian_actual * 1.6, 2)
-    new_wick_ratio = round(actual_ratio_median * 0.5, 2) 
-    new_min_range = round(actual_range_median * 0.3, 2)
-    new_atr_min = round(max(0.05, atr_actual_pct * 0.4), 2)
+    # 3. Формирование новых лимитов на основе эталона
+    new_min_dist = max(0.5, round(dist_actual_pct * 0.4, 2))
+    new_max_dist = round(dist_actual_pct * 1.8, 2)
+    new_min_crosses = max(10.0, round(crosses_pct * 0.5, 2))  # Хотим хотя бы 50% от эталонного кол-ва пересечений
+    new_atr_min = max(0.5, round(atr_actual_pct * 0.5, 2))
     new_atr_max = round(atr_actual_pct * 2.5, 2)
 
-    logger.info(f"⚡ БЕНЧМАРК: Donchian: {donchian_actual:.2f}%, Wicks: {actual_ratio_median:.2f}, ATR: {atr_actual_pct:.2f}%")
-    
     with open(cfg_path, "r", encoding="utf-8") as f:
         raw_data = json.load(f)
+
+    # Очистка старого технического долга
+    for obsolete_key in ["donchian", "wicks", "narrow_penalty"]:
+        if obsolete_key in raw_data.get("filter", {}):
+            del raw_data["filter"][obsolete_key]
+
+    # Интеграция новых лимитов
+    if "barcode_pattern" not in raw_data["filter"]: 
+        raw_data["filter"]["barcode_pattern"] = {}
         
-    raw_data["filter"]["donchian"]["min_pct"] = new_donchian_min
-    raw_data["filter"]["donchian"]["max_pct"] = new_donchian_max
-    raw_data["filter"]["wicks"]["ratio_threshold"] = new_wick_ratio
-    raw_data["filter"]["wicks"]["candle_range_min_pct"] = new_min_range
-    raw_data["filter"]["narrow_penalty"]["min_range_pct"] = new_min_range
+    raw_data["filter"]["barcode_pattern"]["min_dist_pct"] = new_min_dist
+    raw_data["filter"]["barcode_pattern"]["max_dist_pct"] = new_max_dist
+    raw_data["filter"]["barcode_pattern"]["min_crosses_pct"] = new_min_crosses
     
     if "atr" not in raw_data["filter"]: raw_data["filter"]["atr"] = {}
-    raw_data["filter"]["atr"]["enable"] = True
     raw_data["filter"]["atr"]["min_pct"] = new_atr_min
     raw_data["filter"]["atr"]["max_pct"] = new_atr_max
     
@@ -151,4 +159,4 @@ async def run_autotune(cfg_path: str = CFG_PATH):
     with open(bm_path, "w", encoding="utf-8") as f:
         json.dump(raw_data, f, indent=4)
         
-    logger.info(f"⚡ БЕНЧМАРК: Идеальный конфиг сшит и сохранен в {bm_path}")
+    logger.info(f"⚡ БЕНЧМАРК: V14.1 конфиг сшит и сохранен в {bm_path}")

@@ -1,0 +1,51 @@
+{
+    "_workflow": {
+        "mode": "v12: Historical Benchmark + Independent Penalty + Doji Math"
+    },
+    "app": {
+        "quote": "USDT",
+        "max_symbols": 0,
+        "concurrent_symbols": 5,
+        "top_n": 10,
+        "request_interval_ms": 150,
+        "scan_interval_sec": 600,
+        "screen_once": true,
+        "is_click": true
+    },
+    "benchmark": {
+        "enable": true,
+        "target_symbol": "WILDUSDTM",
+        "start_time": "2026-02-24 21:04:00",
+        "end_time": "2026-02-24 22:00:00",
+        "cache_file": "benchmark_cache.json"
+    },
+    "filter": {
+        "timeframe": "1m",
+        "lookback_candles": 55,
+        "daily_volume": {
+            "enable": true,
+            "min_usdt": 500000.0,
+            "max_usdt": 10000000.0
+        },
+        "atr": {
+            "enable": true,
+            "period": 14,
+            "min_pct": 1.18,
+            "max_pct": 5.91
+        },
+        "barcode_pattern": {
+            "enable": true,
+            "window": 40,
+            "min_dist_pct": 1.66,
+            "max_dist_pct": 7.47,
+            "high_matches_pctl": 90.0,
+            "low_matches_pctl": 90.0,
+            "min_crosses_pct": 20.49
+        },
+        "approximation": {
+            "enable": true,
+            "min_score_pct": 85.0,
+            "top_n": 10
+        }
+    }
+}
