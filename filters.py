@@ -24,7 +24,7 @@ class CalculatingEngine:
             ranges = np.abs(highs - lows)
 
             # ==================================
-            # 0. ATR (Волатильность)
+            # 0. ATR
             # ==================================
             passed_atr = True
             atr_pct = 0.0
@@ -44,10 +44,11 @@ class CalculatingEngine:
                 passed_atr = self.cfg.atr.min_pct <= atr_pct <= self.cfg.atr.max_pct
 
             # ==================================
-            # 1. BARCODE PATTERN (v14: Перцентили и Пила)
+            # 1. BARCODE PATTERN v14.1
             # ==================================
             passed_barcode = True
             barcode_dist_pct = 0.0
+            crosses_pct = 0.0
             high_horizont = 0.0
             low_horizont = 0.0
             crosses = 0
@@ -60,10 +61,8 @@ class CalculatingEngine:
                 eval_closes = closes[-window:] if len(closes) >= window else closes
                 
                 if len(eval_lows) > 0 and eval_lows[0] > 0:
-                    # 1. Верхний уровень: 90-й перцентиль (90% хаев ниже этой линии)
                     high_horizont = np.percentile(eval_highs, self.cfg.barcode_pattern.high_matches_pctl)
                     
-                    # 2. Нижний уровень: Инвертируем перцентиль (100 - 90 = 10-й перцентиль)
                     low_pctl = 100.0 - self.cfg.barcode_pattern.low_matches_pctl
                     low_pctl = max(0.0, min(100.0, low_pctl)) 
                     low_horizont = np.percentile(eval_lows, low_pctl)
@@ -71,35 +70,47 @@ class CalculatingEngine:
                     if low_horizont > 0:
                         barcode_dist_pct = ((high_horizont - low_horizont) / low_horizont) * 100.0
                         
-                        # 3. Доказательство Пилы: сколько раз цена пересекала центральную ось
                         axis = (high_horizont + low_horizont) / 2.0
                         signs = np.sign(eval_closes - axis)
-                        signs = signs[signs != 0] # Убираем нули для чистоты смены знака
+                        signs = signs[signs != 0] 
                         if len(signs) > 1:
                             crosses = int(np.sum(signs[:-1] != signs[1:]))
                     
-                    passed_barcode = barcode_dist_pct >= self.cfg.barcode_pattern.strih_threshold_pct
+                    crosses_pct = (crosses / window) * 100.0 if window > 0 else 0.0
+                    
+                    pass_dist = self.cfg.barcode_pattern.min_dist_pct <= barcode_dist_pct <= self.cfg.barcode_pattern.max_dist_pct
+                    pass_cross = crosses_pct >= self.cfg.barcode_pattern.min_crosses_pct
+                    passed_barcode = pass_dist and pass_cross
                 else:
                     passed_barcode = False
 
             is_strict_pass = passed_barcode and passed_atr
             
             # ==================================
-            # РАСЧЕТ ИНДЕКСА ЛОЯЛЬНОСТИ v14
+            # РАСЧЕТ ИНДЕКСА ЛОЯЛЬНОСТИ v14.1 (Справедливый Скоринг)
             # ==================================
             safe_div = lambda a, b: float(a) / float(b) if b > 0 else 0.0
             
+            # 1. ATR (Чем больше волатильность - тем лучше)
             a_score = safe_div(atr_pct, self.cfg.atr.min_pct) * 100
-            b_score = safe_div(barcode_dist_pct, self.cfg.barcode_pattern.strih_threshold_pct) * 100
             
-            # Бонус за "Мясорубку": если цена пересекала ось > 20% времени (например, 8 раз за 40 свечей)
-            cross_score = safe_div(crosses, (self.cfg.barcode_pattern.window * 0.2)) * 100
+            # 2. ДИСТАНЦИЯ (ИНВЕРСИЯ). Мы ищем ТЕСНЫЙ канал.
+            # Если канал 1.6% (при минимуме 1.5%), он получит 93% скора. Если канал 9.8%, он получит жалкие 15%.
+            if barcode_dist_pct >= self.cfg.barcode_pattern.min_dist_pct:
+                b_score = safe_div(self.cfg.barcode_pattern.min_dist_pct, barcode_dist_pct) * 100
+            else:
+                # Если он слишком узкий (меньше минимума), штрафуем
+                b_score = safe_div(barcode_dist_pct, self.cfg.barcode_pattern.min_dist_pct) * 100
+            
+            # 3. ПЕРЕСЕЧЕНИЯ ОСИ (Главный фактор Пилы)
+            c_score = safe_div(crosses_pct, self.cfg.barcode_pattern.min_crosses_pct) * 100
             
             a_score = min(a_score, 200)
             b_score = min(b_score, 200)
-            cross_score = min(cross_score, 200)
+            c_score = min(c_score, 200)
 
-            approx_score = (a_score + b_score + cross_score) / 3.0
+            # Формула: У Пересечений (c_score) ВЕС x2! Дистанция больше не забивает топ.
+            approx_score = (a_score + b_score + (c_score * 2.0)) / 4.0
 
             return {
                 "passed": is_strict_pass,
@@ -110,7 +121,8 @@ class CalculatingEngine:
                     "atr_pct": float(atr_pct),
                     "high_horizont": float(high_horizont),
                     "low_horizont": float(low_horizont),
-                    "crosses": crosses
+                    "crosses": crosses,
+                    "crosses_pct": float(crosses_pct)
                 },
                 "reason": "strict_match" if is_strict_pass else "near_match"
             }

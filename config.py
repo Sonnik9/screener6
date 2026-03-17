@@ -23,7 +23,7 @@ class ATRConfig:
 
 @dataclass
 class BarcodePatternConfig:
-    enable: bool; window: int; strih_threshold_pct: float; high_matches_pctl: float; low_matches_pctl: float
+    enable: bool; window: int; min_dist_pct: float; max_dist_pct: float; high_matches_pctl: float; low_matches_pctl: float; min_crosses_pct: float
 
 @dataclass
 class ApproximationConfig:
@@ -72,13 +72,15 @@ class ConfigLoader:
         atr_cfg = ATRConfig(**get_block("atr", {"enable": True, "period": 14, "min_pct": 1.5, "max_pct": 15.0}))
         approx_cfg = ApproximationConfig(**get_block("approximation", {"enable": True, "min_score_pct": 75.0, "top_n": 10}))
         
-        # НОВАЯ ВЕРСИЯ ПАТТЕРНА
+        # v14.1: НОВЫЕ ЛИМИТЫ ДЛЯ ПАТТЕРНА
         barcode_cfg = BarcodePatternConfig(**get_block("barcode_pattern", {
             "enable": True, 
             "window": 40, 
-            "strih_threshold_pct": 1.5, 
+            "min_dist_pct": 1.0, 
+            "max_dist_pct": 3.5, 
             "high_matches_pctl": 90.0, 
-            "low_matches_pctl": 90.0
+            "low_matches_pctl": 90.0,
+            "min_crosses_pct": 30.0
         }))
 
         filter_cfg = FilterSection(

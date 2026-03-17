@@ -705,3 +705,15 @@
 2026-03-17 12:29:31 | INFO | main | 🔍 Ближайшие кандидаты v14 выгружены в: C:\Users\User\Desktop\MY_PROG\HP_EliteBook_735\SLAV\Kucoin\BRITVA_SOFTs\scriners\britva_screeners\britva9\screener6\near_links.txt
 2026-03-17 12:29:31 | INFO | main | Авто-запуск кликера для строгих целей...
 2026-03-17 12:29:55 | INFO | main | Режим однократного сканирования. Выход.
+2026-03-17 12:54:26 | INFO | main | Запуск скринера... Базовый конфиг: cfg.json
+2026-03-17 12:55:02 | INFO | main | Найдено строгих целей: 10. Ближайших приближений: 10
+2026-03-17 12:55:02 | INFO | main | ✅ Строгие ссылки сохранены в файл: C:\Users\User\Desktop\MY_PROG\HP_EliteBook_735\SLAV\Kucoin\BRITVA_SOFTs\scriners\britva_screeners\britva9\screener6\target_links.txt
+2026-03-17 12:55:02 | INFO | main | 🔍 Ближайшие кандидаты v14 выгружены в: C:\Users\User\Desktop\MY_PROG\HP_EliteBook_735\SLAV\Kucoin\BRITVA_SOFTs\scriners\britva_screeners\britva9\screener6\near_links.txt
+2026-03-17 12:55:02 | INFO | main | Авто-запуск кликера для строгих целей...
+2026-03-17 12:56:36 | INFO | main | Остановлено пользователем.
+2026-03-17 13:00:52 | INFO | main | Запуск скринера... Базовый конфиг: cfg.json
+2026-03-17 13:01:28 | INFO | main | Найдено строгих целей: 6. Ближайших приближений: 4
+2026-03-17 13:01:28 | INFO | main | ✅ Строгие ссылки сохранены в файл: C:\Users\User\Desktop\MY_PROG\HP_EliteBook_735\SLAV\Kucoin\BRITVA_SOFTs\scriners\britva_screeners\britva9\screener6\target_links.txt
+2026-03-17 13:01:28 | INFO | main | 🔍 Ближайшие кандидаты v14.1 выгружены в: C:\Users\User\Desktop\MY_PROG\HP_EliteBook_735\SLAV\Kucoin\BRITVA_SOFTs\scriners\britva_screeners\britva9\screener6\near_links.txt
+2026-03-17 13:01:28 | INFO | main | Авто-запуск кликера для строгих целей...
+2026-03-17 13:03:56 | INFO | main | Режим однократного сканирования. Выход.
