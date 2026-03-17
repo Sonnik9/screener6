@@ -138,8 +138,8 @@ async def run_autotune(cfg_path: str = CFG_PATH):
     with open(cfg_path, "r", encoding="utf-8") as f:
         raw_data = json.load(f)
 
-    # Очистка старого технического долга
-    for obsolete_key in ["donchian", "wicks", "narrow_penalty"]:
+    # Очистка старого технического долга (NARROW_PENALTY ИСКЛЮЧЕН ИЗ УДАЛЕНИЯ)
+    for obsolete_key in ["donchian", "wicks"]:
         if obsolete_key in raw_data.get("filter", {}):
             del raw_data["filter"][obsolete_key]
 

@@ -30,9 +30,13 @@ class ApproximationConfig:
     enable: bool; min_score_pct: float; top_n: int
 
 @dataclass
+class NarrowPenaltyConfig:
+    enable: bool; min_range_pct: float; max_penalty_pct: float
+
+@dataclass
 class FilterSection:
     timeframe: str; lookback_candles: int
-    daily_volume: DailyVolumeConfig; atr: ATRConfig; barcode_pattern: BarcodePatternConfig; approximation: ApproximationConfig
+    daily_volume: DailyVolumeConfig; atr: ATRConfig; barcode_pattern: BarcodePatternConfig; approximation: ApproximationConfig; narrow_penalty: NarrowPenaltyConfig
 
 @dataclass
 class AppConfig:
@@ -83,10 +87,16 @@ class ConfigLoader:
             "min_crosses_pct": 30.0
         }))
 
+        penalty_cfg = NarrowPenaltyConfig(**get_block("narrow_penalty", {
+            "enable": True, 
+            "min_range_pct": 0.2, 
+            "max_penalty_pct": 20.0
+        }))
+
         filter_cfg = FilterSection(
             timeframe=str(filt_d.get("timeframe", "1m")).lower().strip(),
             lookback_candles=int(filt_d.get("lookback_candles", 40)),
-            daily_volume=vol_cfg, atr=atr_cfg, barcode_pattern=barcode_cfg, approximation=approx_cfg
+            daily_volume=vol_cfg, atr=atr_cfg, barcode_pattern=barcode_cfg, approximation=approx_cfg, narrow_penalty=penalty_cfg
         )
 
         return AppConfig(app=app_cfg, benchmark=bench_cfg, filter=filter_cfg)

@@ -84,32 +84,41 @@ class CalculatingEngine:
                 else:
                     passed_barcode = False
 
-            is_strict_pass = passed_barcode and passed_atr
+            # ==================================
+            # 2. NARROW PENALTY (Штраф за мелкие свечи)
+            # ==================================
+            passed_penalty = True
+            penalty_pct = 0.0
+            
+            if hasattr(self.cfg, 'narrow_penalty') and self.cfg.narrow_penalty.enable:
+                lows_safe = np.where(lows > 0, lows, 1e-8)
+                candles_pct = (ranges / lows_safe) * 100.0
+                
+                narrow_count = int(np.sum(candles_pct < self.cfg.narrow_penalty.min_range_pct))
+                if len(candles_pct) > 0:
+                    penalty_pct = (narrow_count / len(candles_pct)) * 100.0
+                    passed_penalty = penalty_pct <= self.cfg.narrow_penalty.max_penalty_pct
+
+            is_strict_pass = passed_barcode and passed_atr and passed_penalty
             
             # ==================================
-            # РАСЧЕТ ИНДЕКСА ЛОЯЛЬНОСТИ v14.1 (Справедливый Скоринг)
+            # РАСЧЕТ ИНДЕКСА ЛОЯЛЬНОСТИ v14.1
             # ==================================
             safe_div = lambda a, b: float(a) / float(b) if b > 0 else 0.0
             
-            # 1. ATR (Чем больше волатильность - тем лучше)
             a_score = safe_div(atr_pct, self.cfg.atr.min_pct) * 100
             
-            # 2. ДИСТАНЦИЯ (ИНВЕРСИЯ). Мы ищем ТЕСНЫЙ канал.
-            # Если канал 1.6% (при минимуме 1.5%), он получит 93% скора. Если канал 9.8%, он получит жалкие 15%.
             if barcode_dist_pct >= self.cfg.barcode_pattern.min_dist_pct:
                 b_score = safe_div(self.cfg.barcode_pattern.min_dist_pct, barcode_dist_pct) * 100
             else:
-                # Если он слишком узкий (меньше минимума), штрафуем
                 b_score = safe_div(barcode_dist_pct, self.cfg.barcode_pattern.min_dist_pct) * 100
             
-            # 3. ПЕРЕСЕЧЕНИЯ ОСИ (Главный фактор Пилы)
             c_score = safe_div(crosses_pct, self.cfg.barcode_pattern.min_crosses_pct) * 100
             
             a_score = min(a_score, 200)
             b_score = min(b_score, 200)
             c_score = min(c_score, 200)
 
-            # Формула: У Пересечений (c_score) ВЕС x2! Дистанция больше не забивает топ.
             approx_score = (a_score + b_score + (c_score * 2.0)) / 4.0
 
             return {
@@ -122,7 +131,8 @@ class CalculatingEngine:
                     "high_horizont": float(high_horizont),
                     "low_horizont": float(low_horizont),
                     "crosses": crosses,
-                    "crosses_pct": float(crosses_pct)
+                    "crosses_pct": float(crosses_pct),
+                    "penalty_pct": float(penalty_pct)
                 },
                 "reason": "strict_match" if is_strict_pass else "near_match"
             }
