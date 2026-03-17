@@ -8,7 +8,7 @@
     "concurrent_symbols": 5,
     "top_n": 10,
     "request_interval_ms": 150,
-    "scan_interval_sec": 3600,
+    "scan_interval_sec": 600,
     "screen_once": false,
     "is_click": false
   },
@@ -30,7 +30,7 @@
       "daily_volume": {
         "enable": true,
         "min_usdt": 500000.0,
-        "max_usdt": 25000000.0
+        "max_usdt": 30000000.0
       },
       "atr": {
         "enable": true,
@@ -41,7 +41,7 @@
       "barcode_pattern": {
           "enable": true,
           "window": 40,
-          "min_dist_pct": 1.5,
+          "min_dist_pct": 1.0,
           "max_dist_pct": 8.0,
           "high_matches_pctl": 90.0,
           "low_matches_pctl": 90.0,
@@ -49,7 +49,7 @@
       },
       "narrow_penalty": {
         "enable": true,
-        "min_range_pct": 0.20,
+        "min_range_pct": 0.15,
         "max_penalty_pct": 20.0
       },
       "approximation": {

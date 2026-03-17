@@ -39,7 +39,7 @@ class ResultFormatter:
             f"Ссылка: {link}\n"
             f"ATR: {metrics.get('atr_pct', 0):.2f}% | Штрих-Дистанция: {metrics.get('barcode_dist_pct', 0):.2f}%\n"
             f"Ось: {metrics.get('low_horizont', 0):.5g} - {metrics.get('high_horizont', 0):.5g} | "
-            f"Пересечений: {metrics.get('crosses', 0)} ({metrics.get('crosses_pct', 0):.1f}%)\n"
+            f"Пересечений оси: {metrics.get('crosses', 0)} ({metrics.get('crosses_pct', 0):.1f}%)\n"
             f"{'-' * 50}"
         )
 
@@ -56,6 +56,37 @@ class ResultFormatter:
             f"〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️"
         )
 
+    @staticmethod
+    def build_startup_message(cfg: AppConfig, config_source: str) -> str:
+        """Собирает аннотированную сводку настроек для пуша при старте."""
+        f = cfg.filter
+        a = cfg.app
+        
+        msg = (
+            f"🚀 <b>Скринер запущен (v16)</b>\n"
+            f"📁 Конфиг: <code>{config_source}</code>\n\n"
+            f"<b>⚙️ Базовые настройки:</b>\n"
+            f"🔸 Пара: <b>{a.quote}</b> | ТФ: <b>{f.timeframe}</b>\n"
+            f"🔸 Окно анализа: <b>{f.lookback_candles}</b> свечей\n"
+            f"🔸 Пауза между сканами: <b>{a.scan_interval_sec}</b> сек\n\n"
+            f"<b>📊 Активные фильтры:</b>\n"
+        )
+        
+        if f.daily_volume.enable:
+            msg += f"🔹 <b>Объем (24ч):</b> {f.daily_volume.min_usdt:,.0f} - {f.daily_volume.max_usdt:,.0f} $\n"
+        if f.atr.enable:
+            msg += f"🔹 <b>ATR ({f.atr.period}):</b> {f.atr.min_pct}% - {f.atr.max_pct}%\n"
+        if f.barcode_pattern.enable:
+            msg += (f"🔹 <b>Штрихкод (окно {f.barcode_pattern.window}):</b>\n"
+                    f"   ├ Коридор: {f.barcode_pattern.min_dist_pct}% - {f.barcode_pattern.max_dist_pct}%\n"
+                    f"   └ Пересечений оси: &gt;= {f.barcode_pattern.min_crosses_pct}%\n")  # Изменено на &gt;=
+        if hasattr(f, 'narrow_penalty') and f.narrow_penalty.enable:
+            msg += f"🔹 <b>Штраф дожи:</b> свечи &lt; {f.narrow_penalty.min_range_pct}% (допуск {f.narrow_penalty.max_penalty_pct}% шт)\n"  # Изменено на &lt;
+        if f.approximation.enable:
+            msg += f"🔹 <b>Аппроксимация:</b> проход от {f.approximation.min_score_pct}% (ТОП-{cfg.app.top_n})\n"
+            
+        return msg
+
 
 # ==========================================
 # MAIN CORE: Бизнес-логика сканера
@@ -69,11 +100,23 @@ async def run_scanner_cycle(scanner: CandidateScanner, cfg: AppConfig, tg_bot: T
 
     # 1. СТРОГИЕ ЦЕЛИ (Идеальный паттерн)
     if candidates:
+        strict_tg_lines = ["<b>🎯 СТРОГИЕ ЦЕЛЕВЫЕ МОНЕТЫ 🎯</b>\n"]
+        print("\n=== 🎯 СТРОГИЕ ЦЕЛЕВЫЕ МОНЕТЫ 🎯 ===")
+        
         with open(RESULTS_FILE, "w", encoding="utf-8") as f:
             for cand in candidates:
                 sym = ResultFormatter.extract_symbol(cand)
-                f.write(f"{ResultFormatter.get_kucoin_url(sym)}\n")
+                link = ResultFormatter.get_kucoin_url(sym)
+                f.write(f"{link}\n")
+                
+                print(f"✅ {sym} | {link}")
+                strict_tg_lines.append(f"✅ <b>{sym}</b>\n🔗 <a href='{link}'>Открыть график</a>\n〰️〰️〰️〰️〰️〰️〰️〰️〰️〰️")
+                
         logger.info(f"✅ Строгие ссылки сохранены в файл: {RESULTS_FILE}")
+
+        # Пушим целевые монеты в ТГ
+        if tg_bot and cfg.telegram.enable:
+            await tg_bot.send_message("\n".join(strict_tg_lines))
 
         # Интеграция кликера (кликает ТОЛЬКО по строгим!)
         if cfg.app.is_click:
@@ -84,9 +127,9 @@ async def run_scanner_cycle(scanner: CandidateScanner, cfg: AppConfig, tg_bot: T
     if near_candidates:
         top_coins = near_candidates[:cfg.app.top_n]
         
-        # Инициализация буферов вывода
-        file_lines = ["=== ТОП МОНЕТ ПО ИНДЕКСУ ЛОЯЛЬНОСТИ (v16) ===\n"]
-        tg_lines = ["<b>🔥 ТОП МОНЕТ (v16) 🔥</b>\n"]
+        # Инициализация буферов вывода с явными пометками
+        file_lines = ["=== 🔍 ПРИБЛИЖЕННЫЕ МОНЕТЫ (ТОП ПО ИНДЕКСУ v16) ===\n"]
+        tg_lines = ["<b>🔍 ПРИБЛИЖЕННЫЕ МОНЕТЫ (v16) 🔍</b>\n"]
         
         print(f"\n{file_lines[0].strip()}")
         
@@ -132,6 +175,12 @@ async def main():
     # Загружаем рабочий конфиг для инициализации Telegram бота
     active_cfg = load_config(active_cfg_path)
     tg_bot = TelegramSender(active_cfg.telegram.bot_token, active_cfg.telegram.chat_id) if active_cfg.telegram.enable else None
+    
+    # ---> НОВОЕ: ПУШ НАСТРОЕК ПРИ СТАРТЕ <---
+    if tg_bot and active_cfg.telegram.enable:
+        startup_msg = ResultFormatter.build_startup_message(active_cfg, active_cfg_path)
+        await tg_bot.send_message(startup_msg)
+        logger.info("🚀 Стартовое сообщение с настройками отправлено в Telegram.")
     
     while True:
         try:

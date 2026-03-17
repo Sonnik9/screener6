@@ -116,3 +116,22 @@
 2026-03-17 15:22:08 | INFO | scanner_engine | Сканнер: tf=1m, lookback=60, алгоритм=Barcode_v12 (Safe API)
 2026-03-17 15:22:09 | INFO | scanner_engine | Символов: 544 -> После фильтра объема: 262.
 2026-03-17 15:22:51 | INFO | scanner_engine | 🔥 Лидеры лояльности (Строгих: 0): ONUSDTM (108.8%), NUMIUSDTM (94.1%), TRIAUSDTM (92.2%), MAGMAUSDTM (85.6%), VELVETUSDTM (84.3%)
+2026-03-17 15:28:39 | INFO | scanner_engine | Сканнер: tf=1m, lookback=60, алгоритм=Barcode_v12 (Safe API)
+2026-03-17 15:28:40 | INFO | scanner_engine | Символов: 544 -> После фильтра объема: 287.
+2026-03-17 15:29:26 | INFO | scanner_engine | 🔥 Лидеры лояльности (Строгих: 0): ONUSDTM (96.4%)
+2026-03-17 15:31:40 | INFO | scanner_engine | Сканнер: tf=1m, lookback=60, алгоритм=Barcode_v12 (Safe API)
+2026-03-17 15:31:41 | INFO | scanner_engine | Символов: 544 -> После фильтра объема: 287.
+2026-03-17 15:34:22 | INFO | scanner_engine | Сканнер: tf=1m, lookback=60, алгоритм=Barcode_v12 (Safe API)
+2026-03-17 15:34:23 | INFO | scanner_engine | Символов: 544 -> После фильтра объема: 290.
+2026-03-17 15:35:09 | INFO | scanner_engine | 🔥 Лидеры лояльности (Строгих: 0): MAGMAUSDTM (87.3%)
+2026-03-17 15:38:20 | INFO | scanner_engine | Сканнер: tf=1m, lookback=60, алгоритм=Barcode_v12 (Safe API)
+2026-03-17 15:38:20 | INFO | scanner_engine | Символов: 544 -> После фильтра объема: 290.
+2026-03-17 15:41:10 | INFO | scanner_engine | Сканнер: tf=1m, lookback=60, алгоритм=Barcode_v12 (Safe API)
+2026-03-17 15:41:12 | INFO | scanner_engine | Символов: 544 -> После фильтра объема: 290.
+2026-03-17 15:44:35 | INFO | scanner_engine | Сканнер: tf=1m, lookback=60, алгоритм=Barcode_v12 (Safe API)
+2026-03-17 15:44:36 | INFO | scanner_engine | Символов: 544 -> После фильтра объема: 290.
+2026-03-17 15:49:37 | INFO | scanner_engine | Сканнер: tf=1m, lookback=60, алгоритм=Barcode_v12 (Safe API)
+2026-03-17 15:49:38 | INFO | scanner_engine | Символов: 544 -> После фильтра объема: 290.
+2026-03-17 15:50:24 | INFO | scanner_engine | 🔥 Лидеры лояльности (Строгих: 0): ONUSDTM (92.0%), ORDIUSDTM (87.8%)
+2026-03-17 15:51:47 | INFO | scanner_engine | Сканнер: tf=1m, lookback=60, алгоритм=Barcode_v12 (Safe API)
+2026-03-17 15:51:48 | INFO | scanner_engine | Символов: 544 -> После фильтра объема: 290.

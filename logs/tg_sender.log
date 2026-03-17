@@ -1,1 +1,9 @@
 2026-03-17 15:22:54 | INFO | tg_sender | Успешный пуш в Telegram.
+2026-03-17 15:29:26 | INFO | tg_sender | Успешный пуш в Telegram.
+2026-03-17 15:35:10 | INFO | tg_sender | Успешный пуш в Telegram.
+2026-03-17 15:38:19 | ERROR | tg_sender | Ошибка отправки в Telegram: {"ok":false,"error_code":400,"description":"Bad Request: can't parse entities: Unsupported start tag \"\" at byte offset 605"}
+2026-03-17 15:41:10 | INFO | tg_sender | Успешный пуш в Telegram.
+2026-03-17 15:44:35 | INFO | tg_sender | Успешный пуш в Telegram.
+2026-03-17 15:49:37 | INFO | tg_sender | Успешный пуш в Telegram.
+2026-03-17 15:50:24 | INFO | tg_sender | Успешный пуш в Telegram.
+2026-03-17 15:51:47 | INFO | tg_sender | Успешный пуш в Telegram.
