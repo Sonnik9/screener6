@@ -16,12 +16,12 @@
     "enable": false,
     "target_symbol": "WILDUSDTM",
     "start_time": "2026-02-24 21:04:00",
-    "end_time": "2026-02-24 22:04:00",
+    "end_time": "2026-02-24 22:00:00",
     "cache_file": "benchmark_cache.json"
   },
   "filter": {
     "timeframe": "1m",
-    "lookback_candles": 30,
+    "lookback_candles": 60,
     "approximation": {
       "enable": true,
       "min_score_pct": 75.0,
